@@ -17,7 +17,7 @@ sub startup
 	my $conf = sprintf( "%s/etc/haineko.cf", $root->stringify );
 
 	my $hypnotoadc = {
-		'listen' => [ 'http://*:2794', 'https://*:20794' ],
+		'listen' => [ 'http://127.0.0.1:2794', 'https://127.0.0.1:20794' ],
 		'pid_file' => 'run/haineko.pid',
 	};
 	my $serverconf = {
@@ -33,14 +33,16 @@ sub startup
 			},
 		},
 	};
-	my $mailerconf = {
-		'mail' => sprintf( "%s/etc/sendermt", $root->stringify ),
-		'auth' => sprintf( "%s/etc/authinfo", $root->stringify ),
-		'rcpt' => sprintf( "%s/etc/mailertable", $root->stringify ),
-	};
-	my $accessconf = {
-		'conn' => sprintf( "%s/etc/relayhosts", $root->stringify ),
-		'rcpt' => sprintf( "%s/etc/recipients", $root->stringify ),
+	my $tableconf = {
+		'mailer' => {
+			'mail' => sprintf( "%s/etc/sendermt", $root->stringify ),
+			'auth' => sprintf( "%s/etc/authinfo", $root->stringify ),
+			'rcpt' => sprintf( "%s/etc/mailertable", $root->stringify ),
+		},
+		'access' => {
+			'conn' => sprintf( "%s/etc/relayhosts", $root->stringify ),
+			'rcpt' => sprintf( "%s/etc/recipients", $root->stringify ),
+		},
 	};
 
 	# Load configurations
@@ -55,26 +57,24 @@ sub startup
 
 	ROUTINGTABLES_AND_ACCESSCONTROL: {
 		# Override configuration files
-		for my $e ( keys %$mailerconf )
+		for my $d ( keys %$tableconf )
 		{
-			my $f = $serverconf->{'smtpd'}->{'routing'}->{ $e } || q();
-			next unless defined $f;
-			next unless length $f;
+			for my $e ( keys %{ $tableconf->{ $d } } )
+			{
+				my $f = $serverconf->{'smtpd'}->{ $d }->{ $e } // q();
+				my $g = sprintf( "%s/etc/%s", $root->stringify, $f ) unless $f =~ m{\A[/.]};
+				my $i = $g;
+				next unless length $f;
 
-			$f = sprintf( "%s/etc/%s", $root->stringify, $f ) unless $f =~ m{\A[/.]};
-			next if( not -f $f || not -r _ || not -s _ );
-			$mailerconf->{ $e } = $f;
-		}
+				if( $ENV{'HAINEKO_DEBUG'} )
+				{
+					$i = sprintf( "%s-debug", $g );
+					$i = $g unless -f $i;
+				}
 
-		for my $e ( keys %$accessconf )
-		{
-			my $f = $serverconf->{'smtpd'}->{'access'}->{ $e } || q();
-			next unless defined $f;
-			next unless length $f;
-
-			$f = sprintf( "%s/etc/%s", $root->stringify, $f ) unless $f =~ m{\A[/.]};
-			next if( not -f $f || not -r _ || not -s _ );
-			$accessconf->{ $e } = $f;
+				next if( not -f $i || not -r _ || not -s _ );
+				$tableconf->{ $d }->{ $e } = $i;
+			}
 		}
 	}
 
@@ -83,8 +83,8 @@ sub startup
 	$self->session( 'cookie_name' => 'haineko' );
 	$self->session( 'secret' => $serverconf->{'session'}->{'secret'} );
 	$self->defaults( 'cf' => $serverconf->{'smtpd'} ) if exists $serverconf->{'smtpd'};
-	$self->defaults( 'mc' => $mailerconf );
-	$self->defaults( 'rc' => $accessconf );
+	$self->defaults( 'mc' => $tableconf->{'mailer'} );
+	$self->defaults( 'rc' => $tableconf->{'access'} );
 
 	# Helper
 	$self->helper(
@@ -103,7 +103,6 @@ sub startup
 		}
 	);
 	$r->route( '/submit' )->to( 'controller' => 'ctrl-submit', 'action' => 'sendmail' );
-
 }
 
 1;
