@@ -2495,7 +2495,7 @@ done
 done
 IFS=$as_save_IFS
 
-  test -z "$ac_cv_path_CHMOD" && ac_cv_path_CHMOD=":"
+  test -z "$ac_cv_path_CHMOD" && ac_cv_path_CHMOD="no"
   ;;
 esac
 fi
@@ -2542,7 +2542,7 @@ done
 done
 IFS=$as_save_IFS
 
-  test -z "$ac_cv_path_TOUCH" && ac_cv_path_TOUCH=":"
+  test -z "$ac_cv_path_TOUCH" && ac_cv_path_TOUCH="no"
   ;;
 esac
 fi
@@ -2607,9 +2607,9 @@ fi
 
   test -n "$GREP" && break
 done
-test -n "$GREP" || GREP=":"
+test -n "$GREP" || GREP="no"
 
-if test "x$GREP" = x; then
+if test "x$GREP" = xno; then
 	{ { echo "$as_me:$LINENO: error: *** Cannot find grep program(grep, egrep)" >&5
 echo "$as_me: error: *** Cannot find grep program(grep, egrep)" >&2;}
    { (exit 1); exit 1; }; }
@@ -2643,7 +2643,7 @@ done
 done
 IFS=$as_save_IFS
 
-  test -z "$ac_cv_path_FIND" && ac_cv_path_FIND=":"
+  test -z "$ac_cv_path_FIND" && ac_cv_path_FIND="no"
   ;;
 esac
 fi
@@ -2657,7 +2657,7 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
-if test "x$FIND" = x; then
+if test "x$FIND" = xno; then
 	{ { echo "$as_me:$LINENO: error: *** Cannot find find program" >&5
 echo "$as_me: error: *** Cannot find find program" >&2;}
    { (exit 1); exit 1; }; }
@@ -2691,7 +2691,7 @@ done
 done
 IFS=$as_save_IFS
 
-  test -z "$ac_cv_path_SED" && ac_cv_path_SED=":"
+  test -z "$ac_cv_path_SED" && ac_cv_path_SED="no"
   ;;
 esac
 fi
@@ -2705,7 +2705,7 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
-if test "x$SED" = x; then
+if test "x$SED" = xno; then
 	{ { echo "$as_me:$LINENO: error: *** Cannot find sed program" >&5
 echo "$as_me: error: *** Cannot find sed program" >&2;}
    { (exit 1); exit 1; }; }
@@ -2739,7 +2739,7 @@ done
 done
 IFS=$as_save_IFS
 
-  test -z "$ac_cv_path_CPANM" && ac_cv_path_CPANM=":"
+  test -z "$ac_cv_path_CPANM" && ac_cv_path_CPANM="no"
   ;;
 esac
 fi
@@ -2753,7 +2753,7 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
-if test "x$CPANM" = x; then
+if test "x$CPANM" = xno; then
 	{ { echo "$as_me:$LINENO: error: *** Cannot find cpanm program. Try \`\`curl -LO http://xrl.us/cpanm''" >&5
 echo "$as_me: error: *** Cannot find cpanm program. Try \`\`curl -LO http://xrl.us/cpanm''" >&2;}
    { (exit 1); exit 1; }; }
@@ -2796,7 +2796,7 @@ done
 done
 IFS=$as_save_IFS
 
-  test -z "$ac_cv_path_PERL" && ac_cv_path_PERL=":"
+  test -z "$ac_cv_path_PERL" && ac_cv_path_PERL="no"
   ;;
 esac
 fi
@@ -2810,7 +2810,7 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
-	if test "x$PERL" = x; then
+	if test "x$PERL" = xno; then
 		{ { echo "$as_me:$LINENO: error: *** Cannot find perl program" >&5
 echo "$as_me: error: *** Cannot find perl program" >&2;}
    { (exit 1); exit 1; }; }
@@ -2843,7 +2843,7 @@ done
 done
 IFS=$as_save_IFS
 
-  test -z "$ac_cv_path_PERLDOC" && ac_cv_path_PERLDOC=":"
+  test -z "$ac_cv_path_PERLDOC" && ac_cv_path_PERLDOC="no"
   ;;
 esac
 fi
@@ -2857,7 +2857,7 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
-	if test "x$PERLDOC" = x; then
+	if test "x$PERLDOC" = xno; then
 		{ { echo "$as_me:$LINENO: error: *** Cannot find perldoc program" >&5
 echo "$as_me: error: *** Cannot find perldoc program" >&2;}
    { (exit 1); exit 1; }; }
@@ -2890,7 +2890,7 @@ done
 done
 IFS=$as_save_IFS
 
-  test -z "$ac_cv_path_PROVE" && ac_cv_path_PROVE=":"
+  test -z "$ac_cv_path_PROVE" && ac_cv_path_PROVE="no"
   ;;
 esac
 fi
@@ -2904,7 +2904,7 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
-	if test "x$PROVE" = x; then
+	if test "x$PROVE" = xno; then
 		PROVE="$PERL -I./dist/lib -I./dist/lib/perl5"
 	else
 		PROVE="$PROVE -r --timer -I./dist/lib -I./dist/lib/perl5"
@@ -2913,7 +2913,7 @@ else
 	PERL=$WITH_PERLPATH
 	PERLDOC=`dirname $WITH_PERLPATH`/perldoc
 	PROVE=`dirname $WITH_PERLPATH`/prove
-	if test "x$PROVE" = x; then
+	if test "x$PROVE" = xno; then
 		PROVE="$PERL -I./dist/lib -I./dist/lib/perl5"
 	else
 		PROVE="$PROVE -r --timer -I./dist/lib -I./dist/lib/perl5"
