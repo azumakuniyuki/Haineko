@@ -1,7 +1,7 @@
 requires 'Authen::SASL', '2.16';
 requires 'Class::Accessor::Lite', '0.05';
-requires 'DBI', '1.616';
-requires 'DBD::SQLite', '1.35';
+#requires 'DBI', '1.616';
+#requires 'DBD::SQLite', '1.35';
 requires 'Email::MIME', '1.910';
 requires 'Encode', '2.42';
 requires 'IO::Socket::SSL', '1.94';
