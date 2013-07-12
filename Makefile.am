@@ -19,15 +19,11 @@ distclean-am: clean-am
 
 depend:
 	test -d ./dist || mkdir -p ./dist
-	for M in `$(GREP) '^requires' ./cpanfile | sed -e "s/', '/-/g" -e 's/^requires //g' | tr -d ';'`; do \
-		X=`echo $$M | tr '-' ' '`; \
-		Y=`echo $$M | cut -d '-' -f1` ;\
-		$(PERL) -I./dist/lib/perl5 -I@libdir@/ -I@libdir@/perl5 -M$$X -le '' 2> /dev/null || \
-			$(CPANM) -f -L ./dist --installdeps `echo $$Y | cut -d' ' -f1 | tr -d "'"`; \
-	done; 
+	$(CPANM) -f -L ./dist --installdeps .
 
 install-depend:
 	test -d ./dist/lib/perl5 && cp -Rp ./dist/lib/perl5 @libdir@/ || :
+	test -d @libexecdir@ || mkdir -p @libexecdir@
 	for B in morbo hypnotoad; do \
 		X="./dist/bin/$$B"; \
 		test -x $$X && $(INSTALL) -m 0755 $$X @libexecdir@/ || : ;\
@@ -53,7 +49,7 @@ message:
 	@echo "  2. Start HTTPd"
 	@echo "     > cd @prefix@"
 	@echo "     > export PERL5LIB=@libdir@/perl5"
-	@echo "     > ./libexec/morbo --listen 'http://127.0.0.1:2794' -w @libdir@ -w @sysconfdir@ @prefix@/script/haineko"
+	@echo "     > ./libexec/morbo --listen 'http://127.0.0.1:2794' -w ./lib -w ./etc ./script/haineko"
 	@echo "     OR"
 	@echo "     > cd @prefix@"
 	@echo "     > export PERL5LIB=@libdir@/perl5"
