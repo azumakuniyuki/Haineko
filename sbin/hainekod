@@ -1,0 +1,198 @@
+#!/bin/sh
+# $Id: hainekod,v 1.22 2013/02/11 05:09:49 ak Exp $
+# @(#) hainekod(8) - Start and stop haineko server
+# * Read only variables for this script. Do not edit following variables except auther.
+readonly SYSTEMNAME='haineko'		# This system name.
+readonly SERVERPROG='script/haineko'	
+readonly SCRIPTNAME="`basename $0`"	# Called name.
+readonly SERVERROOT="`dirname $0`/.."
+readonly SYSVERSION="0.0.1"		# This system's version number.
+
+export LANG='C'
+export PATH="$SERVERROOT/bin:$SERVERROOT/sbin:$SERVERROOT/libexec:$PATH"
+export LC_CTYPE='C'
+export PERL5LIB="$PERL5LIB:$SERVERROOT/lib/perl5:$SERVERROOT/lib"
+
+# * Error or exit status code. see sysexits.h
+EX_OK=0		# operation completed successfully
+EX_GENERAL=1	# generic error
+EX_USAGE=64	# invalid gguessoe option or argument
+EX_SOFTWARE=70	# internal software error
+EX_OSERR=71	# system error
+EX_OSFILE=72	# critical OS file missing
+EX_CONFIG=78	# gguessoe config | environment error
+EX_NOPERM=77	# permission denied
+
+# * Values which is specified in option
+O_DEBUG=0
+O_HTTPS=0
+O_SERVER="`which hypnotoad`"
+O_PROCID="$SERVERROOT/run/$SYSTEMNAME.pid"
+O_LISTEN=''
+O_HOSTNAME='127.0.0.1'
+O_HTTPDPORT='2794'
+O_HTTPSPORT='2894'
+
+# * Other variables
+
+checkscripts()
+{
+	test -d $SERVERROOT && cd $SERVERROOT || exit $EX_GENERAL
+	test -x $SERVERPROG || exit $EX_GENERAL
+	test -x $O_SERVER || exit $EX_GENERAL
+}
+
+startserver()
+{
+	if [ "$O_DEBUG" = "0" ]; then
+		$O_SERVER $SERVERROOT/$SERVERPROG
+	else
+		O_LISTEN="--listen http://$O_HOSTNAME:$O_HTTPDPORT"
+
+		if [ "$O_HTTPS" = "1" ]; then
+			O_LISTEN="$O_LISTEN --listen https://$O_HOSTNAME:$O_HTTPSPORT"
+		fi
+
+		$O_SERVER $O_LISTEN -w $SERVERROOT/lib -w $SERVERROOT/etc $SERVERPROG
+	fi
+}
+
+stopserver()
+{
+	if [ "$O_DEBUG" = "0" ]; then
+		$O_SERVER --stop $SERVERROOT/$SERVERPROG
+	else
+		ps axuw | grep $SERVERPROG | awk '{ print $2 }' | xargs kill -TERM
+	fi
+}
+
+reloadserver()
+{
+	cd $SERVERROOT
+	if [ "$O_DEBUG" = "0" ]; then
+		if [ -f $O_PROCID ]; then
+			kill -USR2 `cat $O_PROCID`
+		else
+			$0 restart
+		fi
+	else
+		$0 -d restart
+	fi
+}
+
+serverstatus()
+{
+	ps auxww | grep $SERVERPROG | grep -v grep
+}
+
+help()
+{
+	#  _          _       _ 
+	# | |__   ___| |_ __ | |
+	# | '_ \ / _ \ | '_ \| |
+	# | | | |  __/ | |_) |_|
+	# |_| |_|\___|_| .__/(_)
+	#              |_|      
+	echo
+	echo 'usage:'
+	echo " $SCRIPTNAME COMMAND [ OPTION [ARGV] ]"
+	echo
+	echo '  * Commands'
+	echo '     start        : Start server'
+	echo '     stop         : Stop server'
+	echo '     restart      : Restart server'
+	echo '     status       : Show processes'
+	echo
+	echo '  * Daemon options'
+	echo '     -h <host>    : Host name to listen'
+	echo '     -p <port>    : Port number to bind(HTTP), default = '$HTTPDPORT
+	echo '     -P <port>    : Port number to bind(HTTPS), default = '$HTTPSPORT
+	echo '     -s           : Listen on both http and https'
+	echo '     -d           : Debug mode: morbo runs'
+	echo
+	echo '  * Other options'
+	echo '     -H           : Show this screen(help).'
+	echo "     -V           : Print $SCRIPTNAME version"
+	echo 
+
+}
+
+#              _   _                 
+#   ___  _ __ | |_(_) ___  _ __  ___ 
+#  / _ \| '_ \| __| |/ _ \| '_ \/ __|
+# | (_) | |_) | |_| | (_) | | | \__ \
+#  \___/| .__/ \__|_|\___/|_| |_|___/
+#       |_|                          
+while getopts ":dHh:P:p:sV" opt; do
+
+
+	case $opt in
+
+		d)
+			O_DEBUG=1
+			O_SERVER="`which morbo`"
+			export HAINEKO_DEBUG=1
+			;;
+		h)
+			O_HOSTNAME="$OPTARG"
+			;;
+		p)
+			O_HTTPDPORT="$OPTARG"
+			;;
+		P)
+			O_HTTPSPORT="$OPTARG"
+			;;
+		s)
+			O_HTTPS=1
+			;;
+		H)
+			help
+			exit $EX_OK
+			;;
+		V)
+			echo $SYSVERSION
+			exit $EX_OK
+			;;
+		\?|*)
+			help
+			exit $EX_OK
+			;;
+	esac
+done
+
+shift $( expr ${OPTIND} - 1 )
+
+#                                                _ 
+#   ___ ___  _ __ ___  _ __ ___   __ _ _ __   __| |
+#  / __/ _ \| '_ ` _ \| '_ ` _ \ / _` | '_ \ / _` |
+# | (_| (_) | | | | | | | | | | | (_| | | | | (_| |
+#  \___\___/|_| |_| |_|_| |_| |_|\__,_|_| |_|\__,_|
+#                                                  
+case "$1" in
+	start)
+		checkscripts
+		startserver
+		;;
+	stop)
+		stopserver
+		;;
+	restart)
+		stopserver
+		checkscripts
+		startserver
+		;;
+	reload)
+		reloadserver
+		;;
+	status)
+		serverstatus
+		;;
+	help)
+		help
+		;;
+	*)
+		echo "try $SCRIPTNAME help"
+		exit $EX_USAGE
+		;;
+esac
+
