@@ -29,7 +29,7 @@
 #
 default:
   mailer: 'ESMTP'
-  host: '127.0.0.1'
+  host: '192.0.2.222'
   port: 25
   auth: ''
   retry: 0
