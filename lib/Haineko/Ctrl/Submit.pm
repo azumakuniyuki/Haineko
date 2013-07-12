@@ -466,7 +466,6 @@ sub sendmail
 
 				Module::Load::load('Haineko::Relay::ESMTP');
 				$smtpmailer = Haineko::Relay::ESMTP->new( %$methodargv );
-				$smtpmailer->debug(1);
 
 				if( $relayingto->{'auth'} )
 				{
