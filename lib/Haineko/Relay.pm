@@ -2,10 +2,6 @@ package Haineko::Relay;
 use strict;
 use warnings;
 use Class::Accessor::Lite;
-use Haineko::Response;
-use Haineko::Greeting;
-use Email::MIME;
-use Encode;
 
 my $rwaccessors = [
 	'mail',		# (String) Envelope from

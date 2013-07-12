@@ -2,6 +2,10 @@ package Haineko::Relay::ESMTP;
 use parent 'Haineko::Relay';
 use Net::SMTP;
 use Module::Load;
+use Haineko::Response;
+use Haineko::Greeting;
+use Email::MIME;
+use Encode;
 
 sub new
 {

@@ -5,6 +5,8 @@ use warnings;
 use Furl;
 use JSON::Syck;
 use Time::Piece;
+use Haineko::Response;
+use Encode;
 
 sub new
 {
