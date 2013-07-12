@@ -51,8 +51,10 @@ message:
 	@echo
 	@echo "  1. Edit @sysconfdir@/haineko.cf and other routing table files"
 	@echo "  2. Start HTTPd"
+	@echo "     > export PERL5LIB=@libdir@/perl5"
 	@echo "     > morbo --listen 'http://127.0.0.1:2794' -w @libdir@ -w @sysconfdir@ @prefix@/script/haineko"
 	@echo "     OR"
+	@echo "     > export PERL5LIB=@libdir@/perl5"
 	@echo "     > hypnotoad @prefix@/script/haineko"
 	@echo "  3. Connect http://127.0.0.1:2794"
 	@echo
