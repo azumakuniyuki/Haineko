@@ -1,2 +1,8 @@
-log
-tmp
+/autom4te.cache
+/dist
+/etc/*-debug
+/log
+/nytprof.out
+/nytprof
+/tmp
+/templates/
