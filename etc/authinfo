@@ -4,7 +4,9 @@
 # | (_| | |_| | |_| | | | | | | |  _| (_) |
 #  \__,_|\__,_|\__|_| |_|_|_| |_|_|  \___/ 
 #                                          
-# Desciption: Credentials for SMTP-AUTH at relaying to external SMTP server
+# Desciption: authinfo provide credentials for client side authentication 
+#             information. Credentials defined in this file are used at relaying
+#             an email to external SMTP server.
 # Syntax:
 #   key:
 #     username: Username for SMTP-AUTH
