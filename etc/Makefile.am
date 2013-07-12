@@ -21,5 +21,5 @@ install-am: distconf
 	done
 
 clean-am:
-	true
+	:
 

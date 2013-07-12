@@ -21,5 +21,5 @@ uninstall-am:
 	rm -f $(pkgdatadir)/*.pm
 
 clean-am:
-	true
+	:
 

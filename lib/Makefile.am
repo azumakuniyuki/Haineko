@@ -19,6 +19,6 @@ uninstall-am:
 	rm -f $(instdir)/$(modules)
 
 clean-am:
-	true
+	:
 
 

@@ -21,4 +21,4 @@ uninstall-am:
 	done
 
 clean-am:
-	true
+	:
