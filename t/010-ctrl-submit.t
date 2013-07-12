@@ -75,7 +75,7 @@ RCPT: {
 	$j = { 
 		'ehlo' => 'example.jp', 
 		'mail' => 'kijitora@example.jp', 
-		'rcpt' => '1@example.jp,2@example.jp,3@example.jp,4@example.jp,5@example.jp',
+		'rcpt' => '1@example.org,2@example.org,3@example.org,4@example.org,5@example.org',
 	};
 	$r = $t->post_ok( '/submit', 'form' => $j );
 	ok $r->json_is( '/smtp.response/dsn', '4.5.3' );
