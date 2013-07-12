@@ -72,7 +72,7 @@ A. Run at the source directory
 	$ vi ./etc/haineko.cf
 	$ vi ./etc/mailertable
 	$ vi ./etc/authinfo
-	$ ./sbin/hainekod start
+	$ morbo --listen 'http://127.0.0.1:2794' -w ./lib -w ./etc script/haineko
 
 	OR
 
@@ -90,7 +90,7 @@ B. Build and install into /usr/local/haineko or other directory
 	$ sudo vi etc/mailertable
 	$ sudo vi etc/authinfo
 
-	$ ./sbin/hainekod start
+	$ morbo --listen 'http://127.0.0.1:2794' -w ./lib -w ./etc script/haineko
 
 	OR
 
@@ -126,6 +126,18 @@ Permitted hosts or network table for relaying via /submit.
 ## etc/recipients
 Permitted envelope recipients and domains for relaying via /submit.
 
+Special notes for OpenBSD
+-------------------------
+If you look error messages like following at running configure,
+
+	Provide an AUTOCONF_VERSION environment variable, please
+	aclocal-1.10: autom4te failed with exit status: 127
+	*** Error code 1
+
+Set AUTOCONF_VERSION environment variable.
+
+	$ export AUTOCONF_VERSION=2.60
+
 
 REPOSITORY
 ----------
@@ -140,4 +152,5 @@ LICENSE
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
+
 

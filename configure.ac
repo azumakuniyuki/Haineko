@@ -95,6 +95,5 @@ AC_CONFIG_FILES([Makefile
 		lib/Haineko/Makefile
 		lib/Haineko/Ctrl/Makefile
 		lib/Haineko/Relay/Makefile
-		sbin/Makefile
 		script/Makefile])
 AC_OUTPUT

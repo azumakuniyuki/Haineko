@@ -2920,7 +2920,7 @@ else
 	fi
 fi
 
-ac_config_files="$ac_config_files Makefile etc/Makefile lib/Makefile lib/Haineko/Makefile lib/Haineko/Ctrl/Makefile lib/Haineko/Relay/Makefile sbin/Makefile script/Makefile"
+ac_config_files="$ac_config_files Makefile etc/Makefile lib/Makefile lib/Haineko/Makefile lib/Haineko/Ctrl/Makefile lib/Haineko/Relay/Makefile script/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -3497,7 +3497,6 @@ do
     "lib/Haineko/Makefile") CONFIG_FILES="$CONFIG_FILES lib/Haineko/Makefile" ;;
     "lib/Haineko/Ctrl/Makefile") CONFIG_FILES="$CONFIG_FILES lib/Haineko/Ctrl/Makefile" ;;
     "lib/Haineko/Relay/Makefile") CONFIG_FILES="$CONFIG_FILES lib/Haineko/Relay/Makefile" ;;
-    "sbin/Makefile") CONFIG_FILES="$CONFIG_FILES sbin/Makefile" ;;
     "script/Makefile") CONFIG_FILES="$CONFIG_FILES script/Makefile" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5

@@ -2,7 +2,7 @@
 # Copyright (C) 2013 azumakuniyuki
 SYSTEMNAME = Haineko
 SYSVERSION = 0.0.1
-SUBDIRS = etc lib script sbin
+SUBDIRS = etc lib script
 
 .PHONY: clean
 all-am: depend Makefile
@@ -23,18 +23,18 @@ depend:
 		X=`echo $$M | tr '-' ' '`; \
 		Y=`echo $$M | cut -d '-' -f1` ;\
 		$(PERL) -I./dist/lib/perl5 -I@libdir@/ -I@libdir@/perl5 -M$$X -le '' 2> /dev/null || \
-			$(CPANM) -L ./dist --installdeps `echo $$Y | cut -d' ' -f1 | tr -d "'"`; \
+			$(CPANM) -f -L ./dist --installdeps `echo $$Y | cut -d' ' -f1 | tr -d "'"`; \
 	done; 
 
 install-depend:
 	cp -Rp ./dist/lib/perl5 @libdir@/
 	for B in morbo hypnotoad; do \
 		X="./dist/bin/$$B"; \
-		test -x $$X && $(INSTALL) -m 0755 $$X @libexecdir@/ || ture ;\
+		test -x $$X && $(INSTALL) -m 0755 $$X @libexecdir@/ || : ;\
 	done
 
 test:
-	$(PROVE) -I@prefix@/lib/perl5
+	$(PROVE) -I@prefix@/lib/perl5 t/
 
 subdirectories:
 	mkdir -pm 0755 @localstatedir@/db
@@ -50,7 +50,10 @@ message:
 	@echo " Setting up $(SYSTEMNAME)"
 	@echo
 	@echo "  1. Edit @sysconfdir@/haineko.cf and other routing table files"
-	@echo "  2. @sbindir@/hainekod start"
+	@echo "  2. Start HTTPd"
+	@echo "     > morbo --listen 'http://127.0.0.1:2794' -w @libdir@ -w @sysconfdir@ @prefix@/script/haineko"
+	@echo "     OR"
+	@echo "     > hypnotoad @prefix@/script/haineko"
 	@echo "  3. Connect http://127.0.0.1:2794"
 	@echo
 	@echo "-----------------------------------------------------------------------------"
