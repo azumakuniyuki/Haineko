@@ -506,10 +506,16 @@ sub sendmail
 				$smtpmailer->getbounce();
 				$neko->response( $smtpmailer->response );
 			}
+			elsif( $relayingto->{'mailer'} eq 'Discard' )
+			{
+				Module::Load::load('Haineko::Relay::Discard');
+				$smtpmailer = Haineko::Relay::Discard->new;
+				$smtpmailer->sendmail();
+				$neko->response( $smtpmailer->response );
+			}
 			else
 			{
-#use Data::Dumper; warn Dumper $neko;
-
+				;
 			}
 		}
 
