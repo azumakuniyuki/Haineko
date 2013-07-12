@@ -48,7 +48,7 @@ INSTANCE_METHODS: {
 	is( $o->timeout, 2, '->timeout => 2' );
 	is( $o->username, undef, '->username => undef' );
 	is( $o->password, undef, '->password => undef' );
-	is( $o->retry, 0, '->retry => 1');
+	is( $o->retry, 0, '->retry => 0');
 	is( $o->sleep, 1, '->sleep => 1');
 	is( $o->sendmail, 0, '->sendmail => 0' );
 	is( $o->getbounce, 0, '->getbounce => 0' );
