@@ -4,7 +4,7 @@ SUBDIRS = Ctrl Relay
 distdir = $(BUILDROOT)/dist/lib/Haineko
 instdir = @libdir@/Haineko
 pkgdatadir = @libdir@/Haineko
-pkgdata_DATA = Address.pm Data.pm Greeting.pm Log.pm RFC5321.pm RFC5322.pm \
+pkgdata_DATA = Address.pm Greeting.pm Log.pm RFC5321.pm RFC5322.pm \
 		Relay.pm Response.pm Session.pm
 
 .PHONY: clean
