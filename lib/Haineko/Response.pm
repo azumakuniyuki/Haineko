@@ -183,6 +183,11 @@ my $Replies = {
 			'code' => 500,
 			'message' => [ 'Subject header is empty' ],
 		},
+		'discard' => {
+			'dsn' => undef,
+			'code' => 200,
+			'message' => [ 'Discard' ],
+		},
 	},
 	'rset' => {
 		'ok' => {	# 250 2.0.0 Reset state
