@@ -5,7 +5,7 @@ SYSVERSION = 0.0.1
 SUBDIRS = etc lib script
 
 .PHONY: clean
-all-am: depend Makefile
+all-am: Makefile
 install-am: subdirectories install-depend message
 
 clean-am:
@@ -27,7 +27,7 @@ depend:
 	done; 
 
 install-depend:
-	cp -Rp ./dist/lib/perl5 @libdir@/
+	test -d ./dist/lib/perl5 && cp -Rp ./dist/lib/perl5 @libdir@/ || :
 	for B in morbo hypnotoad; do \
 		X="./dist/bin/$$B"; \
 		test -x $$X && $(INSTALL) -m 0755 $$X @libexecdir@/ || : ;\
