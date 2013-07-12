@@ -83,6 +83,11 @@ B. Build and install into /usr/local/haineko or other directory
 
 	$ cd ./Haineko
 	$ sh configure --prefix=/path/to/dir (default=/usr/local/haineko)
+
+	$ cpanm -L./dist --installdeps .
+	  OR
+	$ make depend
+
 	$ make && make test && sudo make install
 
 	$ cd /usr/local/haineko
@@ -90,7 +95,9 @@ B. Build and install into /usr/local/haineko or other directory
 	$ sudo vi etc/mailertable
 	$ sudo vi etc/authinfo
 
-	$ morbo --listen 'http://127.0.0.1:2794' -w ./lib -w ./etc script/haineko
+	$ cd /usr/local/haineko
+	$ export PERL5LIB=/usr/local/haineko/lib/perl5
+	$ ./libexec/morbo --listen 'http://127.0.0.1:2794' -w ./lib -w ./etc script/haineko
 
 	OR
 
