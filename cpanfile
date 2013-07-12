@@ -21,5 +21,5 @@ on test => sub {
 };
 
 on develop => sub {
-	requires 'Test::UsedModules', '0.02';
+	requires 'Test::UsedModules', '0.03';
 };
