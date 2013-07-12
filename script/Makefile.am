@@ -2,7 +2,7 @@
 # Copyright (C) 2013 azumakuniyuki
 bin_SCRIPTS = haineko
 distdir = $(BUILDROOT)/dist/script
-instdir = @bindir@
+instdir = @prefix@/script
 
 .PHONY: clean
 all-am:

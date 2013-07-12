@@ -144,7 +144,7 @@ top_srcdir = @top_srcdir@
 # Copyright (C) 2013 azumakuniyuki
 bin_SCRIPTS = haineko
 distdir = $(BUILDROOT)/dist/script
-instdir = @bindir@
+instdir = @prefix@/script
 all: all-am
 
 .SUFFIXES:
