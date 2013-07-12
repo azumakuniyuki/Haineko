@@ -17,3 +17,5 @@ my $f = [ qw|
 | ];
 
 for my $e ( @$f ){ used_modules_ok( 'lib/Haineko/'.$e ); }
+
+done_testing;
