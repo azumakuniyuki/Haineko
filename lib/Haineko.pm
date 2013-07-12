@@ -2,9 +2,7 @@ package Haineko;
 use 5.010001;
 use Mojo::Base 'Mojolicious';
 use Path::Class;
-use Time::Piece;
 use JSON::Syck;
-use Data::Dumper;
 
 our $VERSION = '0.0.1';
 our $SYSNAME = 'Haineko';
@@ -17,8 +15,10 @@ sub startup
 	my $conf = sprintf( "%s/etc/haineko.cf", $root->stringify );
 
 	my $hypnotoadc = {
-		'listen' => [ 'http://127.0.0.1:2794', 'https://127.0.0.1:20794' ],
-		'pid_file' => 'run/haineko.pid',
+		'hypnotoad' => {
+			'listen' => [ 'http://127.0.0.1:2794', 'https://127.0.0.1:20794' ],
+			'pid_file' => sprintf( "%s/run/haineko.pid", $root->stringify ),
+		}
 	};
 	my $serverconf = {
 		'smtpd' => { 
@@ -78,7 +78,7 @@ sub startup
 		}
 	}
 
-	$self->config( 'hypnotoad' => $hypnotoadc );
+	$self->config( 'hypnotoad' => $hypnotoadc->{'hypnotoad'} );
 	$self->session( 'default_expiration' => $serverconf->{'session'}->{'expires'} );
 	$self->session( 'cookie_name' => 'haineko' );
 	$self->session( 'secret' => $serverconf->{'session'}->{'secret'} );
@@ -172,26 +172,38 @@ following:
 
 =head1 CONFIGURATION FILES
 
+	These files are read from Haineko as a YAML-formatted file.
+
 =head2 etc/haineko.cf
 
 	Main configuration file for Haineko.
 
 =head2 etc/mailertable
 
-	Recipient's domain part based routing table. This file is taken precedence
-	over the routing table defined in etc/sendermt for deciding the route.
+	Defines "mailer table": Recipient's domain part based routing table like the 
+	same named file in Sendmail. This file is taken precedence over the routing 
+	table defined in etc/sendermt for deciding the mailer.
 
 =head2 etc/sendermt
 
-	Sender's domain part based routing table.
+	Defines "mailer table" which decide the mailer by sender's domain part.
 
 =head2 etc/authinfo
 
-	Credential information for SMTP-AUTH.
+	Provide credentials for client side authentication information. 
+	Credentials defined in this file are used at relaying an email to external
+	SMTP server.
 
-=head2 etc/relayhost
+	This file should be set secure permission: The only user who runs haineko
+	server can read this file.
 
-	Permitted hosts or network table for relaying via /submit
+=head2 etc/relayhosts
+
+	Permitted hosts or network table for relaying via /submit.
+
+=head2 etc/recipients
+
+	Permitted envelope recipients and domains for relaying via /submit.
 
 =head1 REPOSITORY
 
