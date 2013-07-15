@@ -115,6 +115,7 @@ sub w {
     for my $e ( keys %$mesg ) {
 
         next if ref $mesg->{ $e };
+        next unless $mesg->{ $e };
         $text = $mesg->{ $e };
         $text = sprintf( "'%s'", $text ) if $text =~ m/\s/;
         push @$logs, sprintf( "%s=%s", $e, $text );
