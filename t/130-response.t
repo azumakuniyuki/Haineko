@@ -26,6 +26,7 @@ CLASS_METHODS: {
 
     $r = {
         'conn' => [ qw/ok cannot-connect/ ],
+        'http' => [ qw/method-not-supported malformed-json/ ],
         'ehlo' => [ qw/invalid-domain require-domain helo-first/ ],
         'auth' => [ qw/
                     no-checkrelay access-denied cannot-decode auth-failed 
