@@ -1,9 +1,3 @@
-#  _   _         ____                                      
-# | | | |  _ _  |  _ \ ___  ___ _ __   ___  _ __  ___  ___ 
-# | |_| | (_|_) | |_) / _ \/ __| '_ \ / _ \| '_ \/ __|/ _ \
-# |  _  |  _ _  |  _ <  __/\__ \ |_) | (_) | | | \__ \  __/
-# |_| |_| (_|_) |_| \_\___||___/ .__/ \___/|_| |_|___/\___|
-#                              |_|                         
 package Haineko::Response;
 use strict;
 use warnings;
@@ -28,19 +22,14 @@ my $Replies = {
             'code' => 220,
             'message' => [ 'ESMTP Haineko' ],
         },
-        'no-checkrelay' => {
-            'dsn' => '5.7.4',
-            'code' => 500,
-            'message' => [ 'Security features not supported' ],
-        },
-        'access-denied' => {
-            'dsn' => '5.7.1',
-            'code' => 500,
-            'message' => [ 'Access denied' ],
+        'method-not-supported' => {
+            'dsn' => undef,
+            'code' => 421,
+            'message' => [ 'GET method not supported' ],
         },
         'cannot-connect' => {
             'dsn' => undef,
-            'code' => 400,
+            'code' => 421,
             'message' => [ 'Cannot connect SMTP Server' ],
         },
     },
@@ -62,6 +51,16 @@ my $Replies = {
         },
     },
     'auth' => {
+        'no-checkrelay' => {
+            'dsn' => '5.7.4',
+            'code' => 500,
+            'message' => [ 'Security features not supported' ],
+        },
+        'access-denied' => {
+            'dsn' => '5.7.1',
+            'code' => 500,
+            'message' => [ 'Access denied' ],
+        },
         'cannot-decode' => {    # 501 5.5.4 cannot decode AUTH parameter
             'dsn' => '5.5.4',
             'code' => 501,
@@ -270,7 +269,9 @@ sub p {
     $lines = ref $argvs->{'message'} eq 'ARRAY' ? $argvs->{'message'} : [ $argvs->{'message'} ];
     while( my $r = shift @$lines ) {
 
-        chomp $r;
+        $r =~ s|\r\n||g;
+        $r =~ s|\A *||;
+        $r =~ s| *\z||;
         $nekor->{'dsn'} = $1 if $r =~ /\b([2345][.]\d[.]\d+)\b/;
         $nekor->{'code'} = $1 if $r =~ /\b([2345]\d\d)\b/;
         push @{ $nekor->{'message'} }, $r;
