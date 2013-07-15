@@ -6,7 +6,7 @@ readonly SYSTEMNAME='haineko'		# This system name.
 readonly SERVERPROG='script/haineko'	
 readonly SCRIPTNAME="`basename $0`"	# Called name.
 readonly SERVERROOT="`dirname $0`/.."
-readonly SYSVERSION="0.0.1"		# This system's version number.
+readonly SYSVERSION="0.0.2"		# This system's version number.
 
 export LANG='C'
 export PATH="$SERVERROOT/bin:$SERVERROOT/sbin:$SERVERROOT/libexec:$PATH"
