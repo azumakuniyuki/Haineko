@@ -1,5 +1,14 @@
 Revision history for Haineko
 
-0.0.1	Sat, 13 Jul 2013 05:22:22 +0900 (JST)
-	- First release for my presentation at Kyoto.pm 05 Tech Talks.
+0.0.2   Tue, 16 Jul 2013 05:22:22 +0900 (JST)
+    - GET method support has been removed. Haineko only receive email data via 
+      POST method and as a JSON format. 
+      Thank to @nekokak.
+    - As follow as possible ``perl style'': indent style has been changed from 
+      8 width tab to 4 space characters and position of left curly brace ``{'' 
+      for beginning each block and subroutine is the end of a line. 
+      Thanks to @songmu.
+
+0.0.1   Sat, 13 Jul 2013 05:22:22 +0900 (JST)
+    - First release for my presentation at Kyoto.pm 05 Tech Talks.
 
