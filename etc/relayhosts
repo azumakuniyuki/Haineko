@@ -7,15 +7,15 @@
 #           
 # Description: Permit to relay for defined hosts and networks
 # Syntax:
-#   127.0.0.1		OK, Single host
-#   192.0.2.0/24	OK, Network block
-#   0.0.0.0/0		OK, Open relay
+#   127.0.0.1       OK, Single host
+#   192.0.2.0/24    OK, Network block
+#   0.0.0.0/0       OK, Open relay
 #
 # If the value of 'open-relay' is 1, Haineko does not check an client ip address
 # (REMOTE_HOST HTTP Environment variable) with relayhosts values.
 #
 open-relay: 0
 relayhosts:
-  - '127.0.0.1'
-  - '192.0.2.0/24'
+    - '127.0.0.1'
+    - '192.0.2.0/24'
 

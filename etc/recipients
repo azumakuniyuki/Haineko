@@ -14,9 +14,9 @@
 #
 open-relay: 0
 domainpart:
-  - 'example.org'
+    - 'example.org'
 
 recipients:
-  - 'sabatora@example.jp'
-  - 'mi-chan@example.org'
+    - 'sabatora@example.jp'
+    - 'mi-chan@example.org'
 

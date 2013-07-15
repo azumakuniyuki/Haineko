@@ -7,172 +7,167 @@ use Haineko::Greeting;
 use Email::MIME;
 use Encode;
 
-sub new
-{
-	my $class = shift;
-	my $argvs = { @_ };
+sub new {
+    my $class = shift;
+    my $argvs = { @_ };
 
-	$argvs->{'sleep'} ||= 5;
-	$argvs->{'timeout'} ||= 30;
-	return bless $argvs, __PACKAGE__;
+    $argvs->{'sleep'}   ||= 5;
+    $argvs->{'timeout'} ||= 30;
+    return bless $argvs, __PACKAGE__;
 }
 
-sub sendmail
-{
-	my $self = shift;
+sub sendmail {
+    my $self = shift;
 
-	my $esmtpclass = $self->{'starttls'} ? 'Net::SMTPS' : 'Net::SMTP';
-	my $headerlist = [];
-	my $emencoding = uc $self->{'attr'}->{'charset'} || 'UTF-8';
-	my $methodargv = {
-		'body' => Encode::encode( $emencoding, ${ $self->{'body'} } ),
-		'attributes' => $self->{'attr'},
-	};
-	utf8::decode $methodargv->{'body'} unless utf8::is_utf8 $methodargv->{'body'} ;
+    my $esmtpclass = $self->{'starttls'} ? 'Net::SMTPS' : 'Net::SMTP';
+    my $headerlist = [];
+    my $emencoding = uc $self->{'attr'}->{'charset'} || 'UTF-8';
+    my $methodargv = {
+        'body' => Encode::encode( $emencoding, ${ $self->{'body'} } ),
+        'attributes' => $self->{'attr'},
+    };
+    utf8::decode $methodargv->{'body'} unless utf8::is_utf8 $methodargv->{'body'} ;
 
-	# Convert email headers
-	for my $e ( @{ $self->{'head'}->{'Received'} } )
-	{
-		push @$headerlist, 'Received' => $e;
-	}
-	push @$headerlist, 'To' => $self->{'rcpt'};
+    # Convert email headers
+    for my $e ( @{ $self->{'head'}->{'Received'} } ) {
 
-	for my $e ( keys %{ $self->{'head'} } )
-	{
-		next if $e eq 'Received';
-		next if $e eq 'MIME-Version';
-		if( ref $self->{'head'}->{ $e } eq 'ARRAY' )
-		{
-			for my $f ( @{ $self->{'head'}->{ $e } } )
-			{
-				push @$headerlist, $e => $f;
-			}
-		}
-		else
-		{
-			push @$headerlist, $e => $self->{'head'}->{ $e };
-		}
-	}
-	$methodargv->{'header'} = $headerlist;
+        push @$headerlist, 'Received' => $e;
+    }
+    push @$headerlist, 'To' => $self->{'rcpt'};
 
-	my $mimeobject = Email::MIME->create( %$methodargv );
-	my $mailstring = $mimeobject->as_string;
-	my $maillength = length $mailstring;
+    for my $e ( keys %{ $self->{'head'} } ) {
 
-	my $smtpparams = {
-		'Port' => $self->{'port'},
-		'Hello' => $self->{'ehlo'},
-		'Debug' => $self->{'debug'} || 0,
-		'Timeout' => $self->{'timeout'} || 30,
-	};
+        next if $e eq 'Received';
+        next if $e eq 'MIME-Version';
 
-	if( $self->{'starttls'} )
-	{
-		Module::Load::load('Net::SMTPS');
-		$smtpparams->{'doSSL'} = 'starttls';
-		$smtpparams->{'SSL_verify_mode'} = 'SSL_VERIFY_NONE';
-	}
+        if( ref $self->{'head'}->{ $e } eq 'ARRAY' ) {
 
-	my $netsmtpobj = undef;
-	my $authensasl = undef;
-	my $nekogreets = undef;
-	my $smtpstatus = 0;
-	my $thecommand = q();
-	my $pipelining = q();
-	my $retryuntil = $self->{'retry'} || 0;
+            for my $f ( @{ $self->{'head'}->{ $e } } ) {
+                push @$headerlist, $e => $f;
+            }
+        }
+        else { 
+            push @$headerlist, $e => $self->{'head'}->{ $e };
+        }
+    }
+    $methodargv->{'header'} = $headerlist;
 
-	my $sendmailto = sub {
+    my $mimeobject = Email::MIME->create( %$methodargv );
+    my $mailstring = $mimeobject->as_string;
+    my $maillength = length $mailstring;
 
-		$thecommand = 'ehlo';
-		return 0 unless $netsmtpobj = $esmtpclass->new( $self->{'host'}, %$smtpparams );
-		$nekogreets = Haineko::Greeting->new( $netsmtpobj->message );
+    my $smtpparams = {
+        'Port' => $self->{'port'},
+        'Hello' => $self->{'ehlo'},
+        'Debug' => $self->{'debug'} || 0,
+        'Timeout' => $self->{'timeout'} || 30,
+    };
 
-		# SMTP-AUTH
-		if( $nekogreets->auth && $self->{'auth'} )
-		{
-			require Authen::SASL;
-			$authensasl = Authen::SASL->new( 
-				'mechanism' => join( ' ', @{ $nekogreets->mechanism } ),
-				'callback'  => { 
-					'user' => $self->{'username'}, 
-					'pass' => $self->{'password'},
-					'authname' => $self->{'username'}, 
-				},
-			);
-			$thecommand = 'auth';
-			return 0 unless $netsmtpobj->auth( $authensasl );
-		}
+    if( $self->{'starttls'} ) {
 
-		if( $nekogreets->pipelining )
-		{
-			$thecommand  = 'data';
-			$pipelining  = sprintf( "MAIL FROM: <%s>", $self->{'mail'} );
-			$pipelining .= sprintf( ' RET=FULL' ) if $nekogreets->dsn;
-			$pipelining .= sprintf( " SIZE=%d", $maillength ) if $nekogreets->size;
-			$pipelining .= sprintf( "\r\n" );
-			$pipelining .= sprintf( "RCPT TO: <%s>", $self->{'rcpt'} );
-			$pipelining .= sprintf( ' NOTIFY=FAILURE,DELAY' ) if $nekogreets->dsn;
-			$pipelining .= sprintf( "\r\n" );
-			$pipelining .= sprintf( "DATA\r\n" );
-			$pipelining .= sprintf( "%s", $mailstring );
-			return 0 unless $netsmtpobj->datasend( $pipelining );
-			return 0 unless $netsmtpobj->dataend();
-		}
-		else
-		{
-			my $cmdargvs = [];
-			my $cmdparam = {};
+        Module::Load::load('Net::SMTPS');
+        $smtpparams->{'doSSL'} = 'starttls';
+        $smtpparams->{'SSL_verify_mode'} = 'SSL_VERIFY_NONE';
+    }
 
-			$thecommand = 'mail';
-			$cmdargvs = [ $self->{'mail'} ];
-			$cmdparam->{'Return'} = 'FULL' if $nekogreets->dsn;
-			$cmdparam->{'Size'} = $maillength if $nekogreets->size;
-			push @$cmdargvs, %$cmdparam if keys %$cmdparam;
-			return 0 unless $netsmtpobj->mail( @$cmdargvs );
+    my $netsmtpobj = undef;
+    my $authensasl = undef;
+    my $nekogreets = undef;
+    my $smtpstatus = 0;
+    my $thecommand = q();
+    my $pipelining = q();
+    my $retryuntil = $self->{'retry'} || 0;
 
-			$thecommand = 'rcpt';
-			$cmdargvs = [ $self->{'rcpt'} ];
-			$cmdparam = {};
-			$cmdparam->{'Notify'} = [ 'FAILURE', 'DELAY' ] if $nekogreets->dsn;
-			push @$cmdargvs, %$cmdparam if keys %$cmdparam;
-			return 0 unless $netsmtpobj->to( @$cmdargvs );
+    my $sendmailto = sub {
 
-			$thecommand = 'data';
-			return 0 unless $netsmtpobj->data();
-			return 0 unless $netsmtpobj->datasend( $mailstring );
-			return 0 unless $netsmtpobj->dataend();
-		}
+        $thecommand = 'ehlo';
+        return 0 unless $netsmtpobj = $esmtpclass->new( $self->{'host'}, %$smtpparams );
+        $nekogreets = Haineko::Greeting->new( $netsmtpobj->message );
 
-		$thecommand = 'QUIT';
-		$smtpstatus = 1;
-		return 1;
-	};
+        # SMTP-AUTH
+        if( $nekogreets->auth && $self->{'auth'} ) {
 
-	while(1)
-	{
-		last if $sendmailto->();
-		last if $retryuntil == 0;
+            require Authen::SASL;
+            $authensasl = Authen::SASL->new( 
+                'mechanism' => join( ' ', @{ $nekogreets->mechanism } ),
+                'callback'  => { 
+                    'user' => $self->{'username'}, 
+                    'pass' => $self->{'password'},
+                    'authname' => $self->{'username'}, 
+                },
+            );
+            $thecommand = 'auth';
+            return 0 unless $netsmtpobj->auth( $authensasl );
+        }
 
-		$netsmtpobj->quit if defined $netsmtpobj;
-		$retryuntil--;
-		sleep $self->{'sleep'};
-	}
+        if( $nekogreets->pipelining ) {
 
-	if( defined $netsmtpobj )
-	{
-		$smtpparams = { 
-			'code' => $netsmtpobj->code,
-			'message' => [ $netsmtpobj->message ],
-			'command' => $thecommand,
-		};
-		$self->response( Haineko::Response->p( %$smtpparams ) );
-		$netsmtpobj->quit;
-	}
-	else
-	{
-		$self->response( Haineko::Response->r( 'conn', 'cannot-connect' ) );
-	}
-	return $smtpstatus;
+            $thecommand  = 'data';
+            $pipelining  = sprintf( "MAIL FROM: <%s>", $self->{'mail'} );
+            $pipelining .= sprintf( ' RET=FULL' ) if $nekogreets->dsn;
+            $pipelining .= sprintf( " SIZE=%d", $maillength ) if $nekogreets->size;
+            $pipelining .= sprintf( "\r\n" );
+            $pipelining .= sprintf( "RCPT TO: <%s>", $self->{'rcpt'} );
+            $pipelining .= sprintf( ' NOTIFY=FAILURE,DELAY' ) if $nekogreets->dsn;
+            $pipelining .= sprintf( "\r\n" );
+            $pipelining .= sprintf( "DATA\r\n" );
+            $pipelining .= sprintf( "%s", $mailstring );
+            return 0 unless $netsmtpobj->datasend( $pipelining );
+            return 0 unless $netsmtpobj->dataend();
+
+        } else {
+
+            my $cmdargvs = [];
+            my $cmdparam = {};
+
+            $thecommand = 'mail';
+            $cmdargvs = [ $self->{'mail'} ];
+            $cmdparam->{'Return'} = 'FULL' if $nekogreets->dsn;
+            $cmdparam->{'Size'} = $maillength if $nekogreets->size;
+            push @$cmdargvs, %$cmdparam if keys %$cmdparam;
+            return 0 unless $netsmtpobj->mail( @$cmdargvs );
+
+            $thecommand = 'rcpt';
+            $cmdargvs = [ $self->{'rcpt'} ];
+            $cmdparam = {};
+            $cmdparam->{'Notify'} = [ 'FAILURE', 'DELAY' ] if $nekogreets->dsn;
+            push @$cmdargvs, %$cmdparam if keys %$cmdparam;
+            return 0 unless $netsmtpobj->to( @$cmdargvs );
+
+            $thecommand = 'data';
+            return 0 unless $netsmtpobj->data();
+            return 0 unless $netsmtpobj->datasend( $mailstring );
+            return 0 unless $netsmtpobj->dataend();
+        }
+
+        $thecommand = 'QUIT';
+        $smtpstatus = 1;
+        return 1;
+    };
+
+    while(1) {
+        last if $sendmailto->();
+        last if $retryuntil == 0;
+
+        $netsmtpobj->quit if defined $netsmtpobj;
+        $retryuntil--;
+        sleep $self->{'sleep'};
+    }
+
+    if( defined $netsmtpobj ) {
+
+        $smtpparams = { 
+            'code' => $netsmtpobj->code,
+            'message' => [ $netsmtpobj->message ],
+            'command' => $thecommand,
+        };
+        $self->response( Haineko::Response->p( %$smtpparams ) );
+        $netsmtpobj->quit;
+
+    } else {
+        $self->response( Haineko::Response->r( 'conn', 'cannot-connect' ) );
+    }
+    return $smtpstatus;
 }
 
 1;
@@ -190,32 +185,32 @@ Send an email to external server using SMTP protocol.
 
 =head1 SYNOPSIS
 
-	use Haineko::Relay::ESMTP;
-	my $h = { 'Subject' => 'Test', 'To' => 'neko@example.org' };
-	my $v = { 
-		'host' => '192.0.2.1', 'port' => 587, 'auth' => 1
-		'username' => 'user', 'password' => 'secret', 'ehlo' => '[127.0.0.1]',
-		'mail' => 'kijitora@example.jp', 'rcpt' => 'neko@example.org',
-		'head' => $h, 'body' => 'Email message',
-	};
-	my $e = Haineko::Relay::ESMTP->new( %$v );
-	my $s = $e->sendmail;
+    use Haineko::Relay::ESMTP;
+    my $h = { 'Subject' => 'Test', 'To' => 'neko@example.org' };
+    my $v = { 
+        'host' => '192.0.2.1', 'port' => 587, 'auth' => 1
+        'username' => 'user', 'password' => 'secret', 'ehlo' => '[127.0.0.1]',
+        'mail' => 'kijitora@example.jp', 'rcpt' => 'neko@example.org',
+        'head' => $h, 'body' => 'Email message',
+    };
+    my $e = Haineko::Relay::ESMTP->new( %$v );
+    my $s = $e->sendmail;
 
-	print $s;			# 0 = Failed to send, 1 = Successfully sent
-	print $e->response->error;	# 0 = No error, 1 = Error
-	print $e->response->dsn;	# returns D.S.N. value
+    print $s;           # 0 = Failed to send, 1 = Successfully sent
+    print $e->response->error;  # 0 = No error, 1 = Error
+    print $e->response->dsn;    # returns D.S.N. value
 
-	warn Data::Dumper::Dumper $e->response;
-	$VAR1 = bless( {
-			 'dsn' => '2.1.0',
-			 'error' => 0,
-			 'code' => '250',
-			 'message' => [
-					'2.0.0 OK Authenticated',
-					'2.1.0 <kijitora@example.jp>... Sender ok'
-				      ],
-			 'command' => 'QUIT'
-		       }, 'Haineko::Response' );
+    warn Data::Dumper::Dumper $e->response;
+    $VAR1 = bless( {
+             'dsn' => '2.1.0',
+             'error' => 0,
+             'code' => '250',
+             'message' => [
+                    '2.0.0 OK Authenticated',
+                    '2.1.0 <kijitora@example.jp>... Sender ok'
+                      ],
+             'command' => 'QUIT'
+               }, 'Haineko::Response' );
 
 =head1 CLASS METHODS
 
@@ -223,26 +218,26 @@ Send an email to external server using SMTP protocol.
 
 new() is a constructor of Haineko::Relay::ESMTP
 
-	my $e = Haineko::Relay::ESMTP->new( 
-			'host' => '192.0.2.1',		# SMTP Server
-			'port' => 587,			# SMTP Port
-			'auth' => 1,			# Use SMTP-AUTH
-			'username' => 'username',	# Username for SMTP-AUTH
-			'password' => 'password',	# Password for the user
-			'starttls' => 0,		# Use STARTTLS or not
-			'timeout' => 59,		# Timeout for Net::SMTP
-			'debug' => 0,			# Debug for Net::SMTP
-			'attr' => {			# Args for Email::MIME
-				'content_type' => 'text/plain'
-			},
-			'head' => {			# Email header
-				'Subject' => 'Test',
-				'To' => 'neko@example.org',
-			},
-			'body' => 'Email message',	# Email body
-			'mail' => 'kijitora@example.jp',# Envelope sender
-			'rcpt' => 'cat@example.org',	# Envelope recipient
-	);
+    my $e = Haineko::Relay::ESMTP->new( 
+            'host' => '192.0.2.1',      # SMTP Server
+            'port' => 587,          # SMTP Port
+            'auth' => 1,            # Use SMTP-AUTH
+            'username' => 'username',   # Username for SMTP-AUTH
+            'password' => 'password',   # Password for the user
+            'starttls' => 0,        # Use STARTTLS or not
+            'timeout' => 59,        # Timeout for Net::SMTP
+            'debug' => 0,           # Debug for Net::SMTP
+            'attr' => {         # Args for Email::MIME
+                'content_type' => 'text/plain'
+            },
+            'head' => {         # Email header
+                'Subject' => 'Test',
+                'To' => 'neko@example.org',
+            },
+            'body' => 'Email message',  # Email body
+            'mail' => 'kijitora@example.jp',# Envelope sender
+            'rcpt' => 'cat@example.org',    # Envelope recipient
+    );
 
 =head1 INSTANCE METHODS
 
@@ -250,10 +245,10 @@ new() is a constructor of Haineko::Relay::ESMTP
 
 sendmail() will send email to the specified recipient(rcpt) via specified host.
 
-	my $e = Haineko::Relay::ESMTP->new( %argvs );
-	print $e->sendmail;	# 0 = Failed to send, 1 = Successfully sent
+    my $e = Haineko::Relay::ESMTP->new( %argvs );
+    print $e->sendmail; # 0 = Failed to send, 1 = Successfully sent
 
-	print Data::Dumper::Dumper $e->response; # Dumps Haineko::Response object
+    print Data::Dumper::Dumper $e->response; # Dumps Haineko::Response object
 
 =head1 REPOSITORY
 

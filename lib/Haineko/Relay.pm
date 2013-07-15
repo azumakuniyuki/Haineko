@@ -4,54 +4,52 @@ use warnings;
 use Class::Accessor::Lite;
 
 my $rwaccessors = [
-	'mail',		# (String) Envelope from
-	'rcpt',		# (String) Envelope to
-	'head',		# (ArrayRef) Email headers
-	'body',		# (ScalarRef) Body part
-	'attr',		# (HashRef) Email::MIME attributes
-	'host',		# (String) Relay server hostname
-	'port',		# (String) Relay server port
-	'mxrr',		# (String) MX recorod of the recipient domain
-	'auth',		# (Integer) Rerquire SMTP-AUTH or not
-	'retry',	# (Integer) Retry count when an SMTP server returns 4XX.
-	'sleep',	# (Integer) Sleep for specified seconds until the next retrying
-	'debug',	# (Integer) 1 = Debug mode(Net::SMTP)
-	'timeout',	# (Integer) Timeout
-	'username',	# (String) Username for SMTP-AUTH
-	'password',	# (String) Password for SMTP-AUTH
-	'response',	# (Haineko::Response) ESMTP Replies from MTA
-	'starttls',	# (Integer) use STARTTLS or not
+    'mail',     # (String) Envelope from
+    'rcpt',     # (String) Envelope to
+    'head',     # (ArrayRef) Email headers
+    'body',     # (ScalarRef) Body part
+    'attr',     # (HashRef) Email::MIME attributes
+    'host',     # (String) Relay server hostname
+    'port',     # (String) Relay server port
+    'mxrr',     # (String) MX recorod of the recipient domain
+    'auth',     # (Integer) Rerquire SMTP-AUTH or not
+    'retry',    # (Integer) Retry count when an SMTP server returns 4XX.
+    'sleep',    # (Integer) Sleep for specified seconds until the next retrying
+    'debug',    # (Integer) 1 = Debug mode(Net::SMTP)
+    'timeout',  # (Integer) Timeout
+    'username', # (String) Username for SMTP-AUTH
+    'password', # (String) Password for SMTP-AUTH
+    'response', # (Haineko::Response) ESMTP Replies from MTA
+    'starttls', # (Integer) use STARTTLS or not
 ];
 my $roaccessors = [];
 my $woaccessors = [];
 Class::Accessor::Lite->mk_accessors( @$rwaccessors );
 
 
-sub new
-{
-	my $class = shift;
-	my $argvs = { @_ };
-	return bless $argvs, __PACKAGE__;
+sub new {
+    my $class = shift;
+    my $argvs = { @_ };
+    return bless $argvs, __PACKAGE__;
 }
 
-sub defaulthub
-{
-	my $class = shift;
-	return {
-		'host' => '127.0.0.1',
-		'port' => 25,
-		'auth' => 0,
-		'mailer' => 'ESMTP',
-	};
+sub defaulthub {
+
+    my $class = shift;
+    return {
+        'host' => '127.0.0.1',
+        'port' => 25,
+        'auth' => 0,
+        'mailer' => 'ESMTP',
+    };
 }
 
-sub sendmail
-{
-	my $self = shift;
+sub sendmail {
+    my $self = shift;
 
-	# Code for sending email
+    # Code for sending email at each class in Relay/*.pm
 
-	return 0;
+    return 0;
 }
 
 1;
@@ -65,7 +63,7 @@ Haineko::Relay - SMTP Connection class
 
 =head1 DESCRIPTION
 
-	Base class for relaying to external SMTP server
+    Base class for relaying to external SMTP server
 
 =head1 SEE ALSO
 

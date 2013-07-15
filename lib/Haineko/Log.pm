@@ -6,17 +6,17 @@ use Sys::Syslog qw(:DEFAULT setlogsock);
 use Class::Accessor::Lite;
 
 my $rwaccessors = [
-	'facility',	# (String) syslog facility
-	'loglevel',	# (String) default log level
-	'disabled',	# (Integer) syslog disabled
-	'option',	# (HashRef) Logging options
+    'facility',     # (String) syslog facility
+    'loglevel',     # (String) default log level
+    'disabled',     # (Integer) syslog disabled
+    'option',       # (HashRef) Logging options
 ];
 my $roaccessors = [
-	'identity',	# (String) Log identiy string
-	'queueid',	# (String) Queue ID
-	'useragent',	# (String) User agent name
-	'remotehost',	# (String) Client IP address
-	'remoteport',	# (String) Client port number
+    'identity',     # (String) Log identiy string
+    'queueid',      # (String) Queue ID
+    'useragent',    # (String) User agent name
+    'remotehost',   # (String) Client IP address
+    'remoteport',   # (String) Client port number
 ];
 
 Class::Accessor::Lite->mk_accessors( @$rwaccessors );
@@ -32,113 +32,109 @@ Class::Accessor::Lite->mk_ro_accessors( @$roaccessors );
 #  Info          (level 6)
 #  Debug         (level 7)
 my $LogLevels = [
-	'emerg', 'alert', 'crit', 'err' ,
-	'warning', 'notice', 'info', 'debug',
+    'emerg', 'alert', 'crit', 'err' ,
+    'warning', 'notice', 'info', 'debug',
 ];
 
-sub new
-{
-	my $class = shift;
-	my $argvs = { @_ };
+sub new {
+    my $class = shift;
+    my $argvs = { @_ };
 
-	my $logoptions = {
-		'cons' => 0,
-		'ndelay' => 1,
-		'noeol' => 0,
-		'nofatal' => 1,
-		'nonul' => 0,
-		'nowait' => 0,
-		'perror' => 0,
-		'pid' => 1,
-	};
+    my $logoptions = {
+        'cons' => 0,
+        'ndelay' => 1,
+        'noeol' => 0,
+        'nofatal' => 1,
+        'nonul' => 0,
+        'nowait' => 0,
+        'perror' => 0,
+        'pid' => 1,
+    };
 
-	$argvs->{'facility'} ||= 'local2';
-	$argvs->{'loglevel'} ||= 'info';
-	$argvs->{'loglevel'}   = 'info' unless grep { $argvs->{'loglevel'} eq $_ } @$LogLevels;
-	$argvs->{'disabled'} //= 0;
-	$argvs->{'identity'}   = 'haineko';
-	$argvs->{'queueid'}  //= q();
+    $argvs->{'facility'} ||= 'local2';
+    $argvs->{'loglevel'} ||= 'info';
+    $argvs->{'loglevel'}   = 'info' unless grep { $argvs->{'loglevel'} eq $_ } @$LogLevels;
+    $argvs->{'disabled'} //= 0;
+    $argvs->{'identity'}   = 'haineko';
+    $argvs->{'queueid'}  //= q();
 
-	$argvs->{'useragent'}  ||= q();
-	$argvs->{'remotehost'} ||= q();
-	$argvs->{'remoteport'} //= q();
+    $argvs->{'useragent'}  ||= q();
+    $argvs->{'remotehost'} ||= q();
+    $argvs->{'remoteport'} //= q();
 
-	if( defined $argvs->{'option'} && ref $argvs->{'option'} eq 'HASH' )
-	{
-		for my $e ( keys %$logoptions )
-		{
-			$argvs->{'option'}->{ $e } //= $logoptions->{ $e };
-		}
-	}
-	else
-	{
-		$argvs->{'option'} = $logoptions;
-	}
+    if( defined $argvs->{'option'} && ref $argvs->{'option'} eq 'HASH' ) {
 
-	return bless $argvs, __PACKAGE__;
+        for my $e ( keys %$logoptions ) {
+            $argvs->{'option'}->{ $e } //= $logoptions->{ $e };
+        }
+    }
+    else {
+        $argvs->{'option'} = $logoptions;
+    }
+
+    return bless $argvs, __PACKAGE__;
 }
 
-sub o
-{
-	my $self = shift;
-	my $opts = [ grep { $_ if $self->{'options'}->{ $_ } } keys %{ $self->{'options'} } ];
-	return join( ',', @$opts );
+sub o {
+    # Return syslog option as a string
+    my $self = shift;
+    my $opts = [ grep { $_ if $self->{'options'}->{ $_ } } keys %{ $self->{'options'} } ];
+    return join( ',', @$opts );
 }
 
-sub h
-{
-	my $self = shift;
-	my $head = [];
-	my $host = q();
+sub h {
+    # Return syslog header string
+    my $self = shift;
+    my $head = [];
+    my $host = q();
 
-	push @$head, sprintf( "queueid=%s", $self->{'queueid'} ) if $self->{'queueid'};
-	$host  = sprintf( "client=%s", $self->{'remotehost'} ) if $self->{'remotehost'};
-	$host .= sprintf( ":%d", $self->{'remoteport'} ) if $host && $self->{'remoteport'};
-	push @$head, $host if length $host;
-	push @$head, sprintf( "ua='%s'", $self->{'useragent'} ) if $self->{'useragent'};
+    push @$head, sprintf( "queueid=%s", $self->{'queueid'} ) if $self->{'queueid'};
+    $host  = sprintf( "client=%s", $self->{'remotehost'} ) if $self->{'remotehost'};
+    $host .= sprintf( ":%d", $self->{'remoteport'} ) if $host && $self->{'remoteport'};
+    push @$head, $host if length $host;
+    push @$head, sprintf( "ua='%s'", $self->{'useragent'} ) if $self->{'useragent'};
 
-	return q() unless scalar @$head;
-	return join( ', ', @$head );
+    return q() unless scalar @$head;
+    return join( ', ', @$head );
 }
 
-sub w
-{
-	my $self = shift;
-	my $sllv = shift || $self->{'loglevel'};
-	my $mesg = shift;
-	my $text = q();
-	my $logs = [];
+sub w {
+    # write messages
+    my $self = shift;
+    my $sllv = shift || $self->{'loglevel'};
+    my $mesg = shift;
+    my $text = q();
+    my $logs = [];
 
-	return 0 if $self->{'disabled'};
-	return 0 unless ref $mesg eq 'HASH';
+    return 0 if $self->{'disabled'};
+    return 0 unless ref $mesg eq 'HASH';
 
-	$sllv = 'info' unless grep { $sllv eq $_ } @$LogLevels;
-	push @$logs, $self->h;
-	for my $e ( keys %$mesg )
-	{
-		next if ref $mesg->{ $e };
-		$text = $mesg->{ $e };
-		$text = sprintf( "'%s'", $text ) if $text =~ m/\s/;
-		push @$logs, sprintf( "%s=%s", $e, $text );
-	}
+    $sllv = 'info' unless grep { $sllv eq $_ } @$LogLevels;
+    push @$logs, $self->h;
 
-	if( defined $mesg->{'message'} )
-	{
-		if( ref $mesg->{'message'} eq 'ARRAY' )
-		{
-			$text = sprintf( "message='%s'", join( ' | ', @{ $mesg->{'message'} } ) );
-			push @$logs, $text;
-		}
-		else
-		{
-			push @$logs, sprintf( "message=%s", $mesg->{'message'} );
-		}
-	}
+    for my $e ( keys %$mesg ) {
 
-	openlog( $self->{'identify'}, $self->o, $self->{'facility'} ) || return 0;
-	syslog( $sllv, join( ', ', @$logs ) ) || return 0;
-	closelog || return 0;
-	return 1;
+        next if ref $mesg->{ $e };
+        $text = $mesg->{ $e };
+        $text = sprintf( "'%s'", $text ) if $text =~ m/\s/;
+        push @$logs, sprintf( "%s=%s", $e, $text );
+    }
+
+    if( defined $mesg->{'message'} ) {
+
+        if( ref $mesg->{'message'} eq 'ARRAY' ) {
+            $text = sprintf( "message='%s'", join( ' | ', @{ $mesg->{'message'} } ) );
+            push @$logs, $text;
+
+        } else {
+            push @$logs, sprintf( "message=%s", $mesg->{'message'} );
+        }
+    }
+
+    openlog( $self->{'identify'}, $self->o, $self->{'facility'} ) || return 0;
+    syslog( $sllv, join( ', ', @$logs ) ) || return 0;
+    closelog || return 0;
+    return 1;
 }
 
 1;
@@ -156,25 +152,25 @@ Write log messages via UNIX syslog
 
 =head1 SYNOPSIS
 
-	use Haineko::Log;
-	my $v = { 
-		'remotehost' => '127.0.0.1', 
-		'remoteport' => 1024, 
-	};
-	my $e = Haineko::Log->new( %$v );
-	my $x = { 'message' => 'Log message' };
-	$e->w( 'info', $x );
-	# Jul  4 10:00:00 host haineko[6994]: client=127.0.0.1:1024, message='Log message'
+    use Haineko::Log;
+    my $v = { 
+        'remotehost' => '127.0.0.1', 
+        'remoteport' => 1024, 
+    };
+    my $e = Haineko::Log->new( %$v );
+    my $x = { 'message' => 'Log message' };
+    $e->w( 'info', $x );
+    # Jul  4 10:00:00 host haineko[6994]: client=127.0.0.1:1024, message='Log message'
 
-	$x = { 'message' => 'Rejected', 'dsn' => '5.2.1', 'code' => 550 };
-	$e->w( 'err', $x );
-	# Jul  4 10:00:00 host haineko[6994]: client=127.0.0.1:1024, message='Rejected', dsn=5.2.1, code=550
+    $x = { 'message' => 'Rejected', 'dsn' => '5.2.1', 'code' => 550 };
+    $e->w( 'err', $x );
+    # Jul  4 10:00:00 host haineko[6994]: client=127.0.0.1:1024, message='Rejected', dsn=5.2.1, code=550
 
-	$v = { 'remotehost' => '192.0.1.2', 'queueid' => 'r67HY3E06994bogA' };
-	$e = Haineko::Log->new( %$v );
-	$x = { 'message' => [ 'Log1', 'Log2' ] 'neko' => 'Nyaa' };
-	$e->w( 'err', $x );
-	# Jul  4 10:00:00 host haineko[6994]: queueid=r67HY3E06994bogA, client=192.0.2.1, message='Log1 | Log2', neko=Nyaa
+    $v = { 'remotehost' => '192.0.1.2', 'queueid' => 'r67HY3E06994bogA' };
+    $e = Haineko::Log->new( %$v );
+    $x = { 'message' => [ 'Log1', 'Log2' ] 'neko' => 'Nyaa' };
+    $e->w( 'err', $x );
+    # Jul  4 10:00:00 host haineko[6994]: queueid=r67HY3E06994bogA, client=192.0.2.1, message='Log1 | Log2', neko=Nyaa
 
 =head1 CLASS METHODS
 
@@ -182,12 +178,12 @@ Write log messages via UNIX syslog
 
 new() is a constructor of Haineko::Log
 
-	my $e = Haineko::Log->new(
-			'queueid' => 'ID string',	# Haineko::Session->queueid
-			'useragent' => 'Agent name',	# $self->req->header->user_agent
-			'remotehost' => '127.0.0.1',	# REMOTE_HOST http environment variable
-			'remoteport' => 1024,		# REMOTE_PORT http environment variable
-	);
+    my $e = Haineko::Log->new(
+            'queueid' => 'ID string',   # Haineko::Session->queueid
+            'useragent' => 'Agent name',    # $self->req->header->user_agent
+            'remotehost' => '127.0.0.1',    # REMOTE_HOST http environment variable
+            'remoteport' => 1024,       # REMOTE_PORT http environment variable
+    );
 
 =head1 INSTANCE METHODS
 
@@ -195,9 +191,9 @@ new() is a constructor of Haineko::Log
 
 w() write log messages via UNIX syslog
 
-	my $e = Haineko:::Log->new( %argvs );
-	my $m = { 'message' => 'error', 'cat' => 'kijitora' };
-	$e->w( 'err', $m );
+    my $e = Haineko:::Log->new( %argvs );
+    my $m = { 'message' => 'error', 'cat' => 'kijitora' };
+    $e->w( 'err', $m );
 
 =head1 REPOSITORY
 

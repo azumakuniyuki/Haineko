@@ -8,17 +8,17 @@ my $modulename = 'Haineko::Relay';
 my $pkgmethods = [ 'new', 'defaulthub' ];
 my $objmethods = [ 'sendmail' ];
 my $methodargv = {
-	'mail' => 'kijitora@example.jp',
-	'rcpt' => 'mikeneko@example.org',
-	'head' => { 
-		'From', 'Kijitora <kijitora@example.jp>',
-		'To', 'Mikechan <mikenkeko@example.org>',
-		'Subject', 'Nyaa--',
-	},
-	'body' => 'Nyaaaaaaaaaaaaa',
-	'host' => '127.0.0.1',
-	'port' => 25,
-	'attr' => {},
+    'mail' => 'kijitora@example.jp',
+    'rcpt' => 'mikeneko@example.org',
+    'head' => { 
+        'From', 'Kijitora <kijitora@example.jp>',
+        'To', 'Mikechan <mikenkeko@example.org>',
+        'Subject', 'Nyaa--',
+    },
+    'body' => 'Nyaaaaaaaaaaaaa',
+    'host' => '127.0.0.1',
+    'port' => 25,
+    'attr' => {},
 };
 my $testobject = $modulename->new();
 my $properties = [ qw/mail rcpt head body host port attr mxrr auth timeout username password/ ];
@@ -27,9 +27,9 @@ isa_ok( $testobject, $modulename );
 can_ok( $modulename, @$pkgmethods );
 can_ok( $testobject, @$objmethods );
 
-for my $e ( @$properties )
-{
-	is( $testobject->$e, undef, '->'.$e.' => undef' );
+for my $e ( @$properties ) {
+
+    is( $testobject->$e, undef, '->'.$e.' => undef' );
 }
 
 my $o = $modulename->new( %$methodargv );
@@ -57,5 +57,4 @@ is( $h->{'auth'}, 0, '->defaulthub->auth => 0' );
 is( $h->{'mailer'}, 'ESMTP', '->defaulthub->mailer => ESMTP' );
 
 done_testing;
-
 __END__

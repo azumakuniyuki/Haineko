@@ -5,102 +5,94 @@ use Class::Accessor::Lite;
 
 my $rwaccessors = [];
 my $roaccessors = [
-	'address',	# (String) Email address
-	'user',		# (String) local part of the email address
-	'host',		# (String) domain part of the email address
+    'address',  # (String) Email address
+    'user',     # (String) local part of the email address
+    'host',     # (String) domain part of the email address
 ];
 my $woaccessors = [];
 Class::Accessor::Lite->mk_accessors( @$roaccessors );
 
 
-sub new
-{
-	my $class = shift;
-	my $argvs = { @_ }; 
+sub new {
+    my $class = shift;
+    my $argvs = { @_ }; 
 
-	return undef unless defined $argvs->{'address'};
+    return undef unless defined $argvs->{'address'};
 
-	if( $argvs->{'address'} =~ m{\A([^@]+)[@]([^@]+)\z} )
-	{
-		$argvs->{'user'} = lc $1;
-		$argvs->{'host'} = lc $2;
+    if( $argvs->{'address'} =~ m{\A([^@]+)[@]([^@]+)\z} ) {
 
-		map { $argvs->{ $_ } =~ y{`'"<>}{}d } keys %$argvs;
-		$argvs->{'address'} = sprintf( "%s@%s", $argvs->{'user'}, $argvs->{'host'} );
+        $argvs->{'user'} = lc $1;
+        $argvs->{'host'} = lc $2;
 
-		return bless $argvs, __PACKAGE__
-	}
-	else
-	{
-		return undef;
-	}
+        map { $argvs->{ $_ } =~ y{`'"<>}{}d } keys %$argvs;
+        $argvs->{'address'} = sprintf( "%s@%s", $argvs->{'user'}, $argvs->{'host'} );
+
+        return bless $argvs, __PACKAGE__
+
+    } else {
+        return undef;
+    }
 }
 
-sub canonify
-{
-	my $class = shift;
-	my $email = shift;
+sub canonify {
+    my $class = shift;
+    my $email = shift;
 
-	return q() unless defined $email;
-	return q() if ref $email;
+    return q() unless defined $email;
+    return q() if ref $email;
 
-	# "=?ISO-2022-JP?B?....?="<user@example.jp>
-	# no space character between " and < .
-	$email =~ s{(.)"<}{$1" <};
+    # "=?ISO-2022-JP?B?....?="<user@example.jp>
+    # no space character between " and < .
+    $email =~ s{(.)"<}{$1" <};
 
-	my $canonified = q();
-	my $addressset = [];
-	my $emailtoken = [ split ' ', $email ];
+    my $canonified = q();
+    my $addressset = [];
+    my $emailtoken = [ split ' ', $email ];
 
-	# Convert character entity; "&lt;" -> ">", "&gt;" -> "<".
-	for my $e ( @$emailtoken )
-	{
-		$e =~ s/&lt;/</g;
-		$e =~ s/&gt;/>/g;
-		$e =~ s/,\z//g;
-	}
+    for my $e ( @$emailtoken ) {
+        # Convert character entity; "&lt;" -> ">", "&gt;" -> "<".
+        $e =~ s/&lt;/</g;
+        $e =~ s/&gt;/>/g;
+        $e =~ s/,\z//g;
+    }
 
-	if( scalar(@$emailtoken) == 1 )
-	{
-		push @$addressset, $emailtoken->[0];
-	}
-	else
-	{
-		foreach my $e ( @$emailtoken )
-		{
-			chomp $e;
-			next unless $e =~ m{\A[<]?.+[@][-.0-9A-Za-z]+[.][A-Za-z]{2,}[>]?\z};
-			push @$addressset, $e;
-		}
-	}
+    if( scalar( @$emailtoken ) == 1 ) {
+        push @$addressset, $emailtoken->[0];
 
-	if( scalar(@$addressset) > 1 )
-	{
-		$canonified = [ grep { $_ =~ m{\A[<].+[>]\z} } @$addressset ]->[0];
-		$canonified = $addressset->[0] unless $canonified;
-	}
-	else
-	{
-		$canonified = shift @$addressset;
-	}
+    } else {
+        foreach my $e ( @$emailtoken ) {
 
-	return q() unless defined $canonified;
-	return q() unless $canonified;
+            chomp $e;
+            next unless $e =~ m{\A[<]?.+[@][-.0-9A-Za-z]+[.][A-Za-z]{2,}[>]?\z};
+            push @$addressset, $e;
+        }
+    }
 
-	$canonified =~ y{<>[]():;}{}d;	# Remove brackets, colons
-	$canonified =~ y/{}'"`//d;	# Remove brackets, quotations
-	return $canonified;
+    if( scalar( @$addressset ) > 1 ) {
+
+        $canonified = [ grep { $_ =~ m{\A[<].+[>]\z} } @$addressset ]->[0];
+        $canonified = $addressset->[0] unless $canonified;
+
+    } else {
+        $canonified = shift @$addressset;
+    }
+
+    return q() unless defined $canonified;
+    return q() unless $canonified;
+
+    $canonified =~ y{<>[]():;}{}d;  # Remove brackets, colons
+    $canonified =~ y/{}'"`//d;  # Remove brackets, quotations
+    return $canonified;
 }
 
-sub damn
-{
-	my $self = shift;
-	my $addr = { 
-		'user' => $self->user,
-		'host' => $self->host,
-		'address' => $self->address,
-	};
-	return $addr;
+sub damn {
+    my $self = shift;
+    my $addr = { 
+        'user' => $self->user,
+        'host' => $self->host,
+        'address' => $self->address,
+    };
+    return $addr;
 }
 
 1;
@@ -119,15 +111,15 @@ address.
 
 =head1 SYNOPSIS
 
-	use Haineko::Address;
-	my $e = Haineko::Address->new( 'address' => 'kijitora@example.jp' );
+    use Haineko::Address;
+    my $e = Haineko::Address->new( 'address' => 'kijitora@example.jp' );
 
-	print $e->user;		# kijitora
-	print $e->host;		# example.jp
-	print $e->address;	# kijitora@example.jp
+    print $e->user;     # kijitora
+    print $e->host;     # example.jp
+    print $e->address;  # kijitora@example.jp
 
-	print Data::Dumper::Dumper $e->damn;
-	$VAR1 = {
+    print Data::Dumper::Dumper $e->damn;
+    $VAR1 = {
           'user' => 'kijitora',
           'host' => 'example.jp',
           'address' => 'kijitora@example.jp'
@@ -139,16 +131,16 @@ address.
 
 new() is a constructor of Haineko::Address
 
-	my $e = Haineko::Address->new( 'address' => 'kijitora@example.jp' );
+    my $e = Haineko::Address->new( 'address' => 'kijitora@example.jp' );
 
 =head2 B<canonify>( I<email-address> )
 
 canonify() picks an email address only (remove a name and comments)
 
-	my $e = Haineko::Address->canonify( 'Kijitora <kijitora@example.jp>' );
-	my $f = Haineko::Address->canonify( '<kijitora@example.jp>' );
-	print $e;	# kijitora@example.jp
-	print $f;	# kijitora@example.jp
+    my $e = Haineko::Address->canonify( 'Kijitora <kijitora@example.jp>' );
+    my $f = Haineko::Address->canonify( '<kijitora@example.jp>' );
+    print $e;   # kijitora@example.jp
+    print $f;   # kijitora@example.jp
 
 =head1 INSTANCE METHODS
 
@@ -156,11 +148,11 @@ canonify() picks an email address only (remove a name and comments)
 
 damn() returns instance data as a hash reference
 
-	my $e = Haineko::Address->new( 'address' => 'kijitora@example.jp' );
-	my $f = $e->damn;
+    my $e = Haineko::Address->new( 'address' => 'kijitora@example.jp' );
+    my $f = $e->damn;
 
-	print Data::Dumper::Dumper $f;
-	$VAR1 = {
+    print Data::Dumper::Dumper $f;
+    $VAR1 = {
           'user' => 'kijitora',
           'host' => 'example.jp',
           'address' => 'kijitora@example.jp'

@@ -16,15 +16,15 @@ can_ok( $testobject, @$objmethods );
 
 INSTANCE_METHODS: {
 
-	my $o = new $modulename( @$ehlogreets );
-	is( $o->dsn, 1, '->dsn => 1' );
-	ok( $o->size, '->size => '.$o->size );
-	is( $o->auth, 1, '->auth => 1' );
-	is( ref $o->mechanism, 'ARRAY', '->mechanism => '.join( ' ', @{ $o->mechanism } ) );
-	is( ref $o->feature, 'ARRAY', '->feature => '.join( ' ', @{ $o->feature } ) );
-	like( $o->greeting, qr/kijitora/, '->greeting => '.$o->greeting );
-	isnt( $o->starttls, 1, '->starttls => undef' );
-	is( $o->pipelining, 1, '->pipelining => 1' );
+    my $o = new $modulename( @$ehlogreets );
+    is( $o->dsn, 1, '->dsn => 1' );
+    ok( $o->size, '->size => '.$o->size );
+    is( $o->auth, 1, '->auth => 1' );
+    is( ref $o->mechanism, 'ARRAY', '->mechanism => '.join( ' ', @{ $o->mechanism } ) );
+    is( ref $o->feature, 'ARRAY', '->feature => '.join( ' ', @{ $o->feature } ) );
+    like( $o->greeting, qr/kijitora/, '->greeting => '.$o->greeting );
+    isnt( $o->starttls, 1, '->starttls => undef' );
+    is( $o->pipelining, 1, '->pipelining => 1' );
 }
 
 done_testing;

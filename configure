@@ -2404,7 +2404,7 @@ fi
 
 
 if test "x$SHELL" = xno; then
-	{ { echo "$as_me:$LINENO: error: *** Cannot find sh program" >&5
+    { { echo "$as_me:$LINENO: error: *** Cannot find sh program" >&5
 echo "$as_me: error: *** Cannot find sh program" >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -2463,7 +2463,7 @@ fi
 
 
 if test "x$CAT" = xno; then
-	{ { echo "$as_me:$LINENO: error: *** Cannot find cat program" >&5
+    { { echo "$as_me:$LINENO: error: *** Cannot find cat program" >&5
 echo "$as_me: error: *** Cannot find cat program" >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -2510,7 +2510,7 @@ fi
 
 
 if test "x$CHMOD" = xno; then
-	{ { echo "$as_me:$LINENO: error: *** Cannot find chmod program" >&5
+    { { echo "$as_me:$LINENO: error: *** Cannot find chmod program" >&5
 echo "$as_me: error: *** Cannot find chmod program" >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -2557,7 +2557,7 @@ fi
 
 
 if test "x$TOUCH" = xno; then
-	{ { echo "$as_me:$LINENO: error: *** Cannot find touch program" >&5
+    { { echo "$as_me:$LINENO: error: *** Cannot find touch program" >&5
 echo "$as_me: error: *** Cannot find touch program" >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -2610,7 +2610,7 @@ done
 test -n "$GREP" || GREP="no"
 
 if test "x$GREP" = xno; then
-	{ { echo "$as_me:$LINENO: error: *** Cannot find grep program(grep, egrep)" >&5
+    { { echo "$as_me:$LINENO: error: *** Cannot find grep program(grep, egrep)" >&5
 echo "$as_me: error: *** Cannot find grep program(grep, egrep)" >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -2658,7 +2658,7 @@ fi
 
 
 if test "x$FIND" = xno; then
-	{ { echo "$as_me:$LINENO: error: *** Cannot find find program" >&5
+    { { echo "$as_me:$LINENO: error: *** Cannot find find program" >&5
 echo "$as_me: error: *** Cannot find find program" >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -2706,7 +2706,7 @@ fi
 
 
 if test "x$SED" = xno; then
-	{ { echo "$as_me:$LINENO: error: *** Cannot find sed program" >&5
+    { { echo "$as_me:$LINENO: error: *** Cannot find sed program" >&5
 echo "$as_me: error: *** Cannot find sed program" >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -2754,7 +2754,7 @@ fi
 
 
 if test "x$CPANM" = xno; then
-	{ { echo "$as_me:$LINENO: error: *** Cannot find cpanm program. Try \`\`curl -LO http://xrl.us/cpanm''" >&5
+    { { echo "$as_me:$LINENO: error: *** Cannot find cpanm program. Try \`\`curl -LO http://xrl.us/cpanm''" >&5
 echo "$as_me: error: *** Cannot find cpanm program. Try \`\`curl -LO http://xrl.us/cpanm''" >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -2768,7 +2768,7 @@ else
 fi
 
 if test "x$WITH_PERLPATH" = "xnone"; then
-	# Extract the first word of "perl", so it can be a program name with args.
+    # Extract the first word of "perl", so it can be a program name with args.
 set dummy perl; ac_word=$2
 { echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
@@ -2810,12 +2810,12 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
-	if test "x$PERL" = xno; then
-		{ { echo "$as_me:$LINENO: error: *** Cannot find perl program" >&5
+    if test "x$PERL" = xno; then
+        { { echo "$as_me:$LINENO: error: *** Cannot find perl program" >&5
 echo "$as_me: error: *** Cannot find perl program" >&2;}
    { (exit 1); exit 1; }; }
-	fi
-	# Extract the first word of "perldoc", so it can be a program name with args.
+    fi
+    # Extract the first word of "perldoc", so it can be a program name with args.
 set dummy perldoc; ac_word=$2
 { echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
@@ -2857,12 +2857,12 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
-	if test "x$PERLDOC" = xno; then
-		{ { echo "$as_me:$LINENO: error: *** Cannot find perldoc program" >&5
+    if test "x$PERLDOC" = xno; then
+        { { echo "$as_me:$LINENO: error: *** Cannot find perldoc program" >&5
 echo "$as_me: error: *** Cannot find perldoc program" >&2;}
    { (exit 1); exit 1; }; }
-	fi
-	# Extract the first word of "prove", so it can be a program name with args.
+    fi
+    # Extract the first word of "prove", so it can be a program name with args.
 set dummy prove; ac_word=$2
 { echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
@@ -2904,20 +2904,20 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
-	if test "x$PROVE" = xno; then
-		PROVE="$PERL -I./dist/lib -I./dist/lib/perl5"
-	else
-		PROVE="$PROVE -r --timer -I./dist/lib -I./dist/lib/perl5"
-	fi
+    if test "x$PROVE" = xno; then
+        PROVE="$PERL -I./dist/lib -I./dist/lib/perl5"
+    else
+        PROVE="$PROVE -r --timer -I./dist/lib -I./dist/lib/perl5"
+    fi
 else
-	PERL=$WITH_PERLPATH
-	PERLDOC=`dirname $WITH_PERLPATH`/perldoc
-	PROVE=`dirname $WITH_PERLPATH`/prove
-	if test "x$PROVE" = xno; then
-		PROVE="$PERL -I./dist/lib -I./dist/lib/perl5"
-	else
-		PROVE="$PROVE -r --timer -I./dist/lib -I./dist/lib/perl5"
-	fi
+    PERL=$WITH_PERLPATH
+    PERLDOC=`dirname $WITH_PERLPATH`/perldoc
+    PROVE=`dirname $WITH_PERLPATH`/prove
+    if test "x$PROVE" = xno; then
+        PROVE="$PERL -I./dist/lib -I./dist/lib/perl5"
+    else
+        PROVE="$PROVE -r --timer -I./dist/lib -I./dist/lib/perl5"
+    fi
 fi
 
 ac_config_files="$ac_config_files Makefile etc/Makefile lib/Makefile lib/Haineko/Makefile lib/Haineko/Ctrl/Makefile lib/Haineko/Relay/Makefile script/Makefile"

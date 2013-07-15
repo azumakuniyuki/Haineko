@@ -7,50 +7,46 @@
 #
 # SMTPd configuration
 smtpd:
-  # EHLO hostname for connecting external SMTP server to send an email
-  hostname: 'haineko.example.jp'
+    # EHLO hostname for connecting external SMTP server to send an email
+    hostname: 'haineko.example.jp'
 
-  # Authentication flag on HTTP-API
-  #   0 = Authentication not required
-  #   1 = Haineko requires authentication
-  auth: 0
+    # Authentication flag on HTTP-API
+    #   0 = Authentication not required
+    #   1 = Haineko requires authentication
+    auth: 0
+    mech: [ 'plain', 'cram-md5', 'digest-md5' ]
 
-  # Max message size(bytes), 0 is unlimited
-  max_message_size: 4194304
+    # Max message size(bytes), 0 is unlimited
+    max_message_size: 4194304
 
-  # Max number of recipients, 0 is unlimited
-  max_rcpts_per_message: 4
+    # Max number of recipients, 0 is unlimited
+    max_rcpts_per_message: 4
 
-  # Routing table files
-  #   rcpt: Envelope recipient based routing table
-  #   mail: Envelope sender based routing table
-  #   auth: Credenticals for SMTP-AUTH at relaying to external host
-  #
-  mailer:
-    auth: 'authinfo'
-    mail: 'sendermt'
-    rcpt: 'mailertable'
+    # Routing table files
+    #   rcpt: Envelope recipient based routing table
+    #   mail: Envelope sender based routing table
+    #   auth: Credenticals for SMTP-AUTH at relaying to external host
+    #
+    mailer:
+        auth: 'authinfo'
+        mail: 'sendermt'
+        rcpt: 'mailertable'
 
-  # Access control files
-  #   conn: Permitted ipv4 addresses or network blocks for relaying
-  #   rcpt: Permitted envelope recipients or domain parts for relaying
-  access:
-    conn: 'relayhosts'
-    rcpt: 'recipients'
+    # Access control files
+    #   conn: Permitted ipv4 addresses or network blocks for relaying
+    #   rcpt: Permitted envelope recipients or domain parts for relaying
+    access:
+        conn: 'relayhosts'
+        rcpt: 'recipients'
 
-
-  method:
-    get: 1
-    post: 1
-
-  # Syslog configuration
-  syslog:
-    disabled: 0
-    facility: 'local2'
+    # Syslog configuration
+    syslog:
+        disabled: 0
+        facility: 'local2'
 
 # Configurations for Mojolicious
 session:
-  secret: 'haineko-nyanko'
-  expires: 300
+    secret: 'haineko-nyanko'
+    expires: 300
 
 ---
