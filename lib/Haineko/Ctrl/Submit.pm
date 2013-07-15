@@ -79,14 +79,13 @@ sub sendmail {
     my $headerlist = [ 'from', 'reply-to', 'subject' ];
     my $emencoding = q();
     my $recipients = [];
-    my $isjsondata = 0;
 
     my ( $ehlo, $mail, $rcpt, $head, $body, $json ) = undef;
     my ( $auth, $mech ) = undef;
 
-    eval { $json = JSON::Syck::Load( $self->param ) };
-    if( ref $json eq 'HASH' && keys %$json ) {
-        # JSON
+    eval { 
+        # Load email data as a JSON
+        $json = JSON::Syck::Load( $self->param );
         $ehlo //= $json->{'ehlo'} // $json->{'helo'} // q();
         $auth //= $json->{'auth'} // q();
         $mech //= $json->{'mech'} // q();
@@ -96,6 +95,7 @@ sub sendmail {
         $head //= {};
 
         for my $e ( @$headerlist ) {
+
             last unless ref $json->{'header'} eq 'HASH';
             next unless defined $json->{'header'}->{ $e };
 
@@ -106,28 +106,7 @@ sub sendmail {
         $emencoding = $head->{'charset'} // $head->{'Charset'} // 'UTF-8';
         utf8::decode $body unless utf8::is_utf8 $body;
         $recipients = $rcpt;
-        $isjsondata = 1;
-
-    } else {
-        # Parameters in URL
-        $ehlo = $self->param('ehlo') // $self->param('helo') // q();
-        $auth = $self->param('auth') // q();
-        $mech = $self->param('mech') // q();
-        $mail = $self->param('mail') // $self->param('from') // q();
-        $rcpt = $self->param('rcpt') // $self->param('to') // q();
-        $body = $self->param('body') // q();
-        $head = {};
-
-        for my $e ( @$headerlist ) {
-            next unless defined $self->param( 'header.'.$e );
-            $head->{ $e } = $self->param( 'header.'.$e );
-            utf8::decode $head->{ $e } unless utf8::is_utf8 $head->{ $e };
-        }
-        $head->{'subject'} //= q();
-        $emencoding = $self->param('header.charset') // 'UTF-8';
-        $recipients = [ split( ',', $rcpt ) ];
-        utf8::decode $body unless utf8::is_utf8 $body;
-    }
+    };
 
     AUTH: {
 
@@ -547,8 +526,7 @@ Haineko::Ctrl::Submit - Controller for /submit
 
 =head2 PARAMETERS(JSON)
 
-To send email via Haineko, POST email data as a JSON format like the
-following:
+To send email via Haineko, POST email data as a JSON format like the following:
 
     { 
         ehlo: 'your-host-name.as.fqdn'
@@ -566,29 +544,9 @@ following:
     $ curl 'http://127.0.0.1:2794/submit' -X POST \
       -d '{ ehlo: "[127.0.0.1]", mail: "kijitora@example.jp", ... }'
 
-=head2 PARAMETERS(URL)
-
-    ehlo = Client Host name or IP address for SMTP-EHLO
-
-    mail = Envelope sender address
-
-    rcpt = Envelope recipient address
-
-    body = Email body content
-
-    header.from = From: header
-
-    header.subject = Subject: header
-
-    header.charset = Character set for Content-Type: header
-
-    $ telnet 127.0.0.1 2794
-    ...
-    GET /submit?ehlo=[127.0.0.1]&mail=kijitora@example.jp&...
-
 =head1 REPOSITORY
 
-https://github.com/azumakuniyuki/haineko
+https://github.com/azumakuniyuki/Haineko
 
 =head1 AUTHOR
 
@@ -596,8 +554,7 @@ azumakuniyuki E<lt>perl.org [at] azumakuniyuki.orgE<gt>
 
 =head1 LICENSE
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This library is free software; you can redistribute it and/or modify it under 
+the same terms as Perl itself.
 
-=cut
 =cut
