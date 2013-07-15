@@ -158,7 +158,7 @@ To send email via Haineko, POST email data as a JSON format like the following:
         body: 'Next meeting opens at midnight on next thursday'
     }
 
-    $ curl 'http://127.0.0.1:2794/submit' -X POST \
+    $ curl 'http://127.0.0.1:2794/submit' -X POST -H 'Content-Type: application/json' \
       -d '{ ehlo: "[127.0.0.1]", mail: "kijitora@example.jp", ... }'
 
 
