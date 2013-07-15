@@ -22,15 +22,22 @@ my $Replies = {
             'code' => 220,
             'message' => [ 'ESMTP Haineko' ],
         },
+        'cannot-connect' => {
+            'dsn' => undef,
+            'code' => 421,
+            'message' => [ 'Cannot connect SMTP Server' ],
+        },
+    },
+    'http' => {
         'method-not-supported' => {
             'dsn' => undef,
             'code' => 421,
             'message' => [ 'GET method not supported' ],
         },
-        'cannot-connect' => {
+        'malformed-json' => {
             'dsn' => undef,
             'code' => 421,
-            'message' => [ 'Cannot connect SMTP Server' ],
+            'message' => [ 'Malformed JSON string' ],
         },
     },
     'ehlo' => {
