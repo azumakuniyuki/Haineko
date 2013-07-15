@@ -25,9 +25,12 @@ CLASS_METHODS: {
     is( $o->command, undef, '->command => undef' );
 
     $r = {
-        'conn' => [ qw/ok no-checkrelay access-denied cannot-connect/ ],
+        'conn' => [ qw/ok cannot-connect/ ],
         'ehlo' => [ qw/invalid-domain require-domain helo-first/ ],
-        'auth' => [ qw/cannot-decode auth-failed unavailable-mech no-auth-mech/ ],
+        'auth' => [ qw/
+                    no-checkrelay access-denied cannot-decode auth-failed 
+                    unavailable-mech no-auth-mech
+        / ],
         'mail' => [ qw/
             ok sender-specified mesg-too-big domain-required syntax-error
             domain-does-not-exist need-mail non-ascii
