@@ -45,21 +45,32 @@ sub sendmail {
         $ip4network = Net::CIDR::Lite->new( @{ $relayhosts->{'relayhosts'} } );
     };
 
+    # Set response headers
     $self->res->headers->header( 'X-Content-Type-Options' => 'nosniff' );
 
-    if( not $relayhosts->{'open-relay'} ) {
+    if( $self->req->method eq 'GET' )
+    {
+        # GET method is not permitted
+        $self->res->code(405);
+        $esmtpreply = $catr->r( 'conn', 'method-not-supported' )->damn;
+        $nekosyslog->w( 'err', $esmtpreply );
+        return $self->render( 'json' => { $cres => $esmtpreply } );
+    }
 
+    if( not $relayhosts->{'open-relay'} ) {
+        # When the value of ``openrelay'' is 0 in etc/relayhosts,
+        # Only permitted host can send a message.
         if( not defined $ip4network ) {
 
             $self->res->code(403);
-            $esmtpreply = $catr->r( 'conn', 'no-checkrelay' )->damn;
+            $esmtpreply = $catr->r( 'auth', 'no-checkrelay' )->damn;
             $nekosyslog->w( 'err', $esmtpreply );
             return $self->render( 'json' => { $cres => $esmtpreply } );
 
         } elsif( not $ip4network->find( $remotehost ) ) {
 
             $self->res->code(403);
-            $esmtpreply = $catr->r( 'conn', 'access-denied' )->damn;
+            $esmtpreply = $catr->r( 'auth', 'access-denied' )->damn;
             $nekosyslog->w( 'err', $esmtpreply );
             return $self->render( 'json' => { $cres => $esmtpreply } );
         }
