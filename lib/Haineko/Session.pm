@@ -259,9 +259,9 @@ Haineko::Session manages a connection from HTTP and SMTP session on Haineko serv
     $e->addresser( 'kijitora@example.jp' );
     $e->recipient( [ 'neko@example.org' ] );
 
-    print $e->queueid;      # r64CvGQ21769QslMmPPuD2jC
-    print $e->started;      # Thu Jul  4 18:00:00 2013 (Time::Piece object)
-    print $e->addresser->user;  # kijitora (Haineko::Address object)
+    print $e->queueid;              # r64CvGQ21769QslMmPPuD2jC
+    print $e->started;              # Thu Jul  4 18:00:00 2013 (Time::Piece object)
+    print $e->addresser->user;      # kijitora (Haineko::Address object)
     print $e->recipient->[0]->host; # example.org (Haineko::Address object)
 
 =head1 CLASS METHODS
@@ -288,7 +288,7 @@ load() is also a constructor of Haineko::Session.
     };
     my $e = Haineko::Session->load( %$v );
 
-    print $e->queueid;      # r64CvGQ21769QslMmPPuD2jC
+    print $e->queueid;              # r64CvGQ21769QslMmPPuD2jC
     print $e->addresser->address;   # kijitora@example.jp
 
 =head2 B<make_queueid>
@@ -350,7 +350,7 @@ damn() returns instance data as a hash reference for Mojolicious session.
 
 =head1 REPOSITORY
 
-https://github.com/azumakuniyuki/haineko
+https://github.com/azumakuniyuki/Haineko
 
 =head1 AUTHOR
 
@@ -358,7 +358,7 @@ azumakuniyuki E<lt>perl.org [at] azumakuniyuki.orgE<gt>
 
 =head1 LICENSE
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This library is free software; you can redistribute it and/or modify it under 
+the same terms as Perl itself.
 
 =cut

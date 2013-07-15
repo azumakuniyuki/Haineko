@@ -66,14 +66,14 @@ is8bit() returns whether $string contains non-ascii character or not.
 
 check_ehlo() checks whether specified hostname is valid as EHLO-HOSTNAME or not.
 
-    print Haineko::RFC5321->check_ehlo('[127.0.0.1]');  # 1(OK)
+    print Haineko::RFC5321->check_ehlo('[127.0.0.1]');      # 1(OK)
     print Haineko::RFC5321->check_ehlo('cat.example.jp');   # 1(OK)
-    print Haineko::RFC5321->check_ehlo('');         # 0(NG)
+    print Haineko::RFC5321->check_ehlo('');                 # 0(NG)
     print Haineko::RFC5321->check_ehlo('cat@example.jp');   # 0(NG)
 
 =head1 REPOSITORY
 
-https://github.com/azumakuniyuki/haineko
+https://github.com/azumakuniyuki/Haineko
 
 =head1 AUTHOR
 
@@ -81,7 +81,7 @@ azumakuniyuki E<lt>perl.org [at] azumakuniyuki.orgE<gt>
 
 =head1 LICENSE
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This library is free software; you can redistribute it and/or modify it under 
+the same terms as Perl itself.
 
 =cut

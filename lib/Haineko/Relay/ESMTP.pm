@@ -196,7 +196,7 @@ Send an email to external server using SMTP protocol.
     my $e = Haineko::Relay::ESMTP->new( %$v );
     my $s = $e->sendmail;
 
-    print $s;           # 0 = Failed to send, 1 = Successfully sent
+    print $s;                   # 0 = Failed to send, 1 = Successfully sent
     print $e->response->error;  # 0 = No error, 1 = Error
     print $e->response->dsn;    # returns D.S.N. value
 
@@ -220,21 +220,21 @@ new() is a constructor of Haineko::Relay::ESMTP
 
     my $e = Haineko::Relay::ESMTP->new( 
             'host' => '192.0.2.1',      # SMTP Server
-            'port' => 587,          # SMTP Port
-            'auth' => 1,            # Use SMTP-AUTH
+            'port' => 587,              # SMTP Port
+            'auth' => 1,                # Use SMTP-AUTH
             'username' => 'username',   # Username for SMTP-AUTH
             'password' => 'password',   # Password for the user
-            'starttls' => 0,        # Use STARTTLS or not
-            'timeout' => 59,        # Timeout for Net::SMTP
-            'debug' => 0,           # Debug for Net::SMTP
-            'attr' => {         # Args for Email::MIME
+            'starttls' => 0,            # Use STARTTLS or not
+            'timeout' => 59,            # Timeout for Net::SMTP
+            'debug' => 0,               # Debug for Net::SMTP
+            'attr' => {                 # Args for Email::MIME
                 'content_type' => 'text/plain'
             },
-            'head' => {         # Email header
+            'head' => {                 # Email header
                 'Subject' => 'Test',
                 'To' => 'neko@example.org',
             },
-            'body' => 'Email message',  # Email body
+            'body' => 'Email message',      # Email body
             'mail' => 'kijitora@example.jp',# Envelope sender
             'rcpt' => 'cat@example.org',    # Envelope recipient
     );
@@ -252,7 +252,7 @@ sendmail() will send email to the specified recipient(rcpt) via specified host.
 
 =head1 REPOSITORY
 
-https://github.com/azumakuniyuki/haineko
+https://github.com/azumakuniyuki/Haineko
 
 =head1 AUTHOR
 
@@ -260,7 +260,7 @@ azumakuniyuki E<lt>perl.org [at] azumakuniyuki.orgE<gt>
 
 =head1 LICENSE
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This library is free software; you can redistribute it and/or modify it under 
+the same terms as Perl itself.
 
 =cut

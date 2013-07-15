@@ -117,12 +117,12 @@ new() is a constructor of Haineko::Greeting
 mechs() returns whether specified SMTP-AUTH mechanism is available or not.
 
     print $g->mechs( 'CRAM-MD5' );      # 1
-    print $g->mechs( 'LOGIN' );     # 0
+    print $g->mechs( 'LOGIN' );         # 0
     print $g->mechs( 'DIGETST-MD5' );   # 0
 
 =head1 REPOSITORY
 
-https://github.com/azumakuniyuki/haineko
+Https://github.com/azumakuniyuki/Haineko
 
 =head1 AUTHOR
 
@@ -130,7 +130,7 @@ azumakuniyuki E<lt>perl.org [at] azumakuniyuki.orgE<gt>
 
 =head1 LICENSE
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This library is free software; you can redistribute it and/or modify it under 
+the same terms as Perl itself.
 
 =cut

@@ -216,7 +216,7 @@ Send an email to a recipient via SendGrid using Web API.
     my $e = Haineko::Relay::SendGrid->new( %$v );
     my $s = $e->sendmail;
 
-    print $s;           # 0 = Failed to send, 1 = Successfully sent
+    print $s;                   # 0 = Failed to send, 1 = Successfully sent
     print $e->response->error;  # 0 = No error, 1 = Error
     print $e->response->dsn;    # always returns undef
     print $e->response->code;   # HTTP response code from SendGrid API
@@ -239,15 +239,15 @@ new() is a constructor of Haineko::Relay::SendGrid
     my $e = Haineko::Relay::SendGrid->new( 
             'username' => 'username',   # API User for SendGrid
             'password' => 'password',   # API Key for SendGrid
-            'timeout' => 60,        # Timeout for Furl
-            'attr' => {         # 
+            'timeout' => 60,            # Timeout for Furl
+            'attr' => {
                 'content_type' => 'text/plain'
             },
-            'head' => {         # Email header
+            'head' => {                 # Email header
                 'Subject' => 'Test',
                 'To' => 'neko@example.org',
             },
-            'body' => 'Email message',  # Email body
+            'body' => 'Email message',      # Email body
             'mail' => 'kijitora@example.jp',# Envelope sender
             'rcpt' => 'cat@example.org',    # Envelope recipient
     );
@@ -269,7 +269,7 @@ getbounce() retrieve bounced records using SendGrid API.
 
     my $e = Haineko::Relay::SendGrid->new( %$argvs );
     print $e->getbounce;    # 0 = No bounce or failed to retrieve
-                # 1 = One or more bounced records retrieved
+                            # 1 = One or more bounced records retrieved
 
     print Data::Dumper::Dumper $e->response;
     $VAR1 = bless( {
@@ -284,7 +284,7 @@ getbounce() retrieve bounced records using SendGrid API.
 
 =head1 REPOSITORY
 
-https://github.com/azumakuniyuki/haineko
+https://github.com/azumakuniyuki/Haineko
 
 =head1 AUTHOR
 
@@ -292,7 +292,7 @@ azumakuniyuki E<lt>perl.org [at] azumakuniyuki.orgE<gt>
 
 =head1 LICENSE
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This library is free software; you can redistribute it and/or modify it under 
+the same terms as Perl itself.
 
 =cut
