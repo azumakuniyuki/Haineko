@@ -52,7 +52,7 @@ sub sendmail {
     {
         # GET method is not permitted
         $self->res->code(405);
-        $esmtpreply = $catr->r( 'conn', 'method-not-supported' )->damn;
+        $esmtpreply = $catr->r( 'http', 'method-not-supported' )->damn;
         $nekosyslog->w( 'err', $esmtpreply );
         return $self->render( 'json' => { $cres => $esmtpreply } );
     }
@@ -85,7 +85,7 @@ sub sendmail {
 
     eval { 
         # Load email data as a JSON
-        $json = JSON::Syck::Load( $self->param );
+        $json   = JSON::Syck::Load( $self->req->body );
         $ehlo //= $json->{'ehlo'} // $json->{'helo'} // q();
         $auth //= $json->{'auth'} // q();
         $mech //= $json->{'mech'} // q();
@@ -108,6 +108,13 @@ sub sendmail {
         $recipients = $rcpt;
     };
 
+    if( $@ ){
+        $self->res->code(400);
+        $esmtpreply = $catr->r( 'http', 'malformed-json' )->damn;
+        $nekosyslog->w( 'err', $esmtpreply );
+        return $self->render( 'json' => { $cres => $esmtpreply } );
+    }
+
     AUTH: {
 
         if( $conf->{'auth'} ) {
@@ -128,6 +135,7 @@ sub sendmail {
             }
 
             # Authentication/SMTP-AUTH
+            # Not implemented yet
         }
     }
 
