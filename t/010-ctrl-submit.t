@@ -5,10 +5,13 @@ use JSON::Syck;
 use lib qw(./t/lib ./dist/lib ./lib);
 
 my $t = Test::Mojo->new('Haineko');
-my $r = $t->get_ok('/submit')->status_is(400);
+my $r = undef;
 my $j = {};
 
 CONNECT: {
+    $r = $t->get_ok('/submit')->status_is(405);
+    $r = $t->post_ok('/submit')->status_is(400);
+
     ok $r->header_is( 'Server' => 'Mojolicious (Perl)' );
     ok $r->header_is( 'X-Content-Type-Options' => 'nosniff' );
     ok $r->header_is( 'Content-Type' => 'application/json' );
@@ -123,7 +126,7 @@ CANNOT_CONNECT: {
     };
     $r = $t->post_ok( '/submit', 'form' => $j );
     ok $r->json_is( '/smtp.response/dsn', undef );
-    ok $r->json_is( '/smtp.response/code', 400 );
+    ok $r->json_is( '/smtp.response/code', 421 );
     ok $r->json_is( '/smtp.response/error', 1 );
     ok $r->json_is( '/smtp.response/command', 'CONN' );
     ok $r->json_is( '/smtp.response/message', [ 'Cannot connect SMTP Server' ] );

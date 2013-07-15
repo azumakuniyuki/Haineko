@@ -61,7 +61,7 @@ INSTANCE_METHODS: {
     $m = shift @{ $o->response->message };
 
     is( $r->dsn, undef, '->response->dsn => undef' );
-    is( $r->code, 400, '->response->code => 400' );
+    is( $r->code, 421, '->response->code => 421' );
     is( $r->error, 1, '->response->error=> 1' );
     is( $r->command, 'CONN', '->response->command => CONN' );
     like( $m, qr/Cannot connect SMTP Server/, '->response->message => '.$m );
