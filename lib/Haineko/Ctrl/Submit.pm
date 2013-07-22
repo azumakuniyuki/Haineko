@@ -19,7 +19,8 @@ sub sendmail {
     # Create a queue id (session id)
     my $queueident = Haineko::Session->make_queueid;
     my $httpheader = $self->req->headers;
-    my $remotehost = $self->tx->remote_address // $httpheader->header('X-Forwarded-For') // undef;
+    my $xforwarded = [ split( ',', $httpheader->header('X-Forwarded-For') || q() ) ];
+    my $remotehost = pop @$xforwarded || $self->tx->remote_address // undef;
     my $remoteport = $self->tx->remote_port // undef;
     my $useragent1 = $httpheader->user_agent // undef;
 
