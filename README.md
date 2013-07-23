@@ -1,8 +1,8 @@
-	 _   _       _            _         
-	| | | | __ _(_)_ __   ___| | _____  
-	| |_| |/ _` | | '_ \ / _ \ |/ / _ \ 
-	|  _  | (_| | | | | |  __/   < (_) |
-	|_| |_|\__,_|_|_| |_|\___|_|\_\___/ 
+     _   _       _            _         
+    | | | | __ _(_)_ __   ___| | _____  
+    | |_| |/ _` | | '_ \ / _ \ |/ / _ \ 
+    |  _  | (_| | | | | |  __/   < (_) |
+    |_| |_|\__,_|_|_| |_|\___|_|\_\___/ 
                                     
 HTTP API into ESMTP
 
@@ -61,49 +61,50 @@ Haineko relies on:
 Get the source
 --------------
 
-	$ cd /usr/local/src
-	$ git clone https://github.com/azumakuniyuki/Haineko.git
+    $ cd /usr/local/src
+    $ git clone https://github.com/azumakuniyuki/Haineko.git
 
 A. Run at the source directory
 ------------------------------
 
-	$ cd ./Haineko
-	$ sudo cpanm --installdeps .
-	$ vi ./etc/haineko.cf
-	$ vi ./etc/mailertable
-	$ vi ./etc/authinfo
-	$ morbo --listen 'http://127.0.0.1:2794' -w ./lib -w ./etc script/haineko
+    $ cd ./Haineko
+    $ sudo cpanm --installdeps .
+    $ vi ./etc/haineko.cf
+    $ vi ./etc/mailertable
+    $ vi ./etc/authinfo
 
-	OR
+    Run by the one of the followings:
+    $ morbo --listen 'http://127.0.0.1:2794' -w ./lib -w ./etc script/haineko
+    $ hypnotoad script/haineko
+    $ plackup -o '127.0.0.1' -p 2794 script/haineko
 
-	$ hypnotoad script/haineko
-
-B. Build and install into /usr/local/haineko or other directory
+B. Build and install into /usr/local/haineko
 ---------------------------------------------------------------
 
-	$ cd ./Haineko
-	$ sh configure --prefix=/path/to/dir (default=/usr/local/haineko)
+    $ cd ./Haineko
+    $ ./bootstrap
+    $ sh configure --prefix=/path/to/dir (default=/usr/local/haineko)
 
-	$ cpanm -L./dist --installdeps .
-	  OR
-	$ make depend
+    $ cpanm -L./dist --installdeps .
+      OR
+    $ make depend
 
-	$ make && make test && sudo make install
+    $ make && make test && sudo make install
 
-	$ cd /usr/local/haineko
-	$ sudo vi etc/haineko.cf
-	$ sudo vi etc/mailertable
-	$ sudo vi etc/authinfo
+    $ cd /usr/local/haineko
+    $ sudo vi etc/haineko.cf
+    $ sudo vi etc/mailertable
+    $ sudo vi etc/authinfo
 
-	$ cd /usr/local/haineko
-	$ export PERL5LIB=/usr/local/haineko/lib/perl5
-	$ ./libexec/morbo --listen 'http://127.0.0.1:2794' -w ./lib -w ./etc script/haineko
+    $ cd /usr/local/haineko
+    $ export PERL5LIB=/usr/local/haineko/lib/perl5
 
-	OR
+    Run by the one of the followings:
+    $ ./libexec/morbo --listen 'http://127.0.0.1:2794' -w ./lib -w ./etc script/haineko
+    $ hypnotoad script/haineko
+    $ plackup -o '127.0.0.1' -p 2794 script/haineko
 
-	$ hypnotoad script/haineko
-
-Configure /usr/local/haineko/etc/haineko.cf and files in /usr/local/haineko/etc
+Configure files in /usr/local/haineko/etc
 -------------------------------------------------------------------------------
 Please have a look at the complete format description in each file listed at the
 followings. These files are read from Haineko as a YAML-formatted file.
@@ -137,13 +138,13 @@ Special notes for OpenBSD
 -------------------------
 If you look error messages like following at running configure,
 
-	Provide an AUTOCONF_VERSION environment variable, please
-	aclocal-1.10: autom4te failed with exit status: 127
-	*** Error code 1
+    Provide an AUTOCONF_VERSION environment variable, please
+    aclocal-1.10: autom4te failed with exit status: 127
+    *** Error code 1
 
 Set AUTOCONF_VERSION environment variable.
 
-	$ export AUTOCONF_VERSION=2.60
+    $ export AUTOCONF_VERSION=2.60
 
 
 REPOSITORY
