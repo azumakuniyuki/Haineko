@@ -126,6 +126,7 @@ sub startup {
 __END__
 
 =encoding utf-8
+
 =head1 NAME
 
 Haineko - HTTP API into ESMTP
