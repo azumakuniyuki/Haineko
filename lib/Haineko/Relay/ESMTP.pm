@@ -21,7 +21,7 @@ sub sendmail {
 
     my $esmtpclass = $self->{'starttls'} ? 'Net::SMTPS' : 'Net::SMTP';
     my $headerlist = [];
-    my $emencoding = uc $self->{'attr'}->{'charset'} || 'UTF-8';
+    my $emencoding = uc( $self->{'attr'}->{'charset'} || 'UTF-8' );
     my $methodargv = {
         'body' => Encode::encode( $emencoding, ${ $self->{'body'} } ),
         'attributes' => $self->{'attr'},
