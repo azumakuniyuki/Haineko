@@ -3,8 +3,6 @@ use Test::UsedModules;
 
 my $f = [ qw|
     Address.pm
-    Auth.pm
-    Data.pm
     Greeting.pm
     Log.pm
     Relay/ESMTP.pm
