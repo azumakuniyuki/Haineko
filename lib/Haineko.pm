@@ -19,7 +19,7 @@ sub startup {
     # etc/hypnotoad.cf
     my $hypnotoadc = {
         'hypnotoad' => {
-            'listen' => [ 'http://127.0.0.1:2794', 'https://127.0.0.1:20794' ],
+            'listen' => [ 'http://127.0.0.1:2794', 'https://127.0.0.1:2894' ],
             'pid_file' => sprintf( "%s/run/haineko.pid", $root->stringify ),
         }
     };
@@ -52,8 +52,12 @@ sub startup {
         },
     };
 
-    # Load configurations: etc/haineko.cf
-    eval { $serverconf = JSON::Syck::LoadFile( $conf ) };
+    # Load configurations: etc/haineko.cf or $ENV{'HAINEKO_CONF'}
+    eval { 
+        my $c = $ENV{'HAINEKO_CONF'} || $conf;
+        $serverconf = JSON::Syck::LoadFile( $c );
+        $self->app->log->info( 'Configuration file = '.$c );
+    };
     $self->app->log->fatal( $@ ) if $@;
     $serverconf->{'smtpd'}->{'system'} = $SYSNAME;
     $serverconf->{'smtpd'}->{'version'} = $VERSION;
@@ -121,7 +125,6 @@ sub startup {
 1;
 __END__
 
-=pod
 =encoding utf-8
 =head1 NAME
 
@@ -133,7 +136,9 @@ Haineko - HTTP API into ESMTP
 
 =head1 SYNOPSYS
 
+    $ morbo --listen 'http://127.0.0.1:2794' -w ./lib -w ./etc script/haineko
     $ hypnotoad script/haineko
+    $ plackup -o '127.0.0.1' -p 2794 script/haineko
 
 =head1 EMAIL SUBMISSION
 
