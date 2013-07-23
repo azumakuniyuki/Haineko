@@ -345,7 +345,7 @@ and SMTP command.
 
 new() is a constructor of Haineko::Response
 
-=head2 B<r( I<SMTP Command>, I<Error type> )
+=head2 B<r( I<SMTP Command>, I<Error type> )>
 
 r() creates an Haineko::Response object from specified SMTP command and error type.
 
