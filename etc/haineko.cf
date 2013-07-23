@@ -22,6 +22,11 @@ smtpd:
     # Max number of recipients, 0 is unlimited
     max_rcpts_per_message: 4
 
+    # Table files: mailer and access
+    #   If each file name begin with ``/'', the file will be loaded as abusolute
+    #   path, the file name does not begin with ``/'', Haineko try to find the
+    #   file from the same directory which haineko.cf is saved.
+    #
     # Routing table files
     #   rcpt: Envelope recipient based routing table
     #   mail: Envelope sender based routing table
