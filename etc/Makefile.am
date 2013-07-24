@@ -1,7 +1,8 @@
 # $Id: Makefile.am,v 1.12.2.2 2011/06/20 03:43:39 ak Exp $
 # Copyright (C) 2013 azumakuniyuki
-sysconf_DATA = authinfo haineko.cf hypnotoad.cf mailertable recipients \
-		relayhosts sendermt
+sysconf_DATA = authinfo-example haineko.cf-example hypnotoad.cf-example \
+			   mailertable-example recipients-example relayhosts-example \
+			   sendermt-example
 	
 distdir = $(BUILDROOT)/dist/etc
 instdir = @sysconfdir@

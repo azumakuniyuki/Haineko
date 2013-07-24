@@ -10,6 +10,7 @@ smtpd:
     # EHLO hostname for connecting external SMTP server to send an email
     hostname: 'haineko.example.jp'
 
+    # NOT IMPLEMENTED YET
     # Authentication flag on HTTP-API
     #   0 = Authentication not required
     #   1 = Haineko requires authentication
