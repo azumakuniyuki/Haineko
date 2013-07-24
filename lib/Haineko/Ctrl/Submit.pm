@@ -45,6 +45,9 @@ sub sendmail {
         $relayhosts = JSON::Syck::LoadFile( $self->stash('rc')->{'conn'} );
         $ip4network = Net::CIDR::Lite->new( @{ $relayhosts->{'relayhosts'} } );
     };
+    # If the file does not exist or failed to load, only 127.0.0.1 is permitted
+    # to relay.
+    $ip4network //= Net::CIDR::Lite->new( '127.0.0.1' );
 
     # Set response headers
     $self->res->headers->header( 'X-Content-Type-Options' => 'nosniff' );
@@ -118,7 +121,8 @@ sub sendmail {
 
     AUTH: {
 
-        if( $conf->{'auth'} ) {
+        # NOT IMPLEMENTED YET
+        if( 0 && $conf->{'auth'} ) {
 
             if( not length $mech ) {
 
@@ -134,9 +138,6 @@ sub sendmail {
                 $nekosyslog->w( 'err', $esmtpreply );
                 return $self->render( 'json' => { $cres => $esmtpreply } );
             }
-
-            # Authentication/SMTP-AUTH
-            # Not implemented yet
         }
     }
 
@@ -192,6 +193,7 @@ sub sendmail {
         my $accessconf = undef;
 
         if( not scalar @$recipients ) {
+
             $self->res->code(400);
             $esmtpreply = $catr->r( 'rcpt', 'address-required' )->damn;
             $nekosyslog->w( 'err', $esmtpreply );
@@ -201,12 +203,14 @@ sub sendmail {
         VALID_EMAIL_ADDRESS: {
 
             for my $e ( @$recipients ) { 
+
                 next if Haineko::RFC5322->is_emailaddress( $e );
                 $isnotemail = 1;
                 last;
             }
 
             if( $isnotemail ) {
+
                 $self->res->code(400);
                 $esmtpreply = $catr->r( 'rcpt', 'is-not-emailaddress' )->damn;
                 $nekosyslog->w( 'err', $esmtpreply );
@@ -218,7 +222,18 @@ sub sendmail {
 
             # Check etc/recipients file. The envelope recipient address or domain part of
             # the recipient address should be listed in the file.
-            eval { $accessconf = JSON::Syck::LoadFile( $self->stash('rc')->{'rcpt'} ) };
+            #
+            eval { $accessconf = JSON::Syck::LoadFile( $self->stash('rc')->{'rcpt'} ); };
+            if( not defined $accessconf ) {
+                # If the file does not exist or failed to load, only $conf->{'hostname'} 
+                # or *@{ $ENV{'HOSTNAME'} } or $ENV{'SERVER_NAME'} or `hostname` allowed
+                # as a # domain part of the recipient address.
+                $accessconf //= { 
+                    'open-relay' => 0,
+                    'domainpart' => [ $conf->{'hostname'} ],
+                    'recipients' => [],
+                };
+            }
 
             if( ref $accessconf eq 'HASH' ) {
 
@@ -228,6 +243,7 @@ sub sendmail {
                     my $d = $accessconf->{'domainpart'} || [];
 
                     for my $e ( @$recipients ) {
+
                         next if grep { $e eq $_ } @$r;
 
                         my $x = pop [ split( '@', $e ) ];
@@ -239,6 +255,7 @@ sub sendmail {
             }
 
             if( $notallowed ) {
+
                 $self->res->code(403);
                 $esmtpreply = $catr->r( 'rcpt', 'rejected' )->damn;
                 $nekosyslog->w( 'err', $esmtpreply );
@@ -246,19 +263,22 @@ sub sendmail {
             }
         }
 
-        if( scalar @$recipients > $conf->{'max_rcpts_per_message'} ) {
+        if( defined $conf->{'max_rcpts_per_message'} && $conf->{'max_rcpts_per_message'} > 0 ){
 
-            $self->res->code(403);
-            $esmtpreply = $catr->r( 'rcpt', 'too-many-recipients' )->damn;
-            $nekosyslog->w( 'err', $esmtpreply );
-            return $self->render( 'json' => { $cres => $esmtpreply } );
+            if( scalar @$recipients > $conf->{'max_rcpts_per_message'} ) {
 
-        } elsif( grep { Haineko::RFC5321->is8bit( \$_ ) } @$recipients ) {
+                $self->res->code(403);
+                $esmtpreply = $catr->r( 'rcpt', 'too-many-recipients' )->damn;
+                $nekosyslog->w( 'err', $esmtpreply );
+                return $self->render( 'json' => { $cres => $esmtpreply } );
 
-            $self->res->code(400);
-            $esmtpreply = $catr->r( 'mail', 'non-ascii' )->damn;
-            $nekosyslog->w( 'err', $esmtpreply );
-            return $self->render( 'json' => { $cres => $esmtpreply } );
+            } elsif( grep { Haineko::RFC5321->is8bit( \$_ ) } @$recipients ) {
+
+                $self->res->code(400);
+                $esmtpreply = $catr->r( 'mail', 'non-ascii' )->damn;
+                $nekosyslog->w( 'err', $esmtpreply );
+                return $self->render( 'json' => { $cres => $esmtpreply } );
+            }
         }
     }
 
