@@ -20,7 +20,7 @@ sub sendmail {
     my $queueident = Haineko::Session->make_queueid;
     my $httpheader = $self->req->headers;
     my $xforwarded = [ split( ',', $httpheader->header('X-Forwarded-For') || q() ) ];
-    my $remotehost = pop @$xforwarded || $self->tx->remote_address // undef;
+    my $remoteaddr = pop @$xforwarded || $self->tx->remote_address // undef;
     my $remoteport = $self->tx->remote_port // undef;
     my $useragent1 = $httpheader->user_agent // undef;
 
@@ -30,24 +30,11 @@ sub sendmail {
         'facility'   => $conf->{'syslog'}->{'facility'},
         'disabled'   => $conf->{'syslog'}->{'disabled'},
         'useragent'  => $useragent1,
-        'remotehost' => $remotehost,
+        'remoteaddr' => $remoteaddr,
         'remoteport' => $remoteport,
     };
     my $nekosyslog = Haineko::Log->new( %$syslogargv );
     my $esmtpreply = undef;
-
-    my $relayhosts = undef;
-    my $ip4network = undef;
-
-    eval { 
-        # Check etc/relayhosts file. The remote host should be listed in the file.
-        require Net::CIDR::Lite;
-        $relayhosts = JSON::Syck::LoadFile( $self->stash('rc')->{'conn'} );
-        $ip4network = Net::CIDR::Lite->new( @{ $relayhosts->{'relayhosts'} } );
-    };
-    # If the file does not exist or failed to load, only 127.0.0.1 is permitted
-    # to relay.
-    $ip4network //= Net::CIDR::Lite->new( '127.0.0.1' );
 
     # Set response headers
     $self->res->headers->header( 'X-Content-Type-Options' => 'nosniff' );
@@ -61,24 +48,42 @@ sub sendmail {
         return $self->render( 'json' => { $cres => $esmtpreply } );
     }
 
-    if( not $relayhosts->{'open-relay'} ) {
-        # When the value of ``openrelay'' is 0 in etc/relayhosts,
-        # Only permitted host can send a message.
-        if( not defined $ip4network ) {
+    CONN: {
 
-            $self->res->code(403);
-            $esmtpreply = $catr->r( 'auth', 'no-checkrelay' )->damn;
-            $nekosyslog->w( 'err', $esmtpreply );
-            return $self->render( 'json' => { $cres => $esmtpreply } );
+        my $relayhosts = undef;
+        my $ip4network = undef;
 
-        } elsif( not $ip4network->find( $remotehost ) ) {
+        eval { 
+            # Check etc/relayhosts file. The remote host should be listed in the file.
+            require Net::CIDR::Lite;
+            $relayhosts = JSON::Syck::LoadFile( $self->stash('rc')->{'conn'} );
+            $ip4network = Net::CIDR::Lite->new( @{ $relayhosts->{'relayhosts'} } );
+        };
+        # If the file does not exist or failed to load, only 127.0.0.1 is permitted
+        # to relay.
+        $ip4network //= Net::CIDR::Lite->new( '127.0.0.1' );
 
-            $self->res->code(403);
-            $esmtpreply = $catr->r( 'auth', 'access-denied' )->damn;
-            $nekosyslog->w( 'err', $esmtpreply );
-            return $self->render( 'json' => { $cres => $esmtpreply } );
+
+        if( not $relayhosts->{'open-relay'} ) {
+            # When the value of ``openrelay'' is 0 in etc/relayhosts,
+            # Only permitted host can send a message.
+            if( not defined $ip4network ) {
+                # Code in this block might not be used...
+                $self->res->code(403);
+                $esmtpreply = $catr->r( 'auth', 'no-checkrelay' )->damn;
+                $nekosyslog->w( 'err', $esmtpreply );
+                return $self->render( 'json' => { $cres => $esmtpreply } );
+
+            } elsif( not $ip4network->find( $remoteaddr ) ) {
+
+                $self->res->code(403);
+                $esmtpreply = $catr->r( 'auth', 'access-denied' )->damn;
+                $nekosyslog->w( 'err', $esmtpreply );
+                return $self->render( 'json' => { $cres => $esmtpreply } );
+            }
         }
     }
+
 
     my $headerlist = [ 'from', 'reply-to', 'subject' ];
     my $emencoding = q();
@@ -310,7 +315,7 @@ sub sendmail {
         'addresser'  => $mail,
         'recipient'  => $recipients,
         'useragent'  => $useragent1,
-        'remotehost' => $remotehost,
+        'remoteaddr' => $remoteaddr,
         'remoteport' => $remoteport,
     };
     $neko = Haineko::Session->new( %$methodargv );
@@ -327,10 +332,10 @@ sub sendmail {
         'X-Mailer'          => sprintf( "%s", $neko->useragent // q() ),
         'X-SMTP-Engine'     => sprintf( "%s %s", $conf->{'system'}, $conf->{'version'} ),
         'X-HTTP-Referer'    => sprintf( "%s", $neko->referer // q() ),
-        'X-Originating-IP'  => $remotehost,
+        'X-Originating-IP'  => $remoteaddr,
     };
     my $received00 = sprintf( "from %s ([%s]) by %s with HTTP id %s; %s", 
-                $ehlo, $remotehost, $conf->{'hostname'}, $neko->queueid, 
+                $ehlo, $remoteaddr, $conf->{'hostname'}, $neko->queueid, 
                 $timestamp1->strftime );
     push @{ $mailheader->{'Received'} }, $received00;
 

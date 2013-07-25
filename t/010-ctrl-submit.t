@@ -10,6 +10,7 @@ my $c = { 'Content-Type' => 'application/json' };
 my $r = undef;  # Response
 my $p = {};     # JSON as a Hash reference
 my $j = q();    # JSON as a String
+my $h = qx(hostname); chomp $h;
 
 
 CONNECT: {
@@ -113,14 +114,9 @@ RCPT: {
     $p = { 
         'ehlo' => 'example.jp', 
         'mail' => 'kijitora@example.jp', 
-        'rcpt' => [ 
-            '1@example.org',
-            '2@example.org',
-            '3@example.org',
-            '4@example.org',
-            '5@example.org',
-        ],
+        'rcpt' => [], 
     };
+    map { push @{ $p->{'rcpt'} }, sprintf( "%04d@%s", $_, $h ) } ( 1..5 );
     $j = JSON::Syck::Dump $p;
     $r = $t->post_ok( '/submit', $c, $j );
     
@@ -135,7 +131,7 @@ BODY: {
     $p = { 
         'ehlo' => 'example.jp', 
         'mail' => 'kijitora@example.jp', 
-        'rcpt' => [ 'haineko@example.org' ],
+        'rcpt' => [ 'haineko@'.$h ],
     };
     $j = JSON::Syck::Dump $p;
     $r = $t->post_ok( '/submit', $c, $j );
@@ -149,7 +145,7 @@ BODY: {
     $p = { 
         'ehlo' => 'example.jp', 
         'mail' => 'kijitora@example.jp', 
-        'rcpt' => [ 'haineko@example.org' ],
+        'rcpt' => [ 'haineko@'.$h ],
         'body' => 'ニャー',
     };
     $j = JSON::Syck::Dump $p;
@@ -167,7 +163,7 @@ CANNOT_CONNECT: {
     $p = { 
         'ehlo' => 'example.jp', 
         'mail' => 'kijitora@example.jp', 
-        'rcpt' => [ 'haineko@example.org' ],
+        'rcpt' => [ 'haineko@'.$h ],
         'body' => 'ニャー',
         'header' => {
             'subject' => 'にゃんこ',

@@ -17,7 +17,7 @@ my $roaccessors = [
     'queueid',      # (String) Queue ID
     'referer',      # (String) HTTP REFERER
     'useragent',    # (String) User agent name
-    'remotehost',   # (String) Client IP address
+    'remoteaddr',   # (String) Client IP address
     'remoteport',   # (String) Client port number
 ];
 my $woaccessors = [];
@@ -252,7 +252,7 @@ Haineko::Session manages a connection from HTTP and SMTP session on Haineko serv
     use Haineko::Session;
     my $v = { 
         'useragent' => 'Mozilla',
-        'remotehost' => '127.0.0.1',
+        'remoteaddr' => '127.0.0.1',
         'remoteport' => 62401,
     };
     my $e = Haineko::Session->new( %$v );
@@ -272,7 +272,7 @@ new() is a constructor of Haineko::Session
 
     my $e = Haineko::Session->new( 
             'useragent' => $self->req->headers->user_agent,
-            'remotehost' => $self->req->headers->header('REMOTE_HOST'),
+            'remoteaddr' => $self->req->headers->header('REMOTE_HOST'),
             'remoteport' => $self->req->headers->header('REMOTE_PORT'),
             'addresser' => 'kijitora@example.jp',
             'recipient' => [ 'neko@example.org', 'cat@example.com' ],
@@ -329,7 +329,7 @@ damn() returns instance data as a hash reference for Mojolicious session.
                        'command' => undef,
                        'code' => undef
                      },
-          'smtp.remotehost' => '127.0.0.1',
+          'smtp.remoteaddr' => '127.0.0.1',
           'smtp.useragent' => 'CLI',
           'smtp.started' => bless( [
                          9,

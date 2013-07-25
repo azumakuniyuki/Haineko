@@ -16,7 +16,7 @@ can_ok( $testobject, @$objmethods );
 METHODS: {
     my $x = { 
         'useragent' => 'CLI', 
-        'remotehost' => '127.0.0.1',
+        'remoteaddr' => '127.0.0.1',
         'addresser' => 'kijitora@example.jp',
         'recipient' => [ 'mi-chan@example.org' ],
     };
@@ -44,7 +44,7 @@ METHODS: {
 
         ok( $o->queueid, '->queueid => '.$o->queueid );
         is( $o->useragent, 'CLI', '->useragent => CLI' );
-        is( $o->remotehost, '127.0.0.1', '->remotehost => 127.0.0.1' );
+        is( $o->remoteaddr, '127.0.0.1', '->remoteaddr => 127.0.0.1' );
         is( $o->remoteport, undef, '->remoteport => undef' );
         is( $o->referer, undef, '->referer => undef' );
     }

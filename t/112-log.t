@@ -13,10 +13,10 @@ can_ok( $modulename, @$pkgmethods );
 can_ok( $testobject, @$objmethods );
 isa_ok( $testobject, $modulename  );
 
-my $v = { 'queueid' => 'neko', 'remotehost' => '127.0.0.1' };
+my $v = { 'queueid' => 'neko', 'remoteaddr' => '127.0.0.1' };
 my $o = Haineko::Log->new( %$v );
 is( $o->queueid, 'neko', '->queueid => neko' );
-is( $o->remotehost, '127.0.0.1', '->remotehost => 127.0.0.1' );
+is( $o->remoteaddr, '127.0.0.1', '->remoteaddr => 127.0.0.1' );
 is( $o->remoteport, '', '->remoteport => ""' );
 is( $o->useragent, '', '->useragent => ""' );
 is( $o->facility, 'local2', '->facilicy => local2' );

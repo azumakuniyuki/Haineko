@@ -15,7 +15,7 @@ my $roaccessors = [
     'identity',     # (String) Log identiy string
     'queueid',      # (String) Queue ID
     'useragent',    # (String) User agent name
-    'remotehost',   # (String) Client IP address
+    'remoteaddr',   # (String) Client IP address
     'remoteport',   # (String) Client port number
 ];
 
@@ -59,7 +59,7 @@ sub new {
     $argvs->{'queueid'}  //= q();
 
     $argvs->{'useragent'}  ||= q();
-    $argvs->{'remotehost'} ||= q();
+    $argvs->{'remoteaddr'} ||= q();
     $argvs->{'remoteport'} //= q();
 
     if( defined $argvs->{'option'} && ref $argvs->{'option'} eq 'HASH' ) {
@@ -89,7 +89,7 @@ sub h {
     my $host = q();
 
     push @$head, sprintf( "queueid=%s", $self->{'queueid'} ) if $self->{'queueid'};
-    $host  = sprintf( "client=%s", $self->{'remotehost'} ) if $self->{'remotehost'};
+    $host  = sprintf( "client=%s", $self->{'remoteaddr'} ) if $self->{'remoteaddr'};
     $host .= sprintf( ":%d", $self->{'remoteport'} ) if $host && $self->{'remoteport'};
     push @$head, $host if length $host;
     push @$head, sprintf( "ua='%s'", $self->{'useragent'} ) if $self->{'useragent'};
@@ -155,7 +155,7 @@ Write log messages via UNIX syslog
 
     use Haineko::Log;
     my $v = { 
-        'remotehost' => '127.0.0.1', 
+        'remoteaddr' => '127.0.0.1', 
         'remoteport' => 1024, 
     };
     my $e = Haineko::Log->new( %$v );
@@ -167,7 +167,7 @@ Write log messages via UNIX syslog
     $e->w( 'err', $x );
     # Jul  4 10:00:00 host haineko[6994]: client=127.0.0.1:1024, message='Rejected', dsn=5.2.1, code=550
 
-    $v = { 'remotehost' => '192.0.1.2', 'queueid' => 'r67HY3E06994bogA' };
+    $v = { 'remoteaddr' => '192.0.1.2', 'queueid' => 'r67HY3E06994bogA' };
     $e = Haineko::Log->new( %$v );
     $x = { 'message' => [ 'Log1', 'Log2' ] 'neko' => 'Nyaa' };
     $e->w( 'err', $x );
@@ -182,7 +182,7 @@ new() is a constructor of Haineko::Log
     my $e = Haineko::Log->new(
             'queueid' => 'ID string',   # Haineko::Session->queueid
             'useragent' => 'Agent name',    # $self->req->header->user_agent
-            'remotehost' => '127.0.0.1',    # REMOTE_HOST http environment variable
+            'remoteaddr' => '127.0.0.1',    # REMOTE_HOST http environment variable
             'remoteport' => 1024,       # REMOTE_PORT http environment variable
     );
 
