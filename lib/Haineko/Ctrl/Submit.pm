@@ -6,6 +6,7 @@ use Encode;
 use JSON::Syck;
 use Time::Piece;
 use Haineko::Log;
+use Haineko::Milter;
 use Haineko::Session;
 use Haineko::Response;
 
@@ -22,6 +23,7 @@ sub sendmail {
     my $xforwarded = [ split( ',', $httpheader->header('X-Forwarded-For') || q() ) ];
     my $remoteaddr = pop @$xforwarded || $self->tx->remote_address // undef;
     my $remoteport = $self->tx->remote_port // undef;
+    my $remotehost = $self->req->env->{'REMOTE_HOST'} // undef,
     my $useragent1 = $httpheader->user_agent // undef;
 
     # Syslog object
@@ -35,6 +37,8 @@ sub sendmail {
     };
     my $nekosyslog = Haineko::Log->new( %$syslogargv );
     my $esmtpreply = undef;
+    my $milterlibs = [];
+    my $mfresponse = undef;
 
     # Set response headers
     $self->res->headers->header( 'X-Content-Type-Options' => 'nosniff' );
@@ -63,10 +67,10 @@ sub sendmail {
         # to relay.
         $ip4network //= Net::CIDR::Lite->new( '127.0.0.1' );
 
-
         if( not $relayhosts->{'open-relay'} ) {
             # When the value of ``openrelay'' is 0 in etc/relayhosts,
             # Only permitted host can send a message.
+
             if( not defined $ip4network ) {
                 # Code in this block might not be used...
                 $self->res->code(403);
@@ -82,8 +86,27 @@ sub sendmail {
                 return $self->render( 'json' => { $cres => $esmtpreply } );
             }
         }
-    }
 
+        XXFI_CONNECT: {
+
+            @$milterlibs = @{ $conf->{'milter'}->{'conn'} || [] };
+            for my $e ( @{ Haineko::Milter->import( $milterlibs ) } ) {
+
+                $mfresponse = $catr->new( 'code' => 421, 'command' => 'CONN' );
+                last if not $e->conn( $mfresponse, $remotehost, $remoteaddr );
+            }
+
+            if( defined $mfresponse && $mfresponse->error ){
+
+                $self->res->code(400);
+                $esmtpreply = $mfresponse->damn;
+                $nekosyslog->w( 'err', $esmtpreply );
+                return $self->render( 'json' => { $cres => $esmtpreply } );
+            }
+
+        } # End of ``XXFI_CONNECT''
+
+    } # End of ``CONN''
 
     my $headerlist = [ 'from', 'reply-to', 'subject' ];
     my $emencoding = q();
@@ -164,7 +187,27 @@ sub sendmail {
             $nekosyslog->w( 'err', $esmtpreply );
             return $self->render( 'json' => { $cres => $esmtpreply } );
         }
-    }
+
+        XXFI_HELO: {
+
+            @$milterlibs = @{ $conf->{'milter'}->{'ehlo'} || [] };
+            for my $e ( @{ Haineko::Milter->import( $milterlibs ) } ) {
+
+                $mfresponse = $catr->new( 'code' => 521, 'command' => 'EHLO' );
+                last if not $e->ehlo( $mfresponse, $remotehost, $remoteaddr );
+            }
+
+            if( defined $mfresponse && $mfresponse->error ){
+
+                $self->res->code(400);
+                $esmtpreply = $mfresponse->damn;
+                $nekosyslog->w( 'err', $esmtpreply );
+                return $self->render( 'json' => { $cres => $esmtpreply } );
+            }
+
+        } # End of ``XXFI_HELO''
+
+    } # End of ``EHLO''
 
     MAIL_FROM: {
         # Check envelope sender address
@@ -189,7 +232,27 @@ sub sendmail {
             $nekosyslog->w( 'err', $esmtpreply );
             return $self->render( 'json' => { $cres => $esmtpreply } );
         }
-    }
+
+        XXFI_ENVFROM: {
+
+            @$milterlibs = @{ $conf->{'milter'}->{'mail'} || [] };
+            for my $e ( @{ Haineko::Milter->import( $milterlibs ) } ) {
+
+                $mfresponse = $catr->new( 'code' => 501, 'dsn' => '5.1.8', 'command' => 'MAIL' );
+                last if not $e->mail( $mfresponse, $mail );
+            }
+
+            if( defined $mfresponse && $mfresponse->error ){
+
+                $self->res->code(400);
+                $esmtpreply = $mfresponse->damn;
+                $nekosyslog->w( 'err', $esmtpreply );
+                return $self->render( 'json' => { $cres => $esmtpreply } );
+            }
+
+        } # End of ``XXFI_ENVFROM''
+
+    } # End of ``MAIL_FROM''
 
     RCPT_TO: {
         # Check envelope recipient addresses
@@ -285,7 +348,27 @@ sub sendmail {
                 return $self->render( 'json' => { $cres => $esmtpreply } );
             }
         }
-    }
+
+        XXFI_ENVRCPT: {
+
+            @$milterlibs = @{ $conf->{'milter'}->{'rcpt'} || [] };
+            for my $e ( @{ Haineko::Milter->import( $milterlibs ) } ) {
+
+                $mfresponse = $catr->new( 'code' => 553, 'dsn' => '5.7.1', 'command' => 'RCPT' );
+                last if not $e->rcpt( $mfresponse, $recipients );
+            }
+
+            if( defined $mfresponse && $mfresponse->error ){
+
+                $self->res->code(400);
+                $esmtpreply = $mfresponse->damn;
+                $nekosyslog->w( 'err', $esmtpreply );
+                return $self->render( 'json' => { $cres => $esmtpreply } );
+            }
+
+        } # End of ``XXFI_ENVRCPT''
+
+    } # End of ``RCPT_TO''
 
     DATA: {
         # Check email body and subject header
@@ -303,10 +386,10 @@ sub sendmail {
             $nekosyslog->w( 'err', $esmtpreply );
             return $self->render( 'json' => { $cres => $esmtpreply } );
         }
-    }
+    } # End of ``DATA''
 
-    my $methodargv = {};
     my $timestamp1 = localtime Time::Piece->new;
+    my $methodargv = {};
 
     # Create SMTP Session
     $methodargv = { 
@@ -402,6 +485,45 @@ sub sendmail {
         my $envelopemf = $neko->addresser->address;
         $mailheader->{'Sender'} = $envelopemf if $fromheader eq $envelopemf;
     }
+
+    XXFI_HEADER: {
+
+        @$milterlibs = @{ $conf->{'milter'}->{'head'} || [] };
+        for my $e ( @{ Haineko::Milter->import( $milterlibs ) } ) {
+
+            $mfresponse = $catr->new( 'code' => 554, 'dsn' => '5.7.1', 'command' => 'DATA' );
+            last if not $e->head( $mfresponse, $mailheader );
+        }
+
+        if( defined $mfresponse && $mfresponse->error ){
+
+            $self->res->code(400);
+            $esmtpreply = $mfresponse->damn;
+            $nekosyslog->w( 'err', $esmtpreply );
+            return $self->render( 'json' => { $cres => $esmtpreply } );
+        }
+
+    } # End of ``XXFI_HEADER''
+
+    XXFI_BODY: {
+
+        @$milterlibs = @{ $conf->{'milter'}->{'head'} || [] };
+        for my $e ( @{ Haineko::Milter->import( $milterlibs ) } ) {
+
+            $mfresponse = $catr->new( 'code' => 554, 'dsn' => '5.6.0', 'command' => 'DATA' );
+            last if not $e->body( $mfresponse, \$body );
+        }
+
+        if( defined $mfresponse && $mfresponse->error ){
+
+            $self->res->code(400);
+            $esmtpreply = $mfresponse->damn;
+            $nekosyslog->w( 'err', $esmtpreply );
+            return $self->render( 'json' => { $cres => $esmtpreply } );
+        }
+
+    } # End of ``XXFI_BODY''
+
 
     # mailertable
     my $mailerconf = { 'mail' => {}, 'rcpt' => {} };
