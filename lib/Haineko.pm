@@ -4,12 +4,12 @@ use Mojo::Base 'Mojolicious';
 use Path::Class;
 use JSON::Syck;
 
-our $VERSION = '0.0.2';
+our $VERSION = '0.0.3';
 our $SYSNAME = 'Haineko';
 
 sub startup {
     my $self = shift;
-    my $home = new Path::Class::File(__FILE__);
+    my $home = new Path::Class::File( $ENV{'HAINEKO_SCRIPT'} || __FILE__ );
     my $root = $home->dir->resolve->absolute->parent;
     my $conf = sprintf( "%s/etc/haineko.cf", $root->stringify );
 
@@ -20,16 +20,28 @@ sub startup {
     my $hypnotoadc = {
         'hypnotoad' => {
             'listen' => [ 'http://127.0.0.1:2794', 'https://127.0.0.1:2894' ],
-            'pid_file' => sprintf( "%s/run/haineko.pid", $root->stringify ),
+            'pid_file' => '/tmp/haineko.pid',
         }
     };
 
-    # etc/haineko.cf
+    # Set server name
+    my $servername = $ENV{'HOSTNAME'} || $ENV{'SERVER_NAME'} || qx(hostname) || q();
+    chomp $servername;
+
+    # Default values instead of etc/haineko.cf
     my $serverconf = {
         'smtpd' => { 
-            'system' => $SYSNAME,
+            'auth' => 0,                    # No authentication
+            'hostname' => $servername,      # used at EHLO
             'max_message_size' => 4194304,  # 4KB
             'max_rcpts_per_message' => 4,   # 4 recipients
+            'milter' => {
+                'libs' => [],
+            },
+            'syslog' => {
+                'disabled' => 1,
+                'facility' => 'local2',
+            },
         },
         'daemon' => {
             'session' => { 
@@ -52,19 +64,20 @@ sub startup {
         },
     };
 
-    # Load configurations: etc/haineko.cf or $ENV{'HAINEKO_CONF'}
     eval { 
+        # Load configurations: etc/haineko.cf or $ENV{'HAINEKO_CONF'}
         my $c = $ENV{'HAINEKO_CONF'} || $conf;
         $serverconf = JSON::Syck::LoadFile( $c );
         $self->app->log->info( 'Configuration file = '.$c );
     };
-    $self->app->log->fatal( $@ ) if $@;
+    $self->app->log->warn( $@ ) if $@;
     $serverconf->{'smtpd'}->{'system'} = $SYSNAME;
     $serverconf->{'smtpd'}->{'version'} = $VERSION;
+    $serverconf->{'smtpd'}->{'hostname'} //= $servername;
+    $servername //= $serverconf->{'smtpd'}->{'hostname'};
 
     # Load configurations: etc/hypnotoad.cf
     eval { $hypnotoadc = JSON::Syck::LoadFile( sprintf( "%s/etc/hypnotoad.cf", $root->stringify ) ) };
-    $self->app->log->info( $@ ) if $@;
 
     ROUTINGTABLES_AND_ACCESSCONTROL: {
 
@@ -102,6 +115,13 @@ sub startup {
     $self->defaults( 'cf' => $serverconf->{'smtpd'} ) if exists $serverconf->{'smtpd'};
     $self->defaults( 'mc' => $tableconf->{'mailer'} );
     $self->defaults( 'rc' => $tableconf->{'access'} );
+
+    my $milterlibs = $serverconf->{'smtpd'}->{'milter'}->{'libs'} || [];
+    if( ref $milterlibs eq 'ARRAY' ) {
+        # Load milter lib path
+        require Haineko::Milter;
+        Haineko::Milter->libs( $milterlibs );
+    }
 
     # Helper
     $self->helper(
