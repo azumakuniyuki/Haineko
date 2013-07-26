@@ -79,7 +79,7 @@ A. Run at the source directory
     $ plackup -o '127.0.0.1' -p 2794 script/haineko
 
 B. Build and install into /usr/local/haineko
----------------------------------------------------------------
+--------------------------------------------
 
     $ cd ./Haineko
     $ ./bootstrap
@@ -103,6 +103,23 @@ B. Build and install into /usr/local/haineko
     $ ./libexec/morbo --listen 'http://127.0.0.1:2794' -w ./lib -w ./etc script/haineko
     $ hypnotoad script/haineko
     $ plackup -o '127.0.0.1' -p 2794 script/haineko
+
+C. Build and install into /usr/local
+---------------------------------------------------------------
+
+    $ cd ./Haineko
+    $ sudo cpanm .
+    $ sudo cpanm -L/usr/local --installdeps .
+
+    # cp etc/haineko.cf-example /usr/local/etc/haineko.cf
+    # cp etc/mailertable-example /usr/local/etc/mailertable
+    ...
+
+    Run by the one of the followings:
+    $ morbo --listen 'http://127.0.0.1:2794' -w ./lib -w ./etc bin/haineko
+    $ hypnotoad bin/haineko
+    $ plackup -o '127.0.0.1' -p 2794 bin/haineko
+
 
 Configure files in /usr/local/haineko/etc
 -------------------------------------------------------------------------------
