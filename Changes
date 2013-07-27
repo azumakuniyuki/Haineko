@@ -1,5 +1,11 @@
 Revision history for Haineko
 
+0.0.3   Sat, 27 Jul 2013 14:22:22 +0900 (JST)
+    - Only 127.0.0.1 is permitted to relay if there is no etc/relayhosts file.
+    - Haineko can run even if haineko.cf does not exist.
+    - Support HAINEKO_CONF environment variable for specifying as a config file.
+    - Implement Haineko::Milter and Haineko::Milter::Example.
+
 0.0.2   Tue, 16 Jul 2013 05:22:22 +0900 (JST)
     - GET method support has been removed. Haineko only receive email data via 
       POST method and as a JSON format. 
