@@ -98,7 +98,7 @@ Load modules in the argument as a module for milter. If a module name begin with
 which doesn't begin with ``@'' such as ``Neko'', ``Haineko::Milter::Neko'' will
 be loaded.
 
-=head1 IMPLEMENT MILTER METHODS (Override in Haineko::Milter::*)
+=head1 IMPLEMENT MILTER METHODS (Overridden by Haineko::Milter::*)
 
 Each method is called from /submit at each phase of SMTP session. If you want to
 reject the smtp connection, set required values into Haineko::Response object and

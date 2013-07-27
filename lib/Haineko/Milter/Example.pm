@@ -100,6 +100,163 @@ sub body {
     return $nekor->error ? 0 : 1;
 }
 
-
 1;
 __END__
+
+=encoding utf8
+
+=head1 NAME
+
+Haineko::Milter::Example - Haineko milter for Example
+
+=head1 DESCRIPTION
+
+Example Haineko::Milter class.
+
+=head1 SYNOPSIS
+
+    use Haineko::Milter;
+    Haineko::Milter->import( [ 'Example' ]);
+
+=head1 IMPLEMENT MILTER METHODS (Override Haineko::Milter)
+
+Each method is called from /submit at each phase of SMTP session. If you want to
+reject the smtp connection, set required values into Haineko::Response object and
+return 0 or undef as a return value of each method. However you want to only rewrite
+contents or passed your contents filter, return 1 or true as a return value.
+
+
+=head2 B<conn( I<Haineko::Response>, I<REMOTE_HOST>, I<REMOTE_ADDR> )>
+
+conn() method is for checking a client hostname and client IP address.
+
+=head3 Arguments
+
+=head4 B<Haineko::Response> object
+
+If your milter program rejects a message, set 1 by ->error(1), set error message
+by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
+Default SMTP status codes is 421 in this method.
+
+=head4 B<REMOTE_HOST>
+
+The host name of the message sender, as picked from HTTP REMOTE_HOST variable.
+
+=head4 B<REMOTE_ADDR>
+
+The host address, as picked from HTTP REMOTE_ADDR variable.
+
+
+=head2 B<ehlo( I<Haineko::Response>, I<HELO_HOST> )>
+
+ehlo() method is for checking a hostname passed as an argument of EHLO.
+
+=head3 Arguments
+
+=head4 B<Haineko::Response> object
+
+If your milter program rejects a message, set 1 by ->error(1), set error message
+by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
+override D.S.N value by ->dsn(). Default SMTP status codes is 521 in this method.
+
+=head4 B<HELO_HOST>
+
+Value defined in "ehlo" field in HTTP-POSTed JSON data, which should be the 
+domain name of the sending host or IP address enclosed square brackets.
+
+
+=head2 B<mail( I<Haineko::Response>, I<ENVELOPE_SENDER> )>
+
+mail() method is for checking an envelope sender address.
+
+=head3 Arguments
+
+=head4 B<Haineko::Response> object
+
+If your milter program rejects a message, set 1 by ->error(1), set error message
+by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
+override D.S.N value by ->dsn(). Default SMTP status codes is 501, dsn is 5.1.8
+in this method.
+
+=head4 B<ENVELOPE_SENDER>
+
+Value defined in "mail" field in HTTP-POSTed JSON data, which should be the 
+valid email address.
+
+
+=head2 B<rcpt( I<Haineko::Response>, I< [ ENVELOPE_RECIPIENTS ] > )>
+
+rcpt() method is for checking envelope recipient addresses. Envelope recipient
+addresses are passwd as an array reference.
+
+=head3 Arguments
+
+=head4 B<Haineko::Response> object
+
+If your milter program rejects a message, set 1 by ->error(1), set error message
+by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
+override D.S.N value by ->dsn(). Default SMTP status codes is 553, dsn is 5.7.1
+in this method.
+
+=head4 B<ENVELOPE_RECIPIENTS>
+
+Values defined in "rcpt" field in HTTP-POSTed JSON data, which should be the 
+valid email address.
+
+
+=head2 B<head( I<Haineko::Response>, I< { EMAIL_HEADER } > )>
+
+head() method is for checking email header. Email header is passwd as an hash
+reference.
+
+=head3 Arguments
+
+=head4 B<Haineko::Response> object
+
+If your milter program rejects a message, set 1 by ->error(1), set error message
+by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
+override D.S.N value by ->dsn(). Default SMTP status codes is 554, dsn is 5.7.1
+in this method.
+
+=head4 B<EMAIL_HEADER>
+
+Values defined in "header" field in HTTP-POSTed JSON data.
+
+
+=head2 B<body( I<Haineko::Response>, I< \EMAIL_BODY > )>
+
+head() method is for checking email body. Email body is passwd as an scalar
+reference.
+
+=head3 Arguments
+
+=head4 B<Haineko::Response> object
+
+If your milter program rejects a message, set 1 by ->error(1), set error message
+by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
+override D.S.N value by ->dsn(). Default SMTP status codes is 554, dsn is 5.6.0
+in this method.
+
+=head4 B<EMAIL_HEADER>
+
+Value defined in "body" field in HTTP-POSTed JSON data.
+
+
+=head1 SEE ALSO
+
+https://www.milter.org/developers/api/
+
+=head1 REPOSITORY
+
+https://github.com/azumakuniyuki/Haineko
+
+=head1 AUTHOR
+
+azumakuniyuki E<lt>perl.org [at] azumakuniyuki.orgE<gt>
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify it under 
+the same terms as Perl itself.
+
+=cut
