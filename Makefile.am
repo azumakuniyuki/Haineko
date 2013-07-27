@@ -49,11 +49,9 @@ message:
 	@echo "  2. Start HTTPd"
 	@echo "     > cd @prefix@"
 	@echo "     > export PERL5LIB=@libdir@/perl5"
-	@echo "     > ./libexec/morbo --listen 'http://127.0.0.1:2794' -w ./lib -w ./etc ./script/haineko"
+	@echo "     > ./libexec/hypnotoad script/haineko"
 	@echo "     OR"
-	@echo "     > cd @prefix@"
-	@echo "     > export PERL5LIB=@libdir@/perl5"
-	@echo "     > ./libexec/hypnotoad @prefix@/script/haineko"
+	@echo "     > plackup -o '127.0.0.1' -p 2794 script/haineko"
 	@echo "  3. Connect http://127.0.0.1:2794"
 	@echo
 	@echo "-----------------------------------------------------------------------------"
