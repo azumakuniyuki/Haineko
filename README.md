@@ -69,9 +69,10 @@ A. Run at the source directory
 
     $ cd ./Haineko
     $ sudo cpanm --installdeps .
-    $ vi ./etc/haineko.cf
-    $ vi ./etc/mailertable
-    $ vi ./etc/authinfo
+    $ for CF in haineko.cf mailertable sendermt recipients relayhosts authinfo; do
+    >   cp $CF-example $CF
+    >   vi $CF
+    > done
 
     Run by the one of the followings:
     $ morbo --listen 'http://127.0.0.1:2794' -w ./lib -w ./etc script/haineko
@@ -91,10 +92,11 @@ B. Build and install into /usr/local/haineko
 
     $ make && make test && sudo make install
 
-    $ cd /usr/local/haineko
-    $ sudo vi etc/haineko.cf
-    $ sudo vi etc/mailertable
-    $ sudo vi etc/authinfo
+    $ cd /usr/local/haineko/etc
+    $ for CF in haineko.cf mailertable sendermt recipients relayhosts authinfo; do
+    >   sudo cp $CF-example $CF
+    >   sudo vi $CF
+    > done
 
     $ cd /usr/local/haineko
     $ export PERL5LIB=/usr/local/haineko/lib/perl5
@@ -111,11 +113,14 @@ C. Build and install into /usr/local
     $ sudo cpanm .
     $ sudo cpanm -L/usr/local --installdeps .
 
-    # cp etc/haineko.cf-example /usr/local/etc/haineko.cf
-    # cp etc/mailertable-example /usr/local/etc/mailertable
-    ...
+    $ cd /usr/local/etc
+    $ for CF in haineko.cf mailertable sendermt recipients relayhosts authinfo; do
+    >   sudo cp $CF-example $CF
+    >   sudo vi $CF
+    > done
 
     Run by the one of the followings:
+    $ cd /usr/local/etc
     $ morbo --listen 'http://127.0.0.1:2794' -w ./lib -w ./etc bin/haineko
     $ hypnotoad bin/haineko
     $ plackup -o '127.0.0.1' -p 2794 bin/haineko
@@ -127,7 +132,8 @@ Please have a look at the complete format description in each file listed at the
 followings. These files are read from Haineko as a YAML-formatted file.
 
 ## etc/haineko.cf
-Main configuration file for Haineko.
+Main configuration file for Haineko. If you want to use other configuration file,
+set $HAINEKO\_CONF environment variable like 'export HAINEKO\_CONF=/etc/neko.cf'.
 
 ## etc/mailertable
 Defines "mailer table": Recipient's domain part based routing table like the 
