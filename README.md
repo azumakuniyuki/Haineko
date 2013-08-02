@@ -28,8 +28,8 @@ Supported email clouds to relay using Web API
 * [SendGrid](http://sendgrid.com) - lib/Haineko/Relay/SendGrid.pm
 
 
-How to build, configure and run Haineko
-=======================================
+How to build, configure and run
+===============================
 
 System requirements
 -------------------
@@ -107,7 +107,7 @@ B. Build and install into /usr/local/haineko
     $ plackup -o '127.0.0.1' -p 2794 script/haineko
 
 C. Build and install into /usr/local
----------------------------------------------------------------
+------------------------------------
 
     $ cd ./Haineko
     $ sudo cpanm .
@@ -127,7 +127,7 @@ C. Build and install into /usr/local
 
 
 Configure files in /usr/local/haineko/etc
--------------------------------------------------------------------------------
+-----------------------------------------
 Please have a look at the complete format description in each file listed at the
 followings. These files are read from Haineko as a YAML-formatted file.
 
@@ -172,7 +172,7 @@ Set AUTOCONF_VERSION environment variable.
 
 REPOSITORY
 ----------
-https://github.com/azumakuniyuki/haineko
+https://github.com/azumakuniyuki/Haineko
 
 AUTHOR
 ------
