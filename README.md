@@ -120,8 +120,8 @@ C. Build and install into /usr/local
     > done
 
     Run by the one of the followings:
-    $ cd /usr/local/etc
-    $ morbo --listen 'http://127.0.0.1:2794' -w ./lib -w ./etc bin/haineko
+    $ cd /usr/local
+    $ morbo --listen 'http://127.0.0.1:2794' -w ./etc bin/haineko
     $ hypnotoad bin/haineko
     $ plackup -o '127.0.0.1' -p 2794 bin/haineko
 
