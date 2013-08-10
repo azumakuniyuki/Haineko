@@ -57,9 +57,9 @@ sub sendmail {
     my $maillength = length $mailstring;
 
     my $smtpparams = {
-        'Port' => $self->{'port'},
-        'Hello' => $self->{'ehlo'},
-        'Debug' => $self->{'debug'} || 0,
+        'Port'    => $self->{'port'},
+        'Hello'   => $self->{'ehlo'},
+        'Debug'   => $self->{'debug'} || 0,
         'Timeout' => $self->{'timeout'} || 30,
     };
 
@@ -157,7 +157,9 @@ sub sendmail {
     if( defined $netsmtpobj ) {
 
         $smtpparams = { 
-            'code' => $netsmtpobj->code,
+            'code'    => $netsmtpobj->code,
+            'host'    => $self->{'host'},
+            'mailer'  => 'ESMTP',
             'message' => [ $netsmtpobj->message ],
             'command' => $thecommand,
         };
@@ -188,10 +190,16 @@ Send an email to external server using SMTP protocol.
     use Haineko::Relay::ESMTP;
     my $h = { 'Subject' => 'Test', 'To' => 'neko@example.org' };
     my $v = { 
-        'host' => '192.0.2.1', 'port' => 587, 'auth' => 1
-        'username' => 'user', 'password' => 'secret', 'ehlo' => '[127.0.0.1]',
-        'mail' => 'kijitora@example.jp', 'rcpt' => 'neko@example.org',
-        'head' => $h, 'body' => 'Email message',
+        'host' => '192.0.2.1', 
+        'port' => 587, 
+        'auth' => 1
+        'username' => 'user',
+        'password' => 'secret',
+        'ehlo' => '[127.0.0.1]',
+        'mail' => 'kijitora@example.jp',
+        'rcpt' => 'neko@example.org',
+        'head' => $h,
+        'body' => 'Email message',
     };
     my $e = Haineko::Relay::ESMTP->new( %$v );
     my $s = $e->sendmail;
@@ -210,7 +218,7 @@ Send an email to external server using SMTP protocol.
                     '2.1.0 <kijitora@example.jp>... Sender ok'
                       ],
              'command' => 'QUIT'
-               }, 'Haineko::Response' );
+            }, 'Haineko::Response' );
 
 =head1 CLASS METHODS
 
@@ -219,18 +227,18 @@ Send an email to external server using SMTP protocol.
 new() is a constructor of Haineko::Relay::ESMTP
 
     my $e = Haineko::Relay::ESMTP->new( 
-            'host' => '192.0.2.1',      # SMTP Server
-            'port' => 587,              # SMTP Port
-            'auth' => 1,                # Use SMTP-AUTH
-            'username' => 'username',   # Username for SMTP-AUTH
-            'password' => 'password',   # Password for the user
-            'starttls' => 0,            # Use STARTTLS or not
-            'timeout' => 59,            # Timeout for Net::SMTP
-            'debug' => 0,               # Debug for Net::SMTP
-            'attr' => {                 # Args for Email::MIME
+            'host' => '192.0.2.1',          # SMTP Server
+            'port' => 587,                  # SMTP Port
+            'auth' => 1,                    # Use SMTP-AUTH
+            'username' => 'username',       # Username for SMTP-AUTH
+            'password' => 'password',       # Password for the user
+            'starttls' => 0,                # Use STARTTLS or not
+            'timeout' => 59,                # Timeout for Net::SMTP
+            'debug' => 0,                   # Debug for Net::SMTP
+            'attr' => {                     # Args for Email::MIME
                 'content_type' => 'text/plain'
             },
-            'head' => {                 # Email header
+            'head' => {                     # Email header
                 'Subject' => 'Test',
                 'To' => 'neko@example.org',
             },
@@ -246,9 +254,8 @@ new() is a constructor of Haineko::Relay::ESMTP
 sendmail() will send email to the specified recipient(rcpt) via specified host.
 
     my $e = Haineko::Relay::ESMTP->new( %argvs );
-    print $e->sendmail; # 0 = Failed to send, 1 = Successfully sent
-
-    print Data::Dumper::Dumper $e->response; # Dumps Haineko::Response object
+    print $e->sendmail;         # 0 = Failed to send, 1 = Successfully sent
+    print Dumper $e->response;  # Dumps Haineko::Response object
 
 =head1 REPOSITORY
 

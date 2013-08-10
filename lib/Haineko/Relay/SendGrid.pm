@@ -24,6 +24,7 @@ sub sendmail {
         my $r = {
             'code'    => 400,
             'error'   => 1,
+            'mailer'  => 'SendGrid',
             'message' => [ 'Empty API-USER or API-KEY' ],
             'command' => 'POST',
         };
@@ -64,8 +65,8 @@ sub sendmail {
 
 
     my $methodargv = { 
-        'agent' => $self->{'ehlo'},
-        'timeout' => $self->{'timeout'},
+        'agent'    => $self->{'ehlo'},
+        'timeout'  => $self->{'timeout'},
         'ssl_opts' => { 'SSL_verify_mode' => 0 }
     };
     my $httpclient = Furl->new( %$methodargv );
@@ -97,6 +98,7 @@ sub sendmail {
         my $nekoparams = { 
             'code'    => $htresponse->code,
             'error'   => $htresponse->is_success ? 0 : 1,
+            'mailer'  => 'SendGrid',
             'message' => [ $htresponse->message ],
             'command' => 'POST',
         };
@@ -208,10 +210,13 @@ Send an email to a recipient via SendGrid using Web API.
     use Haineko::Relay::SendGrid;
     my $h = { 'Subject' => 'Test', 'To' => 'neko@example.org' };
     my $v = { 
-        'username' => 'api_user', 'password' => 'api_key',
+        'username' => 'api_user', 
+        'password' => 'api_key',
         'ehlo' => 'UserAgent name for Furl',
-        'mail' => 'kijitora@example.jp', 'rcpt' => 'neko@example.org',
-        'head' => $h, 'body' => 'Email message',
+        'mail' => 'kijitora@example.jp',
+        'rcpt' => 'neko@example.org',
+        'head' => $h,
+        'body' => 'Email message',
     };
     my $e = Haineko::Relay::SendGrid->new( %$v );
     my $s = $e->sendmail;
@@ -228,7 +233,7 @@ Send an email to a recipient via SendGrid using Web API.
              'code' => '200',
              'message' => [ 'OK' ],
              'command' => 'POST'
-               }, 'Haineko::Response' );
+            }, 'Haineko::Response' );
 
 =head1 CLASS METHODS
 
@@ -237,13 +242,13 @@ Send an email to a recipient via SendGrid using Web API.
 new() is a constructor of Haineko::Relay::SendGrid
 
     my $e = Haineko::Relay::SendGrid->new( 
-            'username' => 'username',   # API User for SendGrid
-            'password' => 'password',   # API Key for SendGrid
-            'timeout' => 60,            # Timeout for Furl
+            'username' => 'username',       # API User for SendGrid
+            'password' => 'password',       # API Key for SendGrid
+            'timeout' => 60,                # Timeout for Furl
             'attr' => {
                 'content_type' => 'text/plain'
             },
-            'head' => {                 # Email header
+            'head' => {                     # Email header
                 'Subject' => 'Test',
                 'To' => 'neko@example.org',
             },
