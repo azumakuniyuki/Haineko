@@ -1,17 +1,17 @@
-package Haineko::Session;
+package Haineko::SMTPD::Session;
 use strict;
 use warnings;
 use Class::Accessor::Lite;
-use Haineko::Response;
-use Haineko::Address;
+use Haineko::SMTPD::Response;
+use Haineko::SMTPD::Address;
 use Time::Piece;
 
 my $rwaccessors = [
     'stage',        # (Integer)
     'started',      # (Time::Piece) When it connected
-    'response',     # (Haineko::Response) SMTP Reponse
-    'addresser',    # (Haineko::Address) Envelope sender
-    'recipient',    # (ArreyRef->Haineko::Address) Envelope recipient
+    'response',     # (Haineko::SMTPD::Response) SMTP Reponse
+    'addresser',    # (Haineko::SMTPD::Address) Envelope sender
+    'recipient',    # (ArreyRef->Haineko::SMTPD::Address) Envelope recipient
 ];
 my $roaccessors = [
     'queueid',      # (String) Queue ID
@@ -32,13 +32,13 @@ sub new {
         'stage' => 0,
         'started' => Time::Piece->new,
         'queueid' => $argvs->{'queueid'} || __PACKAGE__->make_queueid,
-        'response' => $argvs->{'response'} || Haineko::Response->new,
+        'response' => $argvs->{'response'} || Haineko::SMTPD::Response->new,
     };
     map { $nekos->{ $_ } ||= $argvs->{ $_ } || undef } @$roaccessors;
 
     while(1) {
 
-        my $c = 'Haineko::Address';
+        my $c = 'Haineko::SMTPD::Address';
         my $r = [];
         my $t = $argvs->{'recipient'} || [];
 
@@ -71,7 +71,7 @@ sub load {
     }
 
     while(1) {
-        my $c = 'Haineko::Address';
+        my $c = 'Haineko::SMTPD::Address';
         my $r = [];
         my $t = $argvs->{'smtp.recipient'} || [];
 
@@ -91,7 +91,7 @@ sub load {
 
     $nekor->{'message'} = [];
     $esmtp->{'message'} = [];
-    $esmtp->{'response'} = Haineko::Response->new( %$nekor );
+    $esmtp->{'response'} = Haineko::SMTPD::Response->new( %$nekor );
 
     return bless $esmtp, __PACKAGE__;
 }
@@ -186,7 +186,7 @@ sub r {
     my $type = shift || return 0;
     my $logs = shift || [];
     my $head = [ qw/dsn code error message command/ ];
-    my $mesg = Haineko::Response->r( $smtp, $type, $logs );
+    my $mesg = Haineko::SMTPD::Response->r( $smtp, $type, $logs );
 
     return 0 unless defined $mesg;
     $self->{'response'} = $mesg;
@@ -206,7 +206,7 @@ sub damn {
     while(1) {
         last unless defined $self->{'addresser'};
         last unless ref $self->{'addresser'};
-        last unless ref $self->{'addresser'} eq 'Haineko::Address';
+        last unless ref $self->{'addresser'} eq 'Haineko::SMTPD::Address';
 
         $smtp->{'smtp.addresser'} = $self->{'addresser'}->address;
         last;
@@ -218,7 +218,7 @@ sub damn {
 
         for my $e ( @{ $self->{'recipient'} } ) {
 
-            next unless ref $e eq 'Haineko::Address';
+            next unless ref $e eq 'Haineko::SMTPD::Address';
             push @{ $smtp->{'smtp.recipient'} }, $e->address;
         }
         last;
@@ -226,7 +226,7 @@ sub damn {
 
     while(1) {
         last unless defined $self->{'response'};
-        last unless ref $self->{'response'} eq 'Haineko::Response';
+        last unless ref $self->{'response'} eq 'Haineko::SMTPD::Response';
 
         $smtp->{'smtp.response'} = $self->{'response'}->damn;
         last;
@@ -241,36 +241,37 @@ __END__
 
 =head1 NAME
 
-Haineko::Session - HTTP to SMTP Session class
+Haineko::SMTPD::Session - HTTP to SMTP Session class
 
 =head1 DESCRIPTION
 
-Haineko::Session manages a connection from HTTP and SMTP session on Haineko server.
+Haineko::SMTPD::Session manages a connection from HTTP and SMTP session on 
+Haineko server.
 
 =head1 SYNOPSIS
 
-    use Haineko::Session;
+    use Haineko::SMTPD::Session;
     my $v = { 
         'useragent' => 'Mozilla',
         'remoteaddr' => '127.0.0.1',
         'remoteport' => 62401,
     };
-    my $e = Haineko::Session->new( %$v );
+    my $e = Haineko::SMTPD::Session->new( %$v );
     $e->addresser( 'kijitora@example.jp' );
     $e->recipient( [ 'neko@example.org' ] );
 
     print $e->queueid;              # r64CvGQ21769QslMmPPuD2jC
     print $e->started;              # Thu Jul  4 18:00:00 2013 (Time::Piece object)
-    print $e->addresser->user;      # kijitora (Haineko::Address object)
-    print $e->recipient->[0]->host; # example.org (Haineko::Address object)
+    print $e->addresser->user;      # kijitora (Haineko::SMTPD::Address object)
+    print $e->recipient->[0]->host; # example.org (Haineko::SMTPD::Address object)
 
 =head1 CLASS METHODS
 
 =head2 B<new( I<%arguments> )>
 
-new() is a constructor of Haineko::Session
+new() is a constructor of Haineko::SMTPD::Session
 
-    my $e = Haineko::Session->new( 
+    my $e = Haineko::SMTPD::Session->new( 
             'useragent' => $self->req->headers->user_agent,
             'remoteaddr' => $self->req->headers->header('REMOTE_HOST'),
             'remoteport' => $self->req->headers->header('REMOTE_PORT'),
@@ -280,13 +281,13 @@ new() is a constructor of Haineko::Session
 
 =head2 B<load( I<Hash reference> )>
 
-load() is also a constructor of Haineko::Session. 
+load() is also a constructor of Haineko::SMTPD::Session. 
 
     my $v = {
         'smtp.queueid' => 'r64CvGQ21769QslMmPPuD2jC',
         'smtp.addresser' => 'kijitora@example.jp',
     };
-    my $e = Haineko::Session->load( %$v );
+    my $e = Haineko::SMTPD::Session->load( %$v );
 
     print $e->queueid;              # r64CvGQ21769QslMmPPuD2jC
     print $e->addresser->address;   # kijitora@example.jp
@@ -294,9 +295,9 @@ load() is also a constructor of Haineko::Session.
 =head2 B<make_queueid>
 
 make_queueid() generate a queue id string.
-    print Haineko::Session->make_queueid;   # r64IHFV22109f8KATxdNDSj7
-    print Haineko::Session->make_queueid;   # r64IHJP22111Q9PCwpWX1Pd0
-    print Haineko::Session->make_queueid;   # r64IHV622112od227ioJMxhh
+    print Haineko::SMTPD::Session->make_queueid;   # r64IHFV22109f8KATxdNDSj7
+    print Haineko::SMTPD::Session->make_queueid;   # r64IHJP22111Q9PCwpWX1Pd0
+    print Haineko::SMTPD::Session->make_queueid;   # r64IHV622112od227ioJMxhh
 
 
 
@@ -304,9 +305,9 @@ make_queueid() generate a queue id string.
 
 =head2 B<r( I<SMTP command>, I<Error type> [,I<Message>] )>
 
-r() sets Haineko::Response object from a SMTP Command and an error type.
+r() sets Haineko::SMTPD::Response object from a SMTP Command and an error type.
 
-    my $e = Haineko::Session->new( ... );
+    my $e = Haineko::SMTPD::Session->new( ... );
     print $e->response->dsn;    # undef
 
     $e->r( 'RCPT', 'rejected' );
