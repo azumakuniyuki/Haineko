@@ -10,6 +10,7 @@ my $f = [ qw|
     Relay.pm
     Relay/ESMTP.pm
     Relay/SendGrid.pm
+    Relay/AmazonSES.pm
     Response.pm
     RFC5321.pm
     RFC5322.pm
