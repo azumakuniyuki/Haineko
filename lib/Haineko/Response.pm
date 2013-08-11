@@ -6,7 +6,9 @@ use Class::Accessor::Lite;
 my $rwaccessors = [
     'dsn',      # (String) Delivery Status Notifier
     'code',     # (Integer) SMTP reply code
+    'host',     # (String) SMTP server name
     'error',    # (Integer)
+    'mailer',   # (String) Mailer name
     'command',  # (String) SMTP Command
     'message',  # (ArrayRef) Reply messages
     'greeting', # (ArrayRef) EHLO Greeting response
@@ -237,6 +239,7 @@ sub new {
     my $class = shift;
     my $argvs = { @_ };
 
+    $argvs->{'host'} //= '127.0.0.1';
     return bless $argvs, __PACKAGE__;
 }
 
@@ -377,6 +380,7 @@ damn() returns instance data as a hash reference
     $VAR1 = {
         'dsn' => '5.7.1',
                 'error' => 1,
+                'host' => '127.0.0.1',
                 'code' => '551',
                 'message' => [
                                 '551 5.7.1 Refused'
