@@ -6,7 +6,7 @@ use Test::More;
 
 my $modulename = 'Haineko::Relay';
 my $pkgmethods = [ 'new', 'defaulthub' ];
-my $objmethods = [ 'sendmail' ];
+my $objmethods = [ 'sendmail', 'getbounce' ];
 my $methodargv = {
     'mail' => 'kijitora@example.jp',
     'rcpt' => 'mikeneko@example.org',
@@ -50,6 +50,7 @@ is( $o->password, undef, '->password => undef' );
 is( $o->response, undef, '->response => undef' );
 is( $o->starttls, undef, '->starttls => undef' );
 is( $o->sendmail, 0, '->sendmail => 0' );
+is( $o->getbounce, 0, '->getbounce => 0' );
 
 is( $h->{'host'}, '127.0.0.1', '->defaulthub->host => 127.0.0.1' );
 is( $h->{'port'}, 25, '->defaulthub->port => 25' );

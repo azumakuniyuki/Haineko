@@ -52,6 +52,14 @@ sub sendmail {
     return 0;
 }
 
+sub getbounce {
+    my $self = shift;
+
+    # Code for getting email bounce at each class in Relay/*.pm
+
+    return 0;
+}
+
 1;
 __END__
 
