@@ -1,4 +1,4 @@
-package Haineko::Address;
+package Haineko::SMTPD::Address;
 use strict;
 use warnings;
 use Class::Accessor::Lite;
@@ -102,7 +102,7 @@ __END__
 
 =head1 NAME
 
-Haineko::Addreess - Create an email address object
+Haineko::SMTPD::Addreess - Create an email address object
 
 =head1 DESCRIPTION
 
@@ -111,7 +111,7 @@ address.
 
 =head1 SYNOPSIS
 
-    use Haineko::Address;
+    use Haineko::SMTPD::Address;
     my $e = Haineko::Address->new( 'address' => 'kijitora@example.jp' );
 
     print $e->user;     # kijitora
@@ -129,16 +129,16 @@ address.
 
 =head2 B<new( 'address' => I<email-address> )>
 
-new() is a constructor of Haineko::Address
+new() is a constructor of Haineko::SMTPD::Address
 
-    my $e = Haineko::Address->new( 'address' => 'kijitora@example.jp' );
+    my $e = Haineko::SMTPD::Address->new( 'address' => 'kijitora@example.jp' );
 
 =head2 B<canonify>( I<email-address> )
 
 canonify() picks an email address only (remove a name and comments)
 
-    my $e = Haineko::Address->canonify( 'Kijitora <kijitora@example.jp>' );
-    my $f = Haineko::Address->canonify( '<kijitora@example.jp>' );
+    my $e = HainekoSMTPD::::Address->canonify( 'Kijitora <kijitora@example.jp>' );
+    my $f = HainekoSMTPD::::Address->canonify( '<kijitora@example.jp>' );
     print $e;   # kijitora@example.jp
     print $f;   # kijitora@example.jp
 
@@ -148,7 +148,7 @@ canonify() picks an email address only (remove a name and comments)
 
 damn() returns instance data as a hash reference
 
-    my $e = Haineko::Address->new( 'address' => 'kijitora@example.jp' );
+    my $e = Haineko::SMTPD::Address->new( 'address' => 'kijitora@example.jp' );
     my $f = $e->damn;
 
     print Data::Dumper::Dumper $f;
