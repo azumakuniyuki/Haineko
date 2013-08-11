@@ -6,19 +6,19 @@ use Encode;
 use JSON::Syck;
 use Time::Piece;
 use Haineko::Log;
-use Haineko::Milter;
-use Haineko::Session;
-use Haineko::Response;
+use Haineko::SMTPD::Milter;
+use Haineko::SMTPD::Session;
+use Haineko::SMTPD::Response;
 
 sub sendmail {
     my $self = shift;
     my $conf = $self->stash('cf');
-    my $catr = 'Haineko::Response';
+    my $catr = 'Haineko::SMTPD::Response';
     my $cres = 'smtp.response';
     my $neko = undef;
 
     # Create a queue id (session id)
-    my $queueident = Haineko::Session->make_queueid;
+    my $queueident = Haineko::SMTPD::Session->make_queueid;
     my $httpheader = $self->req->headers;
     my $xforwarded = [ split( ',', $httpheader->header('X-Forwarded-For') || q() ) ];
     my $remoteaddr = pop @$xforwarded || $self->tx->remote_address // undef;
@@ -90,7 +90,7 @@ sub sendmail {
         XXFI_CONNECT: {
 
             @$milterlibs = @{ $conf->{'milter'}->{'conn'} || [] };
-            for my $e ( @{ Haineko::Milter->import( $milterlibs ) } ) {
+            for my $e ( @{ Haineko::SMTPD::Milter->import( $milterlibs ) } ) {
 
                 $mfresponse = $catr->new( 'code' => 421, 'command' => 'CONN' );
                 last if not $e->conn( $mfresponse, $remotehost, $remoteaddr );
@@ -170,8 +170,8 @@ sub sendmail {
     }
 
     EHLO: {
-        require Haineko::RFC5321;
-        require Haineko::RFC5322;
+        require Haineko::SMTPD::RFC5321;
+        require Haineko::SMTPD::RFC5322;
 
         if( not length $ehlo ) {
 
@@ -180,7 +180,7 @@ sub sendmail {
             $nekosyslog->w( 'err', $esmtpreply );
             return $self->render( 'json' => { $cres => $esmtpreply } );
 
-        } elsif( not Haineko::RFC5321->check_ehlo( $ehlo ) ) {
+        } elsif( not Haineko::SMTPD::RFC5321->check_ehlo( $ehlo ) ) {
 
             $self->res->code(400);
             $esmtpreply = $catr->r( 'ehlo', 'invalid-domain' )->damn;
@@ -191,7 +191,7 @@ sub sendmail {
         XXFI_HELO: {
 
             @$milterlibs = @{ $conf->{'milter'}->{'ehlo'} || [] };
-            for my $e ( @{ Haineko::Milter->import( $milterlibs ) } ) {
+            for my $e ( @{ Haineko::SMTPD::Milter->import( $milterlibs ) } ) {
 
                 $mfresponse = $catr->new( 'code' => 521, 'command' => 'EHLO' );
                 last if not $e->ehlo( $mfresponse, $remotehost, $remoteaddr );
@@ -218,14 +218,14 @@ sub sendmail {
             $nekosyslog->w( 'err', $esmtpreply );
             return $self->render( 'json' => { $cres => $esmtpreply } );
 
-        } elsif( not Haineko::RFC5322->is_emailaddress( $mail ) ) {
+        } elsif( not Haineko::SMTPD::RFC5322->is_emailaddress( $mail ) ) {
 
             $self->res->code(400);
             $esmtpreply = $catr->r( 'mail', 'domain-required' )->damn;
             $nekosyslog->w( 'err', $esmtpreply );
             return $self->render( 'json' => { $cres => $esmtpreply } );
 
-        } elsif( Haineko::RFC5321->is8bit( \$mail ) ) {
+        } elsif( Haineko::SMTPD::RFC5321->is8bit( \$mail ) ) {
 
             $self->res->code(400);
             $esmtpreply = $catr->r( 'mail', 'non-ascii' )->damn;
@@ -236,7 +236,7 @@ sub sendmail {
         XXFI_ENVFROM: {
 
             @$milterlibs = @{ $conf->{'milter'}->{'mail'} || [] };
-            for my $e ( @{ Haineko::Milter->import( $milterlibs ) } ) {
+            for my $e ( @{ Haineko::SMTPD::Milter->import( $milterlibs ) } ) {
 
                 $mfresponse = $catr->new( 'code' => 501, 'dsn' => '5.1.8', 'command' => 'MAIL' );
                 last if not $e->mail( $mfresponse, $mail );
@@ -272,7 +272,7 @@ sub sendmail {
 
             for my $e ( @$recipients ) { 
 
-                next if Haineko::RFC5322->is_emailaddress( $e );
+                next if Haineko::SMTPD::RFC5322->is_emailaddress( $e );
                 $isnotemail = 1;
                 last;
             }
@@ -340,7 +340,7 @@ sub sendmail {
                 $nekosyslog->w( 'err', $esmtpreply );
                 return $self->render( 'json' => { $cres => $esmtpreply } );
 
-            } elsif( grep { Haineko::RFC5321->is8bit( \$_ ) } @$recipients ) {
+            } elsif( grep { Haineko::SMTPD::RFC5321->is8bit( \$_ ) } @$recipients ) {
 
                 $self->res->code(400);
                 $esmtpreply = $catr->r( 'mail', 'non-ascii' )->damn;
@@ -352,7 +352,7 @@ sub sendmail {
         XXFI_ENVRCPT: {
 
             @$milterlibs = @{ $conf->{'milter'}->{'rcpt'} || [] };
-            for my $e ( @{ Haineko::Milter->import( $milterlibs ) } ) {
+            for my $e ( @{ Haineko::SMTPD::Milter->import( $milterlibs ) } ) {
 
                 $mfresponse = $catr->new( 'code' => 553, 'dsn' => '5.7.1', 'command' => 'RCPT' );
                 last if not $e->rcpt( $mfresponse, $recipients );
@@ -401,7 +401,7 @@ sub sendmail {
         'remoteaddr' => $remoteaddr,
         'remoteport' => $remoteport,
     };
-    $neko = Haineko::Session->new( %$methodargv );
+    $neko = Haineko::SMTPD::Session->new( %$methodargv );
 
     my $attributes = { 'content_type' => 'text/plain' };
     my $mailheader = {
@@ -431,7 +431,7 @@ sub sendmail {
             'ISO-2022-JP' => '7bit',
         };
 
-        my $ctencoding = Haineko::RFC5321->is8bit( \$body ) ? '8bit' : '7bit';
+        my $ctencoding = Haineko::SMTPD::RFC5321->is8bit( \$body ) ? '8bit' : '7bit';
         my $headencode = 'MIME-Header';
         my $thisencode = uc $emencoding;
 
@@ -461,7 +461,7 @@ sub sendmail {
 
             my $f = $head->{ $e };
             my $g = ucfirst $e;
-            $f = Encode::encode( $headencode, $f ) if Haineko::RFC5321->is8bit( \$f );
+            $f = Encode::encode( $headencode, $f ) if Haineko::SMTPD::RFC5321->is8bit( \$f );
 
             if( exists $mailheader->{ $g } ) {
 
@@ -481,7 +481,7 @@ sub sendmail {
 
     # Sender: header
     SENDER_HEADER: {
-        my $fromheader = Haineko::Address->canonify( $head->{'from'} );
+        my $fromheader = Haineko::SMTPD::Address->canonify( $head->{'from'} );
         my $envelopemf = $neko->addresser->address;
         $mailheader->{'Sender'} = $envelopemf if $fromheader eq $envelopemf;
     }
@@ -489,7 +489,7 @@ sub sendmail {
     XXFI_HEADER: {
 
         @$milterlibs = @{ $conf->{'milter'}->{'head'} || [] };
-        for my $e ( @{ Haineko::Milter->import( $milterlibs ) } ) {
+        for my $e ( @{ Haineko::SMTPD::Milter->import( $milterlibs ) } ) {
 
             $mfresponse = $catr->new( 'code' => 554, 'dsn' => '5.7.1', 'command' => 'DATA' );
             last if not $e->head( $mfresponse, $mailheader );
@@ -508,7 +508,7 @@ sub sendmail {
     XXFI_BODY: {
 
         @$milterlibs = @{ $conf->{'milter'}->{'head'} || [] };
-        for my $e ( @{ Haineko::Milter->import( $milterlibs ) } ) {
+        for my $e ( @{ Haineko::SMTPD::Milter->import( $milterlibs ) } ) {
 
             $mfresponse = $catr->new( 'code' => 554, 'dsn' => '5.6.0', 'command' => 'DATA' );
             last if not $e->body( $mfresponse, \$body );
@@ -532,7 +532,7 @@ sub sendmail {
 
     MAILERTABLE: {
         # Load mailertable
-        require Haineko::Relay;
+        require Haineko::SMTPD::Relay;
 
         for my $e ( 'mail', 'rcpt' ) {
 
@@ -546,7 +546,7 @@ sub sendmail {
             $sendershub = $mailerconf->{'mail'}->{ $neko->addresser->host };
         }
 
-        $defaulthub //= Haineko::Relay->defaulthub;
+        $defaulthub //= Haineko::SMTPD::Relay->defaulthub;
     }
 
     my $autheninfo = undef;
@@ -567,7 +567,7 @@ sub sendmail {
 
         for my $e ( @$recipients ) {
 
-            my $r = Haineko::Address->new( 'address' => $e );
+            my $r = Haineko::SMTPD::Address->new( 'address' => $e );
 
             $smtpmailer = undef;
             $relayingto = $mailerconf->{'rcpt'}->{ $r->host } // $sendershub;
@@ -600,8 +600,8 @@ sub sendmail {
                     'starttls'  => $relayingto->{'starttls'},
                 };
 
-                Module::Load::load('Haineko::Relay::ESMTP');
-                $smtpmailer = Haineko::Relay::ESMTP->new( %$methodargv );
+                Module::Load::load('Haineko::SMTPD::Relay::ESMTP');
+                $smtpmailer = Haineko::SMTPD::Relay::ESMTP->new( %$methodargv );
 
                 if( $relayingto->{'auth'} ) {
 
@@ -615,8 +615,8 @@ sub sendmail {
 
             } elsif( $relayingto->{'mailer'} eq 'Discard' ) {
 
-                Module::Load::load('Haineko::Relay::Discard');
-                $smtpmailer = Haineko::Relay::Discard->new;
+                Module::Load::load('Haineko::SMTPD::Relay::Discard');
+                $smtpmailer = Haineko::SMTPD::Relay::Discard->new;
                 $smtpmailer->sendmail();
                 $neko->response( $smtpmailer->response );
 
@@ -634,8 +634,8 @@ sub sendmail {
                     'timeout' => $relayingto->{'timeout'} // 60,
                 };
 
-                # Use Haineko::Relay::*
-                $relayclass = sprintf( "Haineko::Relay::%s", $relayingto->{'mailer'} );
+                # Use Haineko::SMTPD::Relay::*
+                $relayclass = sprintf( "Haineko::SMTPD::Relay::%s", $relayingto->{'mailer'} );
                 Module::Load::load( $relayclass );
                 $smtpmailer = $relayclass->new( %$methodargv );
 
