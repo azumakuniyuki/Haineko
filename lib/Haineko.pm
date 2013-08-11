@@ -119,8 +119,8 @@ sub startup {
     my $milterlibs = $serverconf->{'smtpd'}->{'milter'}->{'libs'} || [];
     if( ref $milterlibs eq 'ARRAY' ) {
         # Load milter lib path
-        require Haineko::Milter;
-        Haineko::Milter->libs( $milterlibs );
+        require Haineko::SMTPD::Milter;
+        Haineko::SMTPD::Milter->libs( $milterlibs );
     }
 
     # Helper
