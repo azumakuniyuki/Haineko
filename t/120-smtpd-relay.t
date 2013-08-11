@@ -1,10 +1,10 @@
 use lib qw(./t/lib ./dist/lib ./lib);
 use strict;
 use warnings;
-use Haineko::Relay;
+use Haineko::SMTPD::Relay;
 use Test::More;
 
-my $modulename = 'Haineko::Relay';
+my $modulename = 'Haineko::SMTPD::Relay';
 my $pkgmethods = [ 'new', 'defaulthub' ];
 my $objmethods = [ 'sendmail', 'getbounce' ];
 my $methodargv = {

@@ -1,16 +1,16 @@
 use lib qw(./t/lib ./dist/lib ./lib);
 use strict;
 use warnings;
-use Haineko::Milter;
-use Haineko::Response;
+use Haineko::SMTPD::Milter;
+use Haineko::SMTPD::Response;
 use Test::More;
 
-my $modulename = 'Haineko::Milter';
+my $modulename = 'Haineko::SMTPD::Milter';
 my $miltername = 'Example';
 my $pkgmethods = [ 'conn', 'ehlo', 'mail', 'rcpt', 'head', 'body' ];
-my $loadedlist = Haineko::Milter->import( [ $miltername ] );
+my $loadedlist = Haineko::SMTPD::Milter->import( [ $miltername ] );
 
-is( $loadedlist->[0], 'Haineko::Milter::Example', '->import( [ Example ] )' );
+is( $loadedlist->[0], 'Haineko::SMTPD::Milter::Example', '->import( [ Example ] )' );
 can_ok( $loadedlist->[0], @$pkgmethods );
 
 METHODS: {
@@ -21,7 +21,7 @@ METHODS: {
     my $y = {};
 
     CONN: {
-        $r = Haineko::Response->new();
+        $r = Haineko::SMTPD::Response->new();
         $v = $m->conn( $r, 'localhost', '127.0.0.1' );
         is( $v, 1, '->conn( $r, localhost, 127.0.0.1 ) => 1' );
 
@@ -32,7 +32,7 @@ METHODS: {
     }
 
     EHLO: {
-        $r = Haineko::Response->new();
+        $r = Haineko::SMTPD::Response->new();
         $v = $m->ehlo( $r, 'neko.example.jp' );
         is( $v, 1, '->ehlo( $r, neko.example.jp ) => 1' );
 
@@ -44,7 +44,7 @@ METHODS: {
     }
 
     MAIL: {
-        $r = Haineko::Response->new();
+        $r = Haineko::SMTPD::Response->new();
         $v = $m->mail( $r, 'cat@neko.example.jp' );
         is( $v, 1, '->mail( $r, cat@neko.example.jp ) => 1' );
 
@@ -55,7 +55,7 @@ METHODS: {
     }
 
     RCPT: {
-        $r = Haineko::Response->new();
+        $r = Haineko::SMTPD::Response->new();
         $x = [ 'kijitora@example.jp' ];
         $v = $m->rcpt( $r, $x );
         is( $v, 1, '->rcpt( $r, [ kijitora@example.jp ] ) => 1' );
@@ -65,7 +65,7 @@ METHODS: {
     }
 
     HEAD: {
-        $r = Haineko::Response->new();
+        $r = Haineko::SMTPD::Response->new();
         $y = { 'subject' => 'spam spam spam', 'from' => 'kijitora@example.org' };
         $v = $m->head( $r, $y );
         is( $v, 0, '->head( $r, { subject => "spam" } )' );
@@ -75,7 +75,7 @@ METHODS: {
     }
 
     BODY: {
-        $r = Haineko::Response->new();
+        $r = Haineko::SMTPD::Response->new();
         $v = $m->body( $r, \'URL is http://nekochan.example.com/?neko=kijitora' );
         is( $v, 0, '->body( $r, \"URL is http://..." )' );
         is( $r->error, 1, 'r->error = 1' );

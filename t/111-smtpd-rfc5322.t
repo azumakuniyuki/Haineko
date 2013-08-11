@@ -1,10 +1,10 @@
 use lib qw(./t/lib ./dist/lib ./lib);
 use strict;
 use warnings;
-use Haineko::RFC5322;
+use Haineko::SMTPD::RFC5322;
 use Test::More;
 
-my $modulename = 'Haineko::RFC5322';
+my $modulename = 'Haineko::SMTPD::RFC5322';
 my $pkgmethods = [ 'is_emailaddress', 'is_domainpart' ];
 my $objmethods = [ '' ];
 my $emailaddrs = [ qw/

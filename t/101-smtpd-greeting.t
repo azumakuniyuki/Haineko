@@ -1,10 +1,10 @@
 use lib qw(./t/lib ./dist/lib ./lib);
 use strict;
 use warnings;
-use Haineko::Greeting;
+use Haineko::SMTPD::Greeting;
 use Test::More;
 
-my $modulename = 'Haineko::Greeting';
+my $modulename = 'Haineko::SMTPD::Greeting';
 my $pkgmethods = [ 'new' ];
 my $objmethods = [ 'mechs' ];
 my $ehlogreets = [ <DATA> ];

@@ -1,10 +1,10 @@
 use lib qw(./t/lib ./dist/lib ./lib);
 use strict;
 use warnings;
-use Haineko::Response;
+use Haineko::SMTPD::Response;
 use Test::More;
 
-my $modulename = 'Haineko::Response';
+my $modulename = 'Haineko::SMTPD::Response';
 my $pkgmethods = [ 'new', 'r', 'p' ];
 my $objmethods = [ 'damn' ];
 my $testobject = $modulename->new();

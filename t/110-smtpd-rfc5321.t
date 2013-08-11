@@ -1,10 +1,10 @@
 use lib qw(./t/lib ./dist/lib ./lib);
 use strict;
 use warnings;
-use Haineko::RFC5321;
+use Haineko::SMTPD::RFC5321;
 use Test::More;
 
-my $modulename = 'Haineko::RFC5321';
+my $modulename = 'Haineko::SMTPD::RFC5321';
 my $pkgmethods = [ 'is8bit', 'check_ehlo' ];
 my $objmethods = [ '' ];
 my $doublebyte = <DATA>; chomp $doublebyte;

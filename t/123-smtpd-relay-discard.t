@@ -1,12 +1,12 @@
 use lib qw(./t/lib ./dist/lib ./lib);
 use strict;
 use warnings;
-use Haineko::Relay::SendGrid;
+use Haineko::SMTPD::Relay::Discard;
 use Test::More;
 
-my $modulename = 'Haineko::Relay::SendGrid';
+my $modulename = 'Haineko::SMTPD::Relay::Discard';
 my $pkgmethods = [ 'new' ];
-my $objmethods = [ 'sendmail', 'getbounce' ];
+my $objmethods = [ 'sendmail' ];
 my $methodargv = {
     'ehlo' => 'Haineko/make-test',
     'mail' => 'kijitora@example.jp',
@@ -19,7 +19,7 @@ my $methodargv = {
     },
     'body' => \'Nyaaaaaaaaaaaaa',
     'attr' => {},
-    'retry' => 0,
+    'retry' => 1,
     'sleep' => 1,
     'timeout' => 2,
 };
@@ -32,6 +32,7 @@ can_ok( $testobject, @$objmethods );
 INSTANCE_METHODS: {
 
     for my $e ( qw/mail rcpt head body host port attr mxrr auth username password/ ) {
+
         is( $testobject->$e, undef, '->'.$e.' => undef' );
     }
 
@@ -45,22 +46,21 @@ INSTANCE_METHODS: {
 
     is( ref $o->attr, 'HASH' );
     is( $o->mxrr, undef, '->mxrr => undef' );
-    is( $o->timeout, 2, '->timeout => 2' );
+    is( $o->timeout, 0, '->timeout => 0' );
     is( $o->username, undef, '->username => undef' );
     is( $o->password, undef, '->password => undef' );
     is( $o->retry, 0, '->retry => 0');
-    is( $o->sleep, 1, '->sleep => 1');
-    is( $o->sendmail, 0, '->sendmail => 0' );
-    is( $o->getbounce, 0, '->getbounce => 0' );
+    is( $o->sleep, 0, '->sleep => 0');
+    is( $o->sendmail, 1, '->sendmail => 1' );
 
     $r = $o->response;
     $m = shift @{ $o->response->message };
 
     is( $r->dsn, undef, '->response->dsn => undef' );
-    is( $r->code, 400, '->response->code => 400' );
-    is( $r->error, 1, '->response->error=> 1' );
-    is( $r->command, 'POST', '->response->command => POST' );
-    like( $m, qr/Empty API-USER or API-KEY/, '->response->message => '.$m );
+    is( $r->code, 200, '->response->code => 200' );
+    is( $r->error, 0, '->response->error=> 0' );
+    is( $r->command, 'DATA', '->response->command => DATA' );
+    like( $m, qr/Discard/, '->response->message => '.$m );
 }
 
 done_testing;

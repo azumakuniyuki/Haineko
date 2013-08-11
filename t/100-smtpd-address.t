@@ -1,10 +1,10 @@
 use lib qw(./t/lib ./dist/lib ./lib);
 use strict;
 use warnings;
-use Haineko::Address;
+use Haineko::SMTPD::Address;
 use Test::More;
 
-my $modulename = 'Haineko::Address';
+my $modulename = 'Haineko::SMTPD::Address';
 my $pkgmethods = [ 'new', 'canonify' ];
 my $objmethods = [ 'damn' ];
 my $testobject = new $modulename( 'address' => 'kijitora@example.jp' );

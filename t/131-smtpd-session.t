@@ -1,10 +1,10 @@
 use lib qw(./t/lib ./dist/lib ./lib);
 use strict;
 use warnings;
-use Haineko::Session;
+use Haineko::SMTPD::Session;
 use Test::More;
 
-my $modulename = 'Haineko::Session';
+my $modulename = 'Haineko::SMTPD::Session';
 my $pkgmethods = [ 'new', 'load', 'make_queueid', 'done' ];
 my $objmethods = [ 'ehlo', 'auth', 'mail', 'rcpt', 'rset', 'quit', 'r', 'damn' ];
 my $testobject = $modulename->new();
@@ -29,15 +29,15 @@ METHODS: {
         isa_ok( $o->started, 'Time::Piece', '->started => Time::Piece' );
         ok( $o->started->epoch, '->started->epoch => '.$o->started->epoch );
         is( $o->stage, 0, '->stage => 0' );
-        isa_ok( $o->response, 'Haineko::Response', '->response => Haineko::Response' );
+        isa_ok( $o->response, 'Haineko::SMTPD::Response', '->response => Haineko::SMTPD::Response' );
         is( $o->response->dsn, undef, '->response->dsn => undef' );
 
-        isa_ok( $o->addresser, 'Haineko::Address', '->addresser => Haineko::Address' );
+        isa_ok( $o->addresser, 'Haineko::SMTPD::Address', '->addresser => Haineko::SMTPD::Address' );
         is( $o->addresser->user, 'kijitora', '->addresser->user => kijitora' );
         is( $o->addresser->host, 'example.jp', '->addresser->host => example.jp' );
         is( $o->addresser->address, 'kijitora@example.jp', '->addresser->address => kijitora@example.jp' );
 
-        isa_ok( $o->recipient->[0], 'Haineko::Address', '->recipient->[0] => Haineko::Address' );
+        isa_ok( $o->recipient->[0], 'Haineko::SMTPD::Address', '->recipient->[0] => Haineko::SMTPD::Address' );
         is( $o->recipient->[0]->user, 'mi-chan', '->recipient->[0]->user => mi-chan' );
         is( $o->recipient->[0]->host, 'example.org', '->recipient->[0]->host => example.org' );
         is( $o->recipient->[0]->address, 'mi-chan@example.org', '->recipient->[0]->address => mi-chan@example.org' );
@@ -74,7 +74,7 @@ METHODS: {
 
     RESPONSE: {
         $o->r( 'mail', 'syntax-error' );
-        isa_ok( $o->response, 'Haineko::Response' );
+        isa_ok( $o->response, 'Haineko::SMTPD::Response' );
         is( $o->response->command, 'MAIL', '->response->command => mail' );
         is( $o->response->dsn, '5.5.2', '->response->dsn => 5.5.2' );
         is( $o->response->code, 501, '->response->code => 501' );
