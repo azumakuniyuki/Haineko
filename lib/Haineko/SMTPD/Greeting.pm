@@ -1,11 +1,4 @@
-#  _   _          ____               _   _             
-# | | | |  _ _   / ___|_ __ ___  ___| |_(_)_ __   __ _ 
-# | |_| | (_|_) | |  _| '__/ _ \/ _ \ __| | '_ \ / _` |
-# |  _  |  _ _  | |_| | | |  __/  __/ |_| | | | | (_| |
-# |_| |_| (_|_)  \____|_|  \___|\___|\__|_|_| |_|\__, |
-#                                                |___/ 
-#
-package Haineko::Greeting;
+package Haineko::SMTPD::Greeting;
 use strict;
 use warnings;
 use Class::Accessor::Lite;
@@ -81,16 +74,16 @@ __END__
 
 =head1 NAME
 
-Haineko::Greeting - Create an EHLO response object
+Haineko::SMTPD::Greeting - Create an EHLO response object
 
 =head1 SYNOPSIS
 
-    use Haineko::Greeting;
+    use Haineko::SMTPD::Greeting;
     my $r = [ 
         '250-PIPELINING', '250-DSN', '250-STARTTLS', '250-SIZE 26214400',
         '250-AUTH PLAIN CRAM-MD5', '250-8BITMIME', ...
     ];
-    my $g = Haineko::Address->new( @$r );
+    my $g = Haineko::SMTPD::Greeting->new( @$r );
 
     print $e->dsn;      # 1
     print $e->auth;     # 1
@@ -102,13 +95,13 @@ Haineko::Greeting - Create an EHLO response object
 
 =head2 B<new( I<@{EHLO Response lines}> )>
 
-new() is a constructor of Haineko::Greeting
+new() is a constructor of Haineko::SMTPD::Greeting
 
     my $r = [ 
         '250-PIPELINING', '250-DSN', '250-STARTTLS', '250-SIZE 26214400',
         '250-AUTH PLAIN CRAM-MD5', '250-8BITMIME', ...
     ];
-    my $g = Haineko::Greeting->new( @$r );
+    my $g = Haineko::SMTPD::Greeting->new( @$r );
 
 =head1 INSTANCE METHODS
 
