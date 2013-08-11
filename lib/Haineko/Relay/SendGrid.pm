@@ -97,6 +97,7 @@ sub sendmail {
         my $htcontents = undef;
         my $nekoparams = { 
             'code'    => $htresponse->code,
+            'host'    => 'sendgrid.com',
             'error'   => $htresponse->is_success ? 0 : 1,
             'mailer'  => 'SendGrid',
             'message' => [ $htresponse->message ],
