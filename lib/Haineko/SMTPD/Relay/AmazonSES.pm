@@ -1,5 +1,5 @@
-package Haineko::Relay::AmazonSES;
-use parent 'Haineko::Relay';
+package Haineko::SMTPD::Relay::AmazonSES;
+use parent 'Haineko::SMTPD::Relay';
 use strict;
 use warnings;
 use Furl;
@@ -8,7 +8,7 @@ use Email::MIME;
 use MIME::Base64;
 use Time::Piece;
 use Digest::SHA 'hmac_sha256_base64';
-use Haineko::Response;
+use Haineko::SMTPD::Response;
 
 use constant 'SES_ENDPOINT' => 'email.us-east-1.amazonaws.com';
 use constant 'SES_APIVERSION' => '2010-12-01';
@@ -47,7 +47,7 @@ sub sendmail {
             'message' => [ 'Empty Access Key ID or Secret Key' ],
             'command' => 'POST',
         };
-        $self->response( Haineko::Response->new( %$r ) );
+        $self->response( Haineko::SMTPD::Response->new( %$r ) );
         return 0
     }
 
@@ -176,7 +176,7 @@ sub sendmail {
             }
             last;
         }
-        $self->response( Haineko::Response->new( %$nekoparams ) );
+        $self->response( Haineko::SMTPD::Response->new( %$nekoparams ) );
     }
 
     return $smtpstatus;
@@ -189,7 +189,7 @@ __END__
 
 =head1 NAME
 
-Haineko::Relay::AmazonSES - Amazon SES API class for sending email
+HainekoSMTPD::::Relay::AmazonSES - Amazon SES API class for sending email
 
 =head1 DESCRIPTION
 
@@ -197,7 +197,7 @@ Send an email to a recipient via Amazon SES using API.
 
 =head1 SYNOPSIS
 
-    use Haineko::Relay::AmazonSES;
+    use Haineko::SMTPD::Relay::AmazonSES;
     my $h = { 'Subject' => 'Test', 'To' => 'neko@example.org' };
     my $v = { 
         'username' => 'Access Key ID', 'password' => 'Secret Key',
@@ -205,7 +205,7 @@ Send an email to a recipient via Amazon SES using API.
         'mail' => 'kijitora@example.jp', 'rcpt' => 'neko@example.org',
         'head' => $h, 'body' => 'Email message',
     };
-    my $e = Haineko::Relay::AmazonSES->new( %$v );
+    my $e = Haineko::SMTPD::Relay::AmazonSES->new( %$v );
     my $s = $e->sendmail;
 
     print $s;                   # 0 = Failed to send, 1 = Successfully sent
@@ -220,15 +220,15 @@ Send an email to a recipient via Amazon SES using API.
              'code' => '200',
              'message' => [ 'OK' ],
              'command' => 'POST'
-            }, 'Haineko::Response' );
+            }, 'Haineko::SMTPD::Response' );
 
 =head1 CLASS METHODS
 
 =head2 B<new( I<%arguments> )>
 
-new() is a constructor of Haineko::Relay::AmazonSES
+new() is a constructor of HainekoSMTPD::::Relay::AmazonSES
 
-    my $e = Haineko::Relay::AmazonSES->new( 
+    my $e = Haineko::SMTPD::Relay::AmazonSES->new( 
             'username' => 'username',       # API Access Key ID for AmazonSES
             'password' => 'password',       # API Secret Key for AmazonSES
             'timeout' => 60,                # Timeout for Furl
@@ -250,9 +250,9 @@ new() is a constructor of Haineko::Relay::AmazonSES
 
 sendmail() will send email to the specified recipient(rcpt) via specified host.
 
-    my $e = Haineko::Relay::AmazonSES->new( %argvs );
+    my $e = Haineko::SMTPD::Relay::AmazonSES->new( %argvs );
     print $e->sendmail;         # 0 = Failed to send, 1 = Successfully sent
-    print Dumper $e->response;  # Dumps Haineko::Response object
+    print Dumper $e->response;  # Dumps Haineko::SMTPD::Response object
 
 =head1 SEE ALSO
 

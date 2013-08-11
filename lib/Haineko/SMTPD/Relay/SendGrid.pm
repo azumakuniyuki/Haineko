@@ -1,11 +1,11 @@
-package Haineko::Relay::SendGrid;
-use parent 'Haineko::Relay';
+package Haineko::SMTPD::Relay::SendGrid;
+use parent 'Haineko::SMTPD::Relay';
 use strict;
 use warnings;
 use Furl;
 use JSON::Syck;
 use Time::Piece;
-use Haineko::Response;
+use Haineko::SMTPD::Response;
 use Encode;
 
 sub new {
@@ -28,7 +28,7 @@ sub sendmail {
             'message' => [ 'Empty API-USER or API-KEY' ],
             'command' => 'POST',
         };
-        $self->response( Haineko::Response->new( %$r ) );
+        $self->response( Haineko::SMTPD::Response->new( %$r ) );
         return 0
     }
 
@@ -115,7 +115,7 @@ sub sendmail {
             push @{ $nekoparams->{'message'} }, @{ $htcontents->{'errors'} };
             last;
         }
-        $self->response( Haineko::Response->new( %$nekoparams ) );
+        $self->response( Haineko::SMTPD::Response->new( %$nekoparams ) );
     }
 
     return $smtpstatus;
@@ -186,7 +186,7 @@ sub getbounce {
                 'message' => [ $r->{'reason'} ],
                 'command' => 'POST',
             };
-            $self->response( Haineko::Response->p( %$nekoparams ) );
+            $self->response( Haineko::SMTPD::Response->p( %$nekoparams ) );
             last;
         }
     }
@@ -200,7 +200,7 @@ __END__
 
 =head1 NAME
 
-Haineko::Relay::SendGrid - SendGrid Web API class for sending email
+Haineko::SMTPD::Relay::SendGrid - SendGrid Web API class for sending email
 
 =head1 DESCRIPTION
 
@@ -208,7 +208,7 @@ Send an email to a recipient via SendGrid using Web API.
 
 =head1 SYNOPSIS
 
-    use Haineko::Relay::SendGrid;
+    use Haineko::SMTPD::Relay::SendGrid;
     my $h = { 'Subject' => 'Test', 'To' => 'neko@example.org' };
     my $v = { 
         'username' => 'api_user', 
@@ -219,7 +219,7 @@ Send an email to a recipient via SendGrid using Web API.
         'head' => $h,
         'body' => 'Email message',
     };
-    my $e = Haineko::Relay::SendGrid->new( %$v );
+    my $e = Haineko::SMTPD::Relay::SendGrid->new( %$v );
     my $s = $e->sendmail;
 
     print $s;                   # 0 = Failed to send, 1 = Successfully sent
@@ -234,15 +234,15 @@ Send an email to a recipient via SendGrid using Web API.
              'code' => '200',
              'message' => [ 'OK' ],
              'command' => 'POST'
-            }, 'Haineko::Response' );
+            }, 'Haineko::SMTPD::Response' );
 
 =head1 CLASS METHODS
 
 =head2 B<new( I<%arguments> )>
 
-new() is a constructor of Haineko::Relay::SendGrid
+new() is a constructor of Haineko::SMTPD::Relay::SendGrid
 
-    my $e = Haineko::Relay::SendGrid->new( 
+    my $e = Haineko::SMTPD::Relay::SendGrid->new( 
             'username' => 'username',       # API User for SendGrid
             'password' => 'password',       # API Key for SendGrid
             'timeout' => 60,                # Timeout for Furl
@@ -264,16 +264,16 @@ new() is a constructor of Haineko::Relay::SendGrid
 
 sendmail() will send email to the specified recipient(rcpt) via specified host.
 
-    my $e = Haineko::Relay::SendGrid->new( %argvs );
+    my $e = Haineko::SMTPD::Relay::SendGrid->new( %argvs );
     print $e->sendmail; # 0 = Failed to send, 1 = Successfully sent
 
-    print Data::Dumper::Dumper $e->response; # Dumps Haineko::Response object
+    print Dumper $e->response; # Dumps Haineko::SMTPD::Response object
 
 =head2 B<getbounce>
 
 getbounce() retrieve bounced records using SendGrid API.
 
-    my $e = Haineko::Relay::SendGrid->new( %$argvs );
+    my $e = Haineko::SMTPD::Relay::SendGrid->new( %$argvs );
     print $e->getbounce;    # 0 = No bounce or failed to retrieve
                             # 1 = One or more bounced records retrieved
 
@@ -286,7 +286,7 @@ getbounce() retrieve bounced records using SendGrid API.
                                 '550 5.1.1 <user@example.org>... User unknown '
                               ],
                  'command' => 'POST'
-               }, 'Haineko::Response' );
+               }, 'Haineko::SMTPD::Response' );
 
 =head1 REPOSITORY
 

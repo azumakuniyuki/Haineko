@@ -1,9 +1,9 @@
-package Haineko::Relay::ESMTP;
-use parent 'Haineko::Relay';
+package Haineko::SMTPD::Relay::ESMTP;
+use parent 'Haineko::SMTPD::Relay';
 use Net::SMTP;
 use Module::Load;
-use Haineko::Response;
-use Haineko::Greeting;
+use Haineko::SMTPD::Response;
+use Haineko::SMTPD::Greeting;
 use Email::MIME;
 use Encode;
 
@@ -82,7 +82,7 @@ sub sendmail {
 
         $thecommand = 'ehlo';
         return 0 unless $netsmtpobj = $esmtpclass->new( $self->{'host'}, %$smtpparams );
-        $nekogreets = Haineko::Greeting->new( $netsmtpobj->message );
+        $nekogreets = Haineko::SMTPD::Greeting->new( $netsmtpobj->message );
 
         # SMTP-AUTH
         if( $nekogreets->auth && $self->{'auth'} ) {
@@ -163,11 +163,11 @@ sub sendmail {
             'message' => [ $netsmtpobj->message ],
             'command' => $thecommand,
         };
-        $self->response( Haineko::Response->p( %$smtpparams ) );
+        $self->response( Haineko::SMTPD::Response->p( %$smtpparams ) );
         $netsmtpobj->quit;
 
     } else {
-        $self->response( Haineko::Response->r( 'conn', 'cannot-connect' ) );
+        $self->response( Haineko::SMTPD::Response->r( 'conn', 'cannot-connect' ) );
     }
     return $smtpstatus;
 }
@@ -179,7 +179,7 @@ __END__
 
 =head1 NAME
 
-Haineko::Relay::ESMTP - ESMTP Connection class
+Haineko::SMTPD::Relay::ESMTP - ESMTP Connection class
 
 =head1 DESCRIPTION
 
@@ -187,7 +187,7 @@ Send an email to external server using SMTP protocol.
 
 =head1 SYNOPSIS
 
-    use Haineko::Relay::ESMTP;
+    use Haineko::SMTPD::Relay::ESMTP;
     my $h = { 'Subject' => 'Test', 'To' => 'neko@example.org' };
     my $v = { 
         'host' => '192.0.2.1', 
@@ -201,7 +201,7 @@ Send an email to external server using SMTP protocol.
         'head' => $h,
         'body' => 'Email message',
     };
-    my $e = Haineko::Relay::ESMTP->new( %$v );
+    my $e = Haineko::SMTPD::Relay::ESMTP->new( %$v );
     my $s = $e->sendmail;
 
     print $s;                   # 0 = Failed to send, 1 = Successfully sent
@@ -218,15 +218,15 @@ Send an email to external server using SMTP protocol.
                     '2.1.0 <kijitora@example.jp>... Sender ok'
                       ],
              'command' => 'QUIT'
-            }, 'Haineko::Response' );
+            }, 'Haineko::SMTPD::Response' );
 
 =head1 CLASS METHODS
 
 =head2 B<new( I<%arguments> )>
 
-new() is a constructor of Haineko::Relay::ESMTP
+new() is a constructor of Haineko::SMTPD::Relay::ESMTP
 
-    my $e = Haineko::Relay::ESMTP->new( 
+    my $e = Haineko::SMTPD::Relay::ESMTP->new( 
             'host' => '192.0.2.1',          # SMTP Server
             'port' => 587,                  # SMTP Port
             'auth' => 1,                    # Use SMTP-AUTH
@@ -253,9 +253,9 @@ new() is a constructor of Haineko::Relay::ESMTP
 
 sendmail() will send email to the specified recipient(rcpt) via specified host.
 
-    my $e = Haineko::Relay::ESMTP->new( %argvs );
+    my $e = Haineko::SMTPD::Relay::ESMTP->new( %argvs );
     print $e->sendmail;         # 0 = Failed to send, 1 = Successfully sent
-    print Dumper $e->response;  # Dumps Haineko::Response object
+    print Dumper $e->response;  # Dumps Haineko::SMTPD::Response object
 
 =head1 REPOSITORY
 

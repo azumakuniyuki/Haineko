@@ -1,4 +1,4 @@
-package Haineko::Relay;
+package Haineko::SMTPD::Relay;
 use strict;
 use warnings;
 use Class::Accessor::Lite;
@@ -19,7 +19,7 @@ my $rwaccessors = [
     'timeout',  # (Integer) Timeout
     'username', # (String) Username for SMTP-AUTH
     'password', # (String) Password for SMTP-AUTH
-    'response', # (Haineko::Response) ESMTP Replies from MTA
+    'response', # (Haineko::SMTPD::Response) ESMTP Replies from MTA
     'starttls', # (Integer) use STARTTLS or not
 ];
 my $roaccessors = [];
@@ -67,7 +67,7 @@ __END__
 
 =head1 NAME
 
-Haineko::Relay - SMTP Connection class
+Haineko::SMTPD::Relay - SMTP Connection class
 
 =head1 DESCRIPTION
 
@@ -78,10 +78,10 @@ Haineko::Relay - SMTP Connection class
 =over 2
 
 =item *
-L<Haineko::Relay::ESMTP> - Relaying via ESMTP 
+L<Haineko::SMTPD::Relay::ESMTP> - Relaying via ESMTP 
 
 =item *
-L<Haineko::Relay::SendGrid> - Relaying via SendGrid Web API
+L<Haineko::SMTPD::Relay::SendGrid> - Relaying via SendGrid Web API
 
 =back
 

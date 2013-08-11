@@ -1,8 +1,8 @@
-package Haineko::Relay::Discard;
-use parent 'Haineko::Relay';
+package Haineko::SMTPD::Relay::Discard;
+use parent 'Haineko::SMTPD::Relay';
 use strict;
 use warnings;
-use Haineko::Response;
+use Haineko::SMTPD::Response;
 
 sub new {
     my $class = shift;
@@ -16,7 +16,7 @@ sub new {
 
 sub sendmail {
     my $self = shift;
-    $self->response( Haineko::Response->r( 'data', 'discard' ) );
+    $self->response( Haineko::SMTPD::Response->r( 'data', 'discard' ) );
     return 1;
 }
 
@@ -27,7 +27,7 @@ __END__
 
 =head1 NAME
 
-Haineko::Relay::Discard - Discard mailer class
+Haineko::SMTPD::Relay::Discard - Discard mailer class
 
 =head1 DESCRIPTION
 
@@ -35,8 +35,8 @@ Discard any message
 
 =head1 SYNOPSIS
 
-    use Haineko::Relay::Discard;
-    my $e = Haineko::Relay::Discard->new;
+    use Haineko::SMTPD::Relay::Discard;
+    my $e = Haineko::SMTPD::Relay::Discard->new;
     my $s = $e->sendmail;
 
     print $s;                   # always return 1
@@ -50,15 +50,15 @@ Discard any message
              'code' => '200',
              'message' => [ 'Discard' ],
              'command' => 'DATA'
-            }, 'Haineko::Response' );
+            }, 'Haineko::SMTPD::Response' );
 
 =head1 CLASS METHODS
 
 =head2 B<new( I<%arguments> )>
 
-new() is a constructor of Haineko::Relay::Discard
+new() is a constructor of Haineko::SMTPD::Relay::Discard
 
-    my $e = Haineko::Relay::Discard->new;
+    my $e = Haineko::SMTPD::Relay::Discard->new;
 
 =head1 INSTANCE METHODS
 
@@ -66,9 +66,9 @@ new() is a constructor of Haineko::Relay::Discard
 
 sendmail() will discard any message
 
-    my $e = Haineko::Relay::Discard->new;
+    my $e = Haineko::SMTPD::Relay::Discard->new;
     print $e->sendmail;         # 1, message discarded
-    print Dumper $e->response;  # Dumps Haineko::Response object
+    print Dumper $e->response;  # Dumps Haineko::SMTPD::Response object
 
 =head1 REPOSITORY
 

@@ -1,8 +1,8 @@
 # $Id: Makefile.am,v 1.4.2.1 2011/06/20 03:43:40 ak Exp $
 # Copyright (C) 2013 azumakuniyuki
-distdir = $(BUILDROOT)/dist/lib/Haineko/Relay
-instdir = @prefix@/lib/Haineko/Relay
-pkgdatadir = @libdir@/Haineko/Relay
+distdir = $(BUILDROOT)/dist/lib/Haineko/SMTPD/Relay
+instdir = @prefix@/lib/Haineko/SMTPD/Relay
+pkgdatadir = @libdir@/Haineko/SMTPD/Relay
 pkgdata_DATA = ESMTP.pm SendGrid.pm AmazonSES.pm
 
 .PHONY: clean
