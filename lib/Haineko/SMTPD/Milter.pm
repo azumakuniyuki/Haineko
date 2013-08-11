@@ -1,4 +1,4 @@
-package Haineko::Milter;
+package Haineko::SMTPD::Milter;
 use strict;
 use warnings;
 use Module::Load;
@@ -12,7 +12,7 @@ sub import {
     return 0 unless ref $argvs eq 'ARRAY';
     for my $e ( @$argvs ){
 
-        $e =~ s/\A/Haineko::Milter::/ unless $e =~ /\A[@]/;
+        $e =~ s/\A/Haineko::SMTPD::Milter::/ unless $e =~ /\A[@]/;
         $e =~ s/\A[@]//;
         eval { Module::Load::load( $e ); };
         next if $@;
@@ -67,7 +67,7 @@ __END__
 
 =head1 NAME
 
-Haineko::Milter - Haineko milter base class
+Haineko::SMTPD::Milter - Haineko milter base class
 
 =head1 DESCRIPTION
 
@@ -76,13 +76,13 @@ Each method is called from /submit for example: MAIL -> mail(), RCPT -> rcpt().
 
 =head1 SYNOPSIS
 
-    use Haineko::Milter;
-    Haineko::Milter->libs( [ '/path/to/lib1', '/path/to/lib2' ] );
-    my $x = Haineko::Milter->import( [ 'Neko' ] );          # Load Haineko::Milter::Neko
-    warn Dumper $x;                                         # [ Haineko::Milter::Neko ]
+    use Haineko::SMTPD::Milter;
+    Haineko::SMTPD::Milter->libs( [ '/path/to/lib1', '/path/to/lib2' ] );
+    my $x = Haineko::SMTPD::Milter->import( [ 'Neko' ] );   # Load Haineko::SMTPD::Milter::Neko
+    warn Dumper $x;                                         # [ Haineko::SMTPD::Milter::Neko ]
 
-    my $y = Haineko::Milter->import( [ '@My::Encrypt' ]);   # Load My::Encrypt module
-    warn Dumper $y;                                         # [ 'My::Encrypt' ]
+    my $y = Haineko::SMTPD::Milter->import( [ '@My::Encrypt' ]);    # Load My::Encrypt module
+    warn Dumper $y;                                                 # [ 'My::Encrypt' ]
 
 =head1 CLASS METHODS
 
@@ -95,24 +95,25 @@ when modules used as a milter are not installed in directories of @INC.
 
 Load modules in the argument as a module for milter. If a module name begin with
 ``B<@>'' such as ``@My::Encrypt'', B<My::Encrypt> module will be loaded. A Module
-which doesn't begin with ``@'' such as ``Neko'', ``Haineko::Milter::Neko'' will
-be loaded.
+which doesn't begin with ``@'' such as ``Neko'', ``Haineko::SMTPD::Milter::Neko''
+will be loaded.
 
-=head1 IMPLEMENT MILTER METHODS (Overridden by Haineko::Milter::*)
+=head1 IMPLEMENT MILTER METHODS (Overridden by Haineko::SMTPD::Milter::*)
 
 Each method is called from /submit at each phase of SMTP session. If you want to
-reject the smtp connection, set required values into Haineko::Response object and
-return 0 or undef as a return value of each method. However you want to only rewrite
-contents or passed your contents filter, return 1 or true as a return value.
+reject the smtp connection, set required values into Haineko::SMTPD::Response 
+object and return 0 or undef as a return value of each method. However you want
+to only rewrite contents or passed your contents filter, return 1 or true as a 
+return value.
 
 
-=head2 B<conn( I<Haineko::Response>, I<REMOTE_HOST>, I<REMOTE_ADDR> )>
+=head2 B<conn( I<Haineko::SMTPD::Response>, I<REMOTE_HOST>, I<REMOTE_ADDR> )>
 
 conn() method is for checking a client hostname and client IP address.
 
 =head3 Arguments
 
-=head4 B<Haineko::Response> object
+=head4 B<Haineko::SMTPD::::Response> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
@@ -127,13 +128,13 @@ The host name of the message sender, as picked from HTTP REMOTE_HOST variable.
 The host address, as picked from HTTP REMOTE_ADDR variable.
 
 
-=head2 B<ehlo( I<Haineko::Response>, I<HELO_HOST> )>
+=head2 B<ehlo( I<Haineko::SMTPD::Response>, I<HELO_HOST> )>
 
 ehlo() method is for checking a hostname passed as an argument of EHLO.
 
 =head3 Arguments
 
-=head4 B<Haineko::Response> object
+=head4 B<HainekoSMTPD::::Response> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
@@ -145,13 +146,13 @@ Value defined in "ehlo" field in HTTP-POSTed JSON data, which should be the
 domain name of the sending host or IP address enclosed square brackets.
 
 
-=head2 B<mail( I<Haineko::Response>, I<ENVELOPE_SENDER> )>
+=head2 B<mail( I<Haineko::SMTPD::Response>, I<ENVELOPE_SENDER> )>
 
 mail() method is for checking an envelope sender address.
 
 =head3 Arguments
 
-=head4 B<Haineko::Response> object
+=head4 B<Haineko::SMTPD::Response> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
@@ -164,14 +165,14 @@ Value defined in "mail" field in HTTP-POSTed JSON data, which should be the
 valid email address.
 
 
-=head2 B<rcpt( I<Haineko::Response>, I< [ ENVELOPE_RECIPIENTS ] > )>
+=head2 B<rcpt( I<Haineko::SMTPD::Response>, I< [ ENVELOPE_RECIPIENTS ] > )>
 
 rcpt() method is for checking envelope recipient addresses. Envelope recipient
 addresses are passwd as an array reference.
 
 =head3 Arguments
 
-=head4 B<Haineko::Response> object
+=head4 B<Haineko::SMTPD::Response> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
@@ -184,14 +185,14 @@ Values defined in "rcpt" field in HTTP-POSTed JSON data, which should be the
 valid email address.
 
 
-=head2 B<head( I<Haineko::Response>, I< { EMAIL_HEADER } > )>
+=head2 B<head( I<Haineko::SMTPD::Response>, I< { EMAIL_HEADER } > )>
 
 head() method is for checking email header. Email header is passwd as an hash
 reference.
 
 =head3 Arguments
 
-=head4 B<Haineko::Response> object
+=head4 B<Haineko::SMTPD::Response> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
@@ -203,14 +204,14 @@ in this method.
 Values defined in "header" field in HTTP-POSTed JSON data.
 
 
-=head2 B<body( I<Haineko::Response>, I< \EMAIL_BODY > )>
+=head2 B<body( I<Haineko::SMTPD::Response>, I< \EMAIL_BODY > )>
 
 head() method is for checking email body. Email body is passwd as an scalar
 reference.
 
 =head3 Arguments
 
-=head4 B<Haineko::Response> object
+=head4 B<Haineko::SMTPD::Response> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 

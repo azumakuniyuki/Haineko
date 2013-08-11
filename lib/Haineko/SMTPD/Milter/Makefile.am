@@ -1,8 +1,8 @@
 # $Id: Makefile.am,v 1.4.2.1 2011/06/20 03:43:40 ak Exp $
 # Copyright (C) 2013 azumakuniyuki
-distdir = $(BUILDROOT)/dist/lib/Haineko/Milter
-instdir = @prefix@/lib/Haineko/Milter
-pkgdatadir = @libdir@/Haineko/Milter
+distdir = $(BUILDROOT)/dist/lib/Haineko/SMTPD/Milter
+instdir = @prefix@/lib/Haineko/SMTPD/Milter
+pkgdatadir = @libdir@/Haineko/SMTPD/Milter
 pkgdata_DATA = Example.pm
 
 .PHONY: clean

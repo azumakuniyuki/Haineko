@@ -1,11 +1,11 @@
-package Haineko::Milter::Example;
+package Haineko::SMTPD::Milter::Example;
 use strict;
 use warnings;
-use parent 'Haineko::Milter';
+use parent 'Haineko::SMTPD::Milter';
 
 sub conn {
     my $class = shift;
-    my $nekor = shift || return 1;  # Haineko::Response object
+    my $nekor = shift || return 1;  # Haineko::SMTPD::Response object
     my $argvs = [ @_ ];
 
     my $remotehost = $argvs->[0] // q();
@@ -28,7 +28,7 @@ sub conn {
 
 sub ehlo {
     my $class = shift;
-    my $nekor = shift || return 1;  # Haineko::Response object
+    my $nekor = shift || return 1;  # Haineko::SMTPD::Response object
     my $argvs = shift // q();       # Hostname or IP address
 
     if( $argvs =~ m/[.]local\z/ ) {
@@ -43,7 +43,7 @@ sub ehlo {
 
 sub mail {
     my $class = shift;
-    my $nekor = shift || return 1;  # Haineko::Response object
+    my $nekor = shift || return 1;  # Haineko::SMTPD::Response object
     my $argvs = shift // q();       # Envelope sender address
 
     my $invalidtld = [ 'local', 'test', 'invalid' ];
@@ -63,7 +63,7 @@ sub mail {
 
 sub rcpt {
     my $class = shift;
-    my $nekor = shift || return 1;  # Haineko::Response object
+    my $nekor = shift || return 1;  # Haineko::SMTPD::Response object
     my $argvs = shift // [];        # Envelope recipient addresses
     my $bccto = 'always-bcc@example.jp';
 
@@ -73,7 +73,7 @@ sub rcpt {
 
 sub head {
     my $class = shift;
-    my $nekor = shift || return 1;  # Haineko::Response object
+    my $nekor = shift || return 1;  # Haineko::SMTPD::Response object
     my $argvs = shift // {};        # Headers(HashRef)
 
     if( exists $argvs->{'subject'} && $argvs->{'subject'} =~ /spam/i ) {
@@ -88,7 +88,7 @@ sub head {
 
 sub body {
     my $class = shift;
-    my $nekor = shift || return 1;  # Haineko::Response object
+    my $nekor = shift || return 1;  # Haineko::SMTPD::Response object
     my $argvs = shift // {};        # Body(ScalarRef)
 
     if( $$argvs =~ m{https?://} ) {
@@ -107,32 +107,33 @@ __END__
 
 =head1 NAME
 
-Haineko::Milter::Example - Haineko milter for Example
+Haineko::SMTPD::Milter::Example - Haineko milter for Example
 
 =head1 DESCRIPTION
 
-Example Haineko::Milter class.
+Example Haineko::SMTPD::Milter class.
 
 =head1 SYNOPSIS
 
-    use Haineko::Milter;
-    Haineko::Milter->import( [ 'Example' ]);
+    use Haineko::SMTPD::Milter;
+    Haineko::SMTPD::Milter->import( [ 'Example' ]);
 
-=head1 IMPLEMENT MILTER METHODS (Override Haineko::Milter)
+=head1 IMPLEMENT MILTER METHODS (Override Haineko::SMTPD::Milter)
 
 Each method is called from /submit at each phase of SMTP session. If you want to
-reject the smtp connection, set required values into Haineko::Response object and
-return 0 or undef as a return value of each method. However you want to only rewrite
-contents or passed your contents filter, return 1 or true as a return value.
+reject the smtp connection, set required values into Haineko::SMTPD::Response 
+object and return 0 or undef as a return value of each method. However you want
+to only rewrite contents or passed your contents filter, return 1 or true as a 
+return value.
 
 
-=head2 B<conn( I<Haineko::Response>, I<REMOTE_HOST>, I<REMOTE_ADDR> )>
+=head2 B<conn( I<Haineko::SMTPD::Response>, I<REMOTE_HOST>, I<REMOTE_ADDR> )>
 
 conn() method is for checking a client hostname and client IP address.
 
 =head3 Arguments
 
-=head4 B<Haineko::Response> object
+=head4 B<Haineko::SMTPD::Response> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
@@ -147,13 +148,13 @@ The host name of the message sender, as picked from HTTP REMOTE_HOST variable.
 The host address, as picked from HTTP REMOTE_ADDR variable.
 
 
-=head2 B<ehlo( I<Haineko::Response>, I<HELO_HOST> )>
+=head2 B<ehlo( I<Haineko::SMTPD::Response>, I<HELO_HOST> )>
 
 ehlo() method is for checking a hostname passed as an argument of EHLO.
 
 =head3 Arguments
 
-=head4 B<Haineko::Response> object
+=head4 B<Haineko::SMTPD::Response> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
@@ -165,13 +166,13 @@ Value defined in "ehlo" field in HTTP-POSTed JSON data, which should be the
 domain name of the sending host or IP address enclosed square brackets.
 
 
-=head2 B<mail( I<Haineko::Response>, I<ENVELOPE_SENDER> )>
+=head2 B<mail( I<Haineko::SMTPD::Response>, I<ENVELOPE_SENDER> )>
 
 mail() method is for checking an envelope sender address.
 
 =head3 Arguments
 
-=head4 B<Haineko::Response> object
+=head4 B<Haineko::SMTPD::Response> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
@@ -184,14 +185,14 @@ Value defined in "mail" field in HTTP-POSTed JSON data, which should be the
 valid email address.
 
 
-=head2 B<rcpt( I<Haineko::Response>, I< [ ENVELOPE_RECIPIENTS ] > )>
+=head2 B<rcpt( I<Haineko::SMTPD::Response>, I< [ ENVELOPE_RECIPIENTS ] > )>
 
 rcpt() method is for checking envelope recipient addresses. Envelope recipient
 addresses are passwd as an array reference.
 
 =head3 Arguments
 
-=head4 B<Haineko::Response> object
+=head4 B<Haineko::SMTPD::Response> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
@@ -204,14 +205,14 @@ Values defined in "rcpt" field in HTTP-POSTed JSON data, which should be the
 valid email address.
 
 
-=head2 B<head( I<Haineko::Response>, I< { EMAIL_HEADER } > )>
+=head2 B<head( I<Haineko::SMTPD::Response>, I< { EMAIL_HEADER } > )>
 
 head() method is for checking email header. Email header is passwd as an hash
 reference.
 
 =head3 Arguments
 
-=head4 B<Haineko::Response> object
+=head4 B<Haineko::SMTPD::Response> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
@@ -223,14 +224,14 @@ in this method.
 Values defined in "header" field in HTTP-POSTed JSON data.
 
 
-=head2 B<body( I<Haineko::Response>, I< \EMAIL_BODY > )>
+=head2 B<body( I<Haineko::SMTPD::Response>, I< \EMAIL_BODY > )>
 
 head() method is for checking email body. Email body is passwd as an scalar
 reference.
 
 =head3 Arguments
 
-=head4 B<Haineko::Response> object
+=head4 B<Haineko::SMTPD::Response> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
