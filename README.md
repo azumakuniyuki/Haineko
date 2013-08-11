@@ -25,8 +25,8 @@ or later and its web application framework Mojolicious.
 Supported email clouds to relay using Web API
 ---------------------------------------------
 
-* [SendGrid](http://sendgrid.com) - lib/Haineko/Relay/SendGrid.pm
-* [Amazon SES](http://aws.amazon.com/ses/) - lib/Haineko/Relay/AmazonSES.pm
+* [SendGrid](http://sendgrid.com) - lib/Haineko/SMTPD/Relay/SendGrid.pm
+* [Amazon SES](http://aws.amazon.com/ses/) - lib/Haineko/SMTPD/Relay/AmazonSES.pm
 
 
 How to build, configure and run
