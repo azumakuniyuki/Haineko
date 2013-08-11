@@ -4,22 +4,20 @@ use strict;
 use warnings;
 use Haineko::Response;
 
-sub new
-{
-	my $class = shift;
-	my $argvs = { @_ };
+sub new {
+    my $class = shift;
+    my $argvs = { @_ };
 
-	$argvs->{'retry'} = 0;
-	$argvs->{'sleep'} = 0;
-	$argvs->{'timeout'} = 0;
-	return bless $argvs, __PACKAGE__;
+    $argvs->{'retry'} = 0;
+    $argvs->{'sleep'} = 0;
+    $argvs->{'timeout'} = 0;
+    return bless $argvs, __PACKAGE__;
 }
 
-sub sendmail
-{
-	my $self = shift;
-	$self->response( Haineko::Response->r( 'data', 'discard' ) );
-	return 1;
+sub sendmail {
+    my $self = shift;
+    $self->response( Haineko::Response->r( 'data', 'discard' ) );
+    return 1;
 }
 
 1;
@@ -37,22 +35,22 @@ Discard any message
 
 =head1 SYNOPSIS
 
-	use Haineko::Relay::Discard;
-	my $e = Haineko::Relay::Discard->new;
-	my $s = $e->sendmail;
+    use Haineko::Relay::Discard;
+    my $e = Haineko::Relay::Discard->new;
+    my $s = $e->sendmail;
 
-	print $s;			# always return 1
-	print $e->response->error;	# always return 0
-	print $e->response->dsn;	# always return undef
+    print $s;                   # always return 1
+    print $e->response->error;  # always return 0
+    print $e->response->dsn;    # always return undef
 
-	warn Data::Dumper::Dumper $e->response;
-	$VAR1 = bless( {
-			 'dsn' => undef
-			 'error' => 0,
-			 'code' => '200',
-			 'message' => [ 'Discard' ],
-			 'command' => 'DATA'
-		       }, 'Haineko::Response' );
+    warn Data::Dumper::Dumper $e->response;
+    $VAR1 = bless( {
+             'dsn' => undef
+             'error' => 0,
+             'code' => '200',
+             'message' => [ 'Discard' ],
+             'command' => 'DATA'
+            }, 'Haineko::Response' );
 
 =head1 CLASS METHODS
 
@@ -60,7 +58,7 @@ Discard any message
 
 new() is a constructor of Haineko::Relay::Discard
 
-	my $e = Haineko::Relay::Discard->new;
+    my $e = Haineko::Relay::Discard->new;
 
 =head1 INSTANCE METHODS
 
@@ -68,14 +66,13 @@ new() is a constructor of Haineko::Relay::Discard
 
 sendmail() will discard any message
 
-	my $e = Haineko::Relay::Discard->new;
-	print $e->sendmail;	# 1, message discarded
-
-	print Data::Dumper::Dumper $e->response; # Dumps Haineko::Response object
+    my $e = Haineko::Relay::Discard->new;
+    print $e->sendmail;         # 1, message discarded
+    print Dumper $e->response;  # Dumps Haineko::Response object
 
 =head1 REPOSITORY
 
-https://github.com/azumakuniyuki/haineko
+https://github.com/azumakuniyuki/Haineko
 
 =head1 AUTHOR
 
