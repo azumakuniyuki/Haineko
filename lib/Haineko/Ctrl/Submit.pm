@@ -563,6 +563,7 @@ sub sendmail {
         my $smtpmailer = undef;
         my $relayingto = undef;
         my $credential = undef;
+        my $relayclass = q();
 
         for my $e ( @$recipients ) {
 
@@ -612,7 +613,14 @@ sub sendmail {
                 $smtpmailer->sendmail();
                 $neko->response( $smtpmailer->response );
 
-            } elsif( $relayingto->{'mailer'} eq 'SendGrid' ) {
+            } elsif( $relayingto->{'mailer'} eq 'Discard' ) {
+
+                Module::Load::load('Haineko::Relay::Discard');
+                $smtpmailer = Haineko::Relay::Discard->new;
+                $smtpmailer->sendmail();
+                $neko->response( $smtpmailer->response );
+
+            } elsif( length $relayingto->{'mailer'} ) {
 
                 $mailheader->{'To'} = $r->address;
                 $methodargv = {
@@ -626,8 +634,10 @@ sub sendmail {
                     'timeout' => $relayingto->{'timeout'} // 60,
                 };
 
-                Module::Load::load('Haineko::Relay::SendGrid');
-                $smtpmailer = Haineko::Relay::SendGrid->new( %$methodargv );
+                # Use Haineko::Relay::*
+                $relayclass = sprintf( "Haineko::Relay::%s", $relayingto->{'mailer'} );
+                Module::Load::load( $relayclass );
+                $smtpmailer = $relayclass->new( %$methodargv );
 
                 if( $relayingto->{'auth'} ) {
 
@@ -638,13 +648,6 @@ sub sendmail {
 
                 $smtpmailer->sendmail();
                 $smtpmailer->getbounce();
-                $neko->response( $smtpmailer->response );
-
-            } elsif( $relayingto->{'mailer'} eq 'Discard' ) {
-
-                Module::Load::load('Haineko::Relay::Discard');
-                $smtpmailer = Haineko::Relay::Discard->new;
-                $smtpmailer->sendmail();
                 $neko->response( $smtpmailer->response );
 
             } else {
