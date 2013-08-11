@@ -3,7 +3,7 @@
 distdir = $(BUILDROOT)/dist/lib/Haineko/Relay
 instdir = @prefix@/lib/Haineko/Relay
 pkgdatadir = @libdir@/Haineko/Relay
-pkgdata_DATA = ESMTP.pm SendGrid.pm
+pkgdata_DATA = ESMTP.pm SendGrid.pm AmazonSES.pm
 
 .PHONY: clean
 all-am: 
