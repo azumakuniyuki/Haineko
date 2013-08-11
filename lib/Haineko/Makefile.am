@@ -1,11 +1,10 @@
 # $Id: Makefile.am,v 1.20.2.1 2011/06/20 03:43:39 ak Exp $
 # Copyright (C) 2013 azumakuniyuki
-SUBDIRS = Ctrl Relay Milter
+SUBDIRS = Ctrl HTTPD SMTPDD
 distdir = $(BUILDROOT)/dist/lib/Haineko
 instdir = @libdir@/Haineko
 pkgdatadir = @libdir@/Haineko
-pkgdata_DATA = Address.pm Greeting.pm Log.pm RFC5321.pm RFC5322.pm \
-		Relay.pm Response.pm Session.pm Milter.pm
+pkgdata_DATA = Log.pm
 
 .PHONY: clean
 all-am:
