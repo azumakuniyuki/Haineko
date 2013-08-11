@@ -46,7 +46,7 @@ smtpd:
         rcpt: 'recipients'
 
     # Milter: each milter module listed the followings are called as 
-    # Haineko::Milter::<Name> at checking the value of each SMTP command.
+    # Haineko::SMTPD::Milter::<Name> at checking the value of each SMTP command.
     # 
     # For Example:
     #   libs: [ '/path/to/perl/lib', '/another/lib/perl5/for/my/milter' ]
@@ -54,8 +54,8 @@ smtpd:
     #   rcpt: [ 'AlwaysBcc', '@Check::DDNS' ]
     #   body: [ '@Make::Me::A::Cat', '@My::Encrypt' ]
     #
-    #   ``CheckFrom'' is called as Haineko::Milter::CheckFrom->mail();
-    #   ``AlwaysBcc' is called as Haineko::Milter::AlwaysBcc->rcpt();
+    #   ``CheckFrom'' is called as Haineko::SMTPD::Milter::CheckFrom->mail();
+    #   ``AlwaysBcc' is called as Haineko::SMTPD::Milter::AlwaysBcc->rcpt();
     #   ``@Check::DDNS'' is called as Check::DDNS->rcpt();
     #   ``@Make::Me::A::Cat'' is called as Make::Me::A::Cat->body();
     #   ``@My::Encrypt'' is called as My::Encrypt->body();
