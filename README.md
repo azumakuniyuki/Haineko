@@ -26,6 +26,7 @@ Supported email clouds to relay using Web API
 ---------------------------------------------
 
 * [SendGrid](http://sendgrid.com) - lib/Haineko/Relay/SendGrid.pm
+* [Amazon SES](http://aws.amazon.com/ses/) - lib/Haineko/Relay/AmazonSES.pm
 
 
 How to build, configure and run
