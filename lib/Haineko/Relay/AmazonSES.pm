@@ -8,6 +8,8 @@ use Email::MIME;
 use MIME::Base64;
 use Time::Piece;
 use Digest::SHA 'hmac_sha256_base64';
+use Haineko::Response;
+
 use constant 'SES_ENDPOINT' => 'email.us-east-1.amazonaws.com';
 use constant 'SES_APIVERSION' => '2010-12-01';
 
@@ -39,9 +41,10 @@ sub sendmail {
     if( ! $self->{'username'} || ! $self->{'password'} ) {
 
         my $r = {
-            'code' => 400,
-            'error' => 1,
-            'message' => [ 'Empty API-USER or API-KEY' ],
+            'code'    => 400,
+            'error'   => 1,
+            'mailer'  => 'AmazonSES',
+            'message' => [ 'Empty Access Key ID or Secret Key' ],
             'command' => 'POST',
         };
         $self->response( Haineko::Response->new( %$r ) );
@@ -64,7 +67,6 @@ sub sendmail {
 
     for my $e ( keys %{ $self->{'head'} } ) {
 
-        next if $e eq 'Received';
         next if $e eq 'MIME-Version';
 
         if( ref $self->{'head'}->{ $e } eq 'ARRAY' ) {
@@ -85,7 +87,7 @@ sub sendmail {
     # http://docs.aws.amazon.com/ses/latest/DeveloperGuide/query-interface.html
     my $amazonses1 = sprintf( "https://%s/", SES_ENDPOINT );
     my $dateheader = gmtime;
-    my $datestring = $dateheader->strftime; $datestring =~ s/UTC/GMT/;
+    my $datestring = $dateheader->strftime;
     my $parameters = {
         'Action' => 'SendRawEmail',
         'Source' => $self->{'mail'},
@@ -103,7 +105,6 @@ sub sendmail {
     };
     my $identifier = {
         'AWSAccessKeyId' => $self->{'username'},
-        #'Signature' => __PACKAGE__->sign( $parameters, $self->{'password'} ),
         'Signature' => __PACKAGE__->sign( $reqheaders->{'Date'}, $self->{'password'} ),
         'Algorithm' => 'HmacSHA256',
         'SignedHeaders' => 'Date',
@@ -113,7 +114,6 @@ sub sendmail {
 
     $methodargv = { 
         'agent' => $self->{'ehlo'},
-        #'agent' => 'SES-Perl-1.2/2010-12-01',
         'timeout' => $self->{'timeout'},
         'ssl_opts' => { 'SSL_verify_mode' => 0 },
         'headers' => [
@@ -200,7 +200,7 @@ Send an email to a recipient via Amazon SES using API.
     use Haineko::Relay::AmazonSES;
     my $h = { 'Subject' => 'Test', 'To' => 'neko@example.org' };
     my $v = { 
-        'username' => 'api_user', 'password' => 'api_key',
+        'username' => 'Access Key ID', 'password' => 'Secret Key',
         'ehlo' => 'UserAgent name for Furl',
         'mail' => 'kijitora@example.jp', 'rcpt' => 'neko@example.org',
         'head' => $h, 'body' => 'Email message',
@@ -229,8 +229,8 @@ Send an email to a recipient via Amazon SES using API.
 new() is a constructor of Haineko::Relay::AmazonSES
 
     my $e = Haineko::Relay::AmazonSES->new( 
-            'username' => 'username',       # API key ID for AmazonSES
-            'password' => 'password',       # API secret Key for AmazonSES
+            'username' => 'username',       # API Access Key ID for AmazonSES
+            'password' => 'password',       # API Secret Key for AmazonSES
             'timeout' => 60,                # Timeout for Furl
             'attr' => {
                 'content_type' => 'text/plain'
@@ -260,7 +260,7 @@ http://docs.aws.amazon.com/ses/latest/DeveloperGuide/query-interface.html
 
 =head1 REPOSITORY
 
-https://github.com/azumakuniyuki/haineko
+https://github.com/azumakuniyuki/Haineko
 
 =head1 AUTHOR
 
