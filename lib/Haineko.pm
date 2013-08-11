@@ -4,7 +4,7 @@ use Mojo::Base 'Mojolicious';
 use Path::Class;
 use JSON::Syck;
 
-our $VERSION = '0.0.3';
+our $VERSION = '0.0.4';
 our $SYSNAME = 'Haineko';
 
 sub startup {

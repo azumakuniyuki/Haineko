@@ -1,5 +1,9 @@
 Revision history for Haineko
 
+0.0.4   Sun, 11 Aug 2013 17:22:22 +0900 (JST)
+    - Implement Haineko::Relay::Discard, Mailer for discarding an email.
+    - Implement Haineko::Relay::AmazonSES, for sending via Amazon SES API.
+
 0.0.3   Sat, 27 Jul 2013 14:22:22 +0900 (JST)
     - Only 127.0.0.1 is permitted to relay if there is no etc/relayhosts file.
     - Haineko can run even if haineko.cf does not exist.

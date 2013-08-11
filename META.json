@@ -45,11 +45,13 @@
          "requires" : {
             "Authen::SASL" : "2.16",
             "Class::Accessor::Lite" : "0.05",
+            "Digest::SHA" : "5.61",
             "Email::MIME" : "1.910",
             "Encode" : "2.42",
             "Furl" : "2.17",
             "IO::Socket::SSL" : "1.94",
             "JSON::Syck" : "1.18",
+            "MIME::Base64" : "3.13",
             "Module::Load" : "0.18",
             "Mojolicious" : "3.89",
             "Net::CIDR::Lite" : "0.21",
@@ -58,6 +60,7 @@
             "Path::Class" : "0.24",
             "Sys::Syslog" : "0.33",
             "Time::Piece" : "1.20",
+            "XML::Simple" : "2.20",
             "perl" : "5.010001"
          }
       },
@@ -68,7 +71,7 @@
       }
    },
    "release_status" : "unstable",
-   "version" : "0.0.3",
+   "version" : "0.0.4",
    "x_contributors" : [
       "azumakuniyuki <perl.org@azumakuniyuki.org>"
    ]
