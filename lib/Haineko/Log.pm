@@ -180,7 +180,7 @@ Write log messages via UNIX syslog
 new() is a constructor of Haineko::Log
 
     my $e = Haineko::Log->new(
-            'queueid' => 'ID string',   # Haineko::Session->queueid
+            'queueid' => 'ID string',   # Haineko::SMTPD::Session->queueid
             'useragent' => 'Agent name',    # $self->req->header->user_agent
             'remoteaddr' => '127.0.0.1',    # REMOTE_HOST http environment variable
             'remoteport' => 1024,       # REMOTE_PORT http environment variable
