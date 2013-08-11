@@ -1,4 +1,4 @@
-package Haineko::Response;
+package Haineko::SMTPD::Response;
 use strict;
 use warnings;
 use Class::Accessor::Lite;
@@ -310,7 +310,7 @@ __END__
 
 =head1 NAME
 
-Haineko::Response - SMTP Response class
+Haineko::SMTPD::Response - SMTP Response class
 
 =head1 DESCRIPTION
 
@@ -319,8 +319,8 @@ and SMTP command.
 
 =head1 SYNOPSIS
 
-    use Haineko::Response;
-    my $e = Haineko::Response->r( 'ehlo', 'invalid-domain' );
+    use Haineko::SMTPD::Response;
+    my $e = Haineko::SMTPD::Response->r( 'ehlo', 'invalid-domain' );
 
     print $e->dsn;      # 5.0.0
     print $e->code;     # 500
@@ -331,7 +331,7 @@ and SMTP command.
     ];
 
     my $v = { 'command' => 'RCPT', message => [ '550 5.1.1 User unknown' ] };
-    my $f = Haineko::Response->p( %$v );
+    my $f = Haineko::SMTPD::Response->p( %$v );
 
     print $e->dsn;      # 5.1.1
     print $e->code;     # 550
@@ -346,18 +346,18 @@ and SMTP command.
 
 =head2 B<new( I<%arguments> )>
 
-new() is a constructor of Haineko::Response
+new() is a constructor of Haineko::SMTPD::Response
 
 =head2 B<r( I<SMTP Command>, I<Error type> )>
 
-r() creates an Haineko::Response object from specified SMTP command and error type.
+r() creates an Haineko::SMTPD::Response object from specified SMTP command and error type.
 
 =head2 B<p( I<%arguments> )>
 
-p() creates an Haineko::Response object from SMTP response message.
+p() creates an Haineko::SMTPD::Response object from SMTP response message.
 
     my $v = { 'command' => 'MAIL', message => [ '552 5.2.2 Mailbox full' ] };
-    my $f = Haineko::Response->p( %$v );
+    my $f = Haineko::SMTPD::Response->p( %$v );
 
     print $e->dsn;      # 5.2.2
     print $e->code;     # 552
@@ -374,7 +374,7 @@ p() creates an Haineko::Response object from SMTP response message.
 damn() returns instance data as a hash reference
 
     my $v = { 'command' => 'DATA', message => [ '551 5.7.1 Refused' ] };
-    my $f = Haineko::Response->p( %$v );
+    my $f = Haineko::SMTPD::Response->p( %$v );
 
     print Data::Dumper::Dumper $e->damn;
     $VAR1 = {
