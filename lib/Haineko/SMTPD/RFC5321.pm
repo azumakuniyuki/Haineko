@@ -5,14 +5,15 @@ use Haineko::SMTPD::RFC5322;
 
 sub is8bit {
     my $class = shift;
-    my $argvs = shift || return 0;
+    my $argvs = shift || return 0;  # (String) Any text
+
     return 1 unless $$argvs =~ m/\A[\x00-\x7f]+\z/;
     return 0;
 }
 
 sub check_ehlo {
     my $class = shift;
-    my $argvs = shift || return 0;
+    my $argvs = shift || return 0;  # (String) The value of EHLO/HELO
     my $valid = Haineko::SMTPD::RFC5322->is_domainpart( $argvs );
     my $octet = [];
 
@@ -21,7 +22,7 @@ sub check_ehlo {
     $octet = [ split( /[.]/, $argvs ) ];
 
     for my $e ( @$octet ) {
-
+        # Check each octet
         last unless $e =~ m/\A\d+\z/;
         last if $e < 0;
         last if $e > 255;

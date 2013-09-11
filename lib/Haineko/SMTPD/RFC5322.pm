@@ -26,12 +26,13 @@ BUILD_REGULAR_EXPRESSIONS: {
 
     $Rx->{'rfc5322'} = qr/$local_part[@]$domain/o;
     $Rx->{'ignored'} = qr/$local_part[.]*[@]$domain/o;
-    $Rx->{'domain'} = qr/$domain/o;
+    $Rx->{'domain'}  = qr/$domain/o;
 }
 
 sub is_emailaddress {
     my $class = shift;
-    my $email = shift || return 0;
+    my $email = shift || return 0;  # (String) Email address
+
     return 0 if $email =~ m{([\x00-\x1f]|\x1f)};
     return 1 if $email =~ $Rx->{'ignored'};
     return 0;
@@ -39,7 +40,8 @@ sub is_emailaddress {
 
 sub is_domainpart {
     my $class = shift;
-    my $dpart = shift || return 0;
+    my $dpart = shift || return 0;  # (String) Domain part of an email address
+
     return 1 if $dpart =~ m{\A[-0-9A-Za-z.]+[.][A-Za-z]+\z};
     return 0;
 }
