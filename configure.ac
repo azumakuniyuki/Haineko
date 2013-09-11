@@ -89,13 +89,14 @@ else
 fi
 
 dnl # Checks for library functions.
-AC_CONFIG_FILES([Makefile
+AC_CONFIG_FILES([
+        Makefile
         etc/Makefile
         lib/Makefile
         lib/Haineko/Makefile
+        lib/Haineko/HTTPD/Makefile
         lib/Haineko/SMTPD/Makefile
-        lib/Haineko/Ctrl/Makefile
         lib/Haineko/SMTPD/Milter/Makefile
         lib/Haineko/SMTPD/Relay/Makefile
-        script/Makefile])
+        libexec/Makefile])
 AC_OUTPUT

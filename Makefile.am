@@ -1,8 +1,8 @@
 # $Id: Makefile.am,v 1.12.2.2 2011/06/20 03:43:39 ak Exp $
 # Copyright (C) 2013 azumakuniyuki
 SYSTEMNAME = Haineko
-SYSVERSION = 0.0.4
-SUBDIRS = etc lib script
+SYSVERSION = 0.1.0
+SUBDIRS = etc lib libexec
 
 .PHONY: clean
 all-am: Makefile
@@ -49,9 +49,9 @@ message:
 	@echo "  2. Start HTTPd"
 	@echo "     > cd @prefix@"
 	@echo "     > export PERL5LIB=@libdir@/perl5"
-	@echo "     > ./libexec/hypnotoad script/haineko"
+	@echo "     > ./sbin/hainekod -a ./libexec/haineko.psgi"
 	@echo "     OR"
-	@echo "     > plackup -o '127.0.0.1' -p 2794 script/haineko"
+	@echo "     > plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi"
 	@echo "  3. Connect http://127.0.0.1:2794"
 	@echo
 	@echo "-----------------------------------------------------------------------------"
