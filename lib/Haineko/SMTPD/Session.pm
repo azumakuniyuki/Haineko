@@ -11,7 +11,7 @@ my $rwaccessors = [
     'started',      # (Time::Piece) When it connected
     'response',     # (Haineko::SMTPD::Response) SMTP Reponse
     'addresser',    # (Haineko::SMTPD::Address) Envelope sender
-    'recipient',    # (ArreyRef->Haineko::SMTPD::Address) Envelope recipient
+    'recipient',    # (Ref->Arrey->Haineko::SMTPD::Address) Envelope recipients
 ];
 my $roaccessors = [
     'queueid',      # (String) Queue ID
@@ -29,15 +29,15 @@ sub new {
     my $class = shift;
     my $argvs = { @_ };
     my $nekos = {
-        'stage' => 0,
-        'started' => Time::Piece->new,
-        'queueid' => $argvs->{'queueid'} || __PACKAGE__->make_queueid,
+        'stage'    => 0,
+        'started'  => Time::Piece->new,
+        'queueid'  => $argvs->{'queueid'}  || __PACKAGE__->make_queueid,
         'response' => $argvs->{'response'} || Haineko::SMTPD::Response->new,
     };
     map { $nekos->{ $_ } ||= $argvs->{ $_ } || undef } @$roaccessors;
 
     while(1) {
-
+        # Create email address objects
         my $c = 'Haineko::SMTPD::Address';
         my $r = [];
         my $t = $argvs->{'recipient'} || [];
@@ -55,7 +55,7 @@ sub new {
 
 sub load {
     my $class = shift;
-    my $argvs = shift || return undef;
+    my $argvs = shift || return undef;  # (Ref->Hash) Session data
     my $esmtp = {};
     my $rhead = [ qw/dsn code error message command/ ];
     my $nekor = undef;
@@ -89,8 +89,8 @@ sub load {
         $nekor->{ $e } = $argvs->{ 'smtp.'.$e };
     }
 
-    $nekor->{'message'} = [];
-    $esmtp->{'message'} = [];
+    $nekor->{'message'}  = [];
+    $esmtp->{'message'}  = [];
     $esmtp->{'response'} = Haineko::SMTPD::Response->new( %$nekor );
 
     return bless $esmtp, __PACKAGE__;
@@ -124,7 +124,7 @@ sub make_queueid {
 
 sub done {
     my $class = shift;
-    my $argvs = shift || return 0;
+    my $argvs = shift || return 0;  # (String) SMTP Command
     my $value = {
         'ehlo' => ( 1 << 0 ),
         'auth' => ( 1 << 1 ),
@@ -138,7 +138,7 @@ sub done {
 
 sub ehlo { 
     my $self = shift; 
-    my $argv = shift || 0;
+    my $argv = shift || 0;  # (Integer)
     my $ehlo = __PACKAGE__->done('ehlo');
     $self->{'stage'} = $ehlo if $argv;
     return $self->{'stage'} & $ehlo ? 1 : 0;
@@ -182,9 +182,9 @@ sub quit {
 
 sub r {
     my $self = shift;
-    my $smtp = shift || return 0;
-    my $type = shift || return 0;
-    my $logs = shift || [];
+    my $smtp = shift || return 0;   # (String) SMTP Command
+    my $type = shift || return 0;   # (String) Error type
+    my $logs = shift || [];         # (Ref->Array) Log message
     my $head = [ qw/dsn code error message command/ ];
     my $mesg = Haineko::SMTPD::Response->r( $smtp, $type, $logs );
 
@@ -199,7 +199,7 @@ sub damn {
 
     for my $e ( @$rwaccessors, @$roaccessors ) {
 
-        next if $e =~ m/(?:response|addresser|recipient)/;
+        next if $e =~ m/(?:response|addresser|recipient|started)/;
         $smtp->{ 'smtp.'.$e } = $self->{ $e };
     }
 
@@ -231,6 +231,11 @@ sub damn {
         $smtp->{'smtp.response'} = $self->{'response'}->damn;
         last;
     }
+
+    $smtp->{'smtp.timestamp'} = {
+        'datetime' => $self->started->cdate,
+        'unixtime' => $self->started->epoch,
+    };
     return $smtp;
 }
 
@@ -316,7 +321,7 @@ r() sets Haineko::SMTPD::Response object from a SMTP Command and an error type.
 
 =head2 B<damn>
 
-damn() returns instance data as a hash reference for Mojolicious session.
+damn() returns instance data as a hash reference
 
     warn Data::Dumper::Dumper $e;
     $VAR1 = {
@@ -324,27 +329,18 @@ damn() returns instance data as a hash reference for Mojolicious session.
           'smtp.queueid' => 'r64IQ9X22396oA0bjQZIU7rn',
           'smtp.addresser' => 'kijitora@example.jp',
           'smtp.response' => {
-                       'dsn' => undef,
-                       'error' => undef,
-                       'message' => undef,
-                       'command' => undef,
-                       'code' => undef
-                     },
+                'dsn' => undef,
+                'error' => undef,
+                'message' => undef,
+                'command' => undef,
+                'code' => undef
+          },
           'smtp.remoteaddr' => '127.0.0.1',
           'smtp.useragent' => 'CLI',
-          'smtp.started' => bless( [
-                         9,
-                         26,
-                         18,
-                         4,
-                         6,
-                         '113',
-                         4,
-                         184,
-                         0,
-                         1372929969,
-                         1
-                       ], 'Time::Piece' ),
+          'smtp.timestamp' => {
+                'unixtime' => 1372929969,
+                'datetime' => "Wed Jul 17 12:00:27 2013"
+          },
           'smtp.stage' => 4,
           'smtp.remoteport' => 1024
         };
