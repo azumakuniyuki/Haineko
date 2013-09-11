@@ -99,8 +99,8 @@ when modules used as a milter are not installed in directories of @INC.
 =head2 B<import( I<[ ... ]> )>
 
 Load modules in the argument as a module for milter. If a module name begin with
-``B<@>'' such as ``@My::Encrypt'', B<My::Encrypt> module will be loaded. A Module
-which doesn't begin with ``@'' such as ``Neko'', ``Haineko::SMTPD::Milter::Neko''
+``B<+>'' such as ``+My::Encrypt'', B<My::Encrypt> module will be loaded. A Module
+which doesn't begin with ``+'' such as ``Neko'', ``Haineko::SMTPD::Milter::Neko''
 will be loaded.
 
 =head1 IMPLEMENT MILTER METHODS (Overridden by Haineko::SMTPD::Milter::*)
