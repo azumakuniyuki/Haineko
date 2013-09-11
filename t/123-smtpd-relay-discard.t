@@ -1,4 +1,4 @@
-use lib qw(./t/lib ./dist/lib ./lib);
+use lib qw|./lib ./blib/lib|;
 use strict;
 use warnings;
 use Haineko::SMTPD::Relay::Discard;
@@ -25,42 +25,41 @@ my $methodargv = {
 };
 my $testobject = $modulename->new();
 
-isa_ok( $testobject, $modulename );
-can_ok( $modulename, @$pkgmethods );
-can_ok( $testobject, @$objmethods );
+isa_ok $testobject, $modulename;
+can_ok $modulename, @$pkgmethods;
+can_ok $testobject, @$objmethods;
 
 INSTANCE_METHODS: {
 
     for my $e ( qw/mail rcpt head body host port attr mxrr auth username password/ ) {
-
-        is( $testobject->$e, undef, '->'.$e.' => undef' );
+        is $testobject->$e, undef, '->'.$e.' => undef';
     }
 
     my $o = $modulename->new( %$methodargv );
     my $r = undef;
     my $m = undef;
 
-    is( $o->mail, $methodargv->{'mail'}, '->mail => '.$o->mail );
-    is( $o->rcpt, $methodargv->{'rcpt'}, '->rcpt => '.$o->rcpt );
-    is( $o->body, $methodargv->{'body'}, '->body => '.$o->body );
+    is $o->mail, $methodargv->{'mail'}, '->mail => '.$o->mail;
+    is $o->rcpt, $methodargv->{'rcpt'}, '->rcpt => '.$o->rcpt;
+    is $o->body, $methodargv->{'body'}, '->body => '.$o->body;
 
-    is( ref $o->attr, 'HASH' );
-    is( $o->mxrr, undef, '->mxrr => undef' );
-    is( $o->timeout, 0, '->timeout => 0' );
-    is( $o->username, undef, '->username => undef' );
-    is( $o->password, undef, '->password => undef' );
-    is( $o->retry, 0, '->retry => 0');
-    is( $o->sleep, 0, '->sleep => 0');
-    is( $o->sendmail, 1, '->sendmail => 1' );
+    is ref $o->attr, 'HASH';
+    is $o->mxrr, undef, '->mxrr => undef';
+    is $o->timeout, 0, '->timeout => 0';
+    is $o->username, undef, '->username => undef';
+    is $o->password, undef, '->password => undef';
+    is $o->retry, 0, '->retry => 0';
+    is $o->sleep, 0, '->sleep => 0';
+    is $o->sendmail, 1, '->sendmail => 1';
 
     $r = $o->response;
     $m = shift @{ $o->response->message };
 
-    is( $r->dsn, undef, '->response->dsn => undef' );
-    is( $r->code, 200, '->response->code => 200' );
-    is( $r->error, 0, '->response->error=> 0' );
-    is( $r->command, 'DATA', '->response->command => DATA' );
-    like( $m, qr/Discard/, '->response->message => '.$m );
+    is $r->dsn, undef, '->response->dsn => undef';
+    is $r->code, 200, '->response->code => 200';
+    is $r->error, 0, '->response->error=> 0';
+    is $r->command, 'DATA', '->response->command => DATA';
+    like $m, qr/Discard/, '->response->message => '.$m;
 }
 
 done_testing;

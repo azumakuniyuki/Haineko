@@ -1,4 +1,4 @@
-use lib qw(./t/lib ./dist/lib ./lib);
+use lib qw|./lib ./blib/lib|;
 use strict;
 use warnings;
 use Haineko::SMTPD::RFC5322;
@@ -23,25 +23,21 @@ my $domainpart = [ qw/
     neko.example.com
 / ];
 
-can_ok( $modulename, @$pkgmethods );
+can_ok $modulename, @$pkgmethods;
 for my $e ( @$emailaddrs ) {
-
-    is( $modulename->is_emailaddress( $e ), 1, '->is_emailaddress('.$e.')' );
+    is $modulename->is_emailaddress( $e ), 1, '->is_emailaddress('.$e.')';
 }
 
 for my $e ( @$isnotemail ) {
-
-    is( $modulename->is_emailaddress( $e ), 0, '->is_emailaddress('.$e.')' );
+    is $modulename->is_emailaddress( $e ), 0, '->is_emailaddress('.$e.')';
 }
 
 for my $e ( @$domainpart ) {
-
-    is( $modulename->is_domainpart( $e ), 1, '->is_domainpart('.$e.')' );
+    is $modulename->is_domainpart( $e ), 1, '->is_domainpart('.$e.')';
 }
 
 for my $e ( @$emailaddrs, @$isnotemail ) {
-
-    is( $modulename->is_domainpart( $e ), 0, '->is_domainpart('.$e.')' );
+    is $modulename->is_domainpart( $e ), 0, '->is_domainpart('.$e.')';
 }
 
 done_testing;

@@ -1,4 +1,4 @@
-use lib qw(./t/lib ./dist/lib ./lib);
+use lib qw|./lib ./blib/lib|;
 use strict;
 use warnings;
 use Haineko::SMTPD::Address;
@@ -9,9 +9,9 @@ my $pkgmethods = [ 'new', 'canonify' ];
 my $objmethods = [ 'damn' ];
 my $testobject = new $modulename( 'address' => 'kijitora@example.jp' );
 
-isa_ok( $testobject, $modulename );
-can_ok( $modulename, @$pkgmethods );
-can_ok( $testobject, @$objmethods );
+isa_ok $testobject, $modulename;
+can_ok $modulename, @$pkgmethods;
+can_ok $testobject, @$objmethods;
 
 CLASS_METHODS: {
     my $emailaddrs = [
@@ -46,18 +46,18 @@ CLASS_METHODS: {
         my $o = $modulename->new( 'address' => $c );
         my $d = $o->damn;
 
-        is( $c, 'neko@example.jp', sprintf( "%s => %s", $e, $c ) );
-        can_ok( $o, @$objmethods );
-        is( $o->user, 'neko', '->user => neko' );
-        is( $o->host, 'example.jp', '->host => example.jp' );
-        is( $o->address, 'neko@example.jp', '->address => neko@example.jp' );
-        is( ref $d, 'HASH', '->damn returns HASH' );
-        is( $d->{'user'}, $o->user, '->{user} => '.$d->{'user'} );
-        is( $d->{'host'}, $o->host, '->{host} => '.$d->{'host'} );
-        is( $d->{'address'}, $o->address, '->{address} => '.$d->{'address'} );
+        is $c, 'neko@example.jp', sprintf( "%s => %s", $e, $c );
+        can_ok $o, @$objmethods;
+
+        is $o->user, 'neko', '->user => neko';
+        is $o->host, 'example.jp', '->host => example.jp';
+        is $o->address, 'neko@example.jp', '->address => neko@example.jp';
+        is ref $d, 'HASH', '->damn returns HASH';
+        is $d->{'user'}, $o->user, '->{user} => '.$d->{'user'};
+        is $d->{'host'}, $o->host, '->{host} => '.$d->{'host'};
+        is $d->{'address'}, $o->address, '->{address} => '.$d->{'address'};
     }
 }
 
 done_testing;
-
 __END__
