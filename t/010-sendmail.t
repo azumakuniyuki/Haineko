@@ -1,9 +1,182 @@
-use Mojo::Base -strict;
+use lib qw|./lib ./blib/lib|;
+use strict;
+use warnings;
+use Haineko;
 use Test::More;
-use Test::Mojo;
 use JSON::Syck;
-use Mojo::UserAgent;
-use lib qw(./t/lib ./dist/lib ./lib);
+use Plack::Test;
+use HTTP::Request;
+
+my $nekochan = Haineko->start;
+my $request1 = undef;
+my $response = undef;
+my $contents = undef;
+my $esmtpres = undef;
+my $callback = undef;
+
+my $nekotest = sub {
+    $callback = shift;
+    $request1 = HTTP::Request->new( 'GET' => 'http://127.0.0.1:2794/submit' );
+    $response = $callback->( $request1 );
+    $contents = JSON::Syck::Load( $response->content );
+    $esmtpres = $contents->{'smtp.response'};
+
+    isa_ok $request1, 'HTTP::Request';
+    isa_ok $response, 'HTTP::Response';
+    isa_ok $contents, 'HASH';
+    isa_ok $esmtpres, 'HASH';
+
+    is $response->code, 405;
+    is $esmtpres->{'dsn'}, undef;
+    is $esmtpres->{'host'}, '127.0.0.1';
+    is $esmtpres->{'code'}, 421;
+    is $esmtpres->{'error'}, 1;
+    is $esmtpres->{'mailer'}, undef;
+    is $esmtpres->{'message'}->[0], 'GET method not supported';
+    is $esmtpres->{'command'}, 'HTTP';
+};
+test_psgi $nekochan, $nekotest;
+
+my $hostname = qx|hostname|; chomp $hostname;
+my $jsondata = {
+    'JSON00' => {
+        'json' => '{ neko', 'data' => '', 
+        'code' => 421, 'dsn' => undef, 'status' => 400, 'command' => 'HTTP',
+        'mailer' => undef, 'message' => 'Malformed JSON string',
+    },
+    'EHLO00' => {
+        'json' => q(), 'data' => { 'ehlo' => q() },
+        'code' => 501, 'dsn' => '5.0.0', 'status' => 400, 'command' => 'EHLO',
+        'message' => 'EHLO requires domain address',
+    },
+    'EHLO01' => {
+        'json' => q(), 'data' => { 'ehlo' => 0 },
+        'code' => 501, 'dsn' => '5.0.0', 'status' => 400, 'command' => 'EHLO',
+        'message' => 'Invalid domain name',
+    },
+    'MAIL00' => {
+        'json' => q(), 'data' => { 'ehlo' => 'example.jp' },
+        'code' => 501, 'dsn' => '5.5.2', 'status' => 400, 'command' => 'MAIL',
+        'message' => 'Syntax error in parameters scanning "FROM"',
+    },
+    'MAIL01' => {
+        'json' => q(), 
+        'data' => { 'ehlo' => 'example.jp', 'mail' => 'kijitora' },
+        'code' => 553, 'dsn' => '5.5.4', 'status' => 400, 'command' => 'MAIL',
+        'message' => 'Domain name required for sender address',
+    },
+    'RCPT00' => {
+        'json' => q(), 
+        'data' => { 'ehlo' => 'example.jp', 'mail' => 'kijitora@example.jp' },
+        'code' => 553, 'dsn' => '5.0.0', 'status' => 400, 'command' => 'RCPT',
+        'message' => 'User address required',
+    },
+    'RCPT01' => {
+        'json' => q(), 
+        'data' => { 
+            'ehlo' => 'example.jp', 
+            'mail' => 'kijitora@example.jp',
+            'rcpt' => [ 'kijitora' ],
+        },
+        'code' => 553, 'dsn' => '5.1.5', 'status' => 400, 'command' => 'RCPT',
+        'message' => 'Recipient address is invalid',
+    },
+    'RCPT02' => {
+        'json' => q(), 
+        'data' => { 
+            'ehlo' => 'example.jp', 
+            'mail' => 'kijitora@example.jp',
+            'rcpt' => [ 'kijitora@example.org' ],
+        },
+        'code' => 553, 'dsn' => '5.7.1', 'status' => 403, 'command' => 'RCPT',
+        'message' => 'Recipient address is not permitted',
+    },
+    'RCPT03' => {
+        'json' => q(), 
+        'data' => { 
+            'ehlo' => 'example.jp', 
+            'mail' => 'kijitora@example.jp',
+            'rcpt' => [
+                '1@'.$hostname,
+                '2@'.$hostname,
+                '3@'.$hostname,
+                '4@'.$hostname,
+                '5@'.$hostname,
+            ],
+        },
+        'code' => 452, 'dsn' => '4.5.3', 'status' => 403, 'command' => 'RCPT',
+        'message' => 'Too many recipients',
+    },
+    'DATA01' => {
+        'json' => q(), 
+        'data' => { 
+            'ehlo' => 'example.jp', 
+            'mail' => 'kijitora@example.jp',
+            'rcpt' => [
+                'haineko@'.$hostname,
+            ],
+        },
+        'code' => 500, 'dsn' => '5.6.0', 'status' => 400, 'command' => 'DATA',
+        'message' => 'Message body is empty',
+    },
+    'DATA02' => {
+        'json' => q(), 
+        'data' => { 
+            'ehlo' => 'example.jp', 
+            'mail' => 'kijitora@example.jp',
+            'rcpt' => [
+                'haineko@'.$hostname,
+            ],
+            'body' => 'ニャー',
+        },
+        'code' => 500, 'dsn' => '5.6.0', 'status' => 400, 'command' => 'DATA',
+        'message' => 'Subject header is empty',
+    },
+};
+
+my $nekopost = sub {
+    $callback = shift;
+
+    for my $e ( keys %$jsondata ) {
+        $request1 = HTTP::Request->new( 'POST' => 'http://127.0.0.1:2794/submit' );
+        $request1->header( 'Content-Type' => 'application/json' );
+
+        my $d = $jsondata->{ $e };
+        my $j = $d->{'json'} || JSON::Syck::Dump( $d->{'data'} );
+
+        $request1->content( $j );
+        $response = $callback->( $request1 );
+        $contents = JSON::Syck::Load( $response->content );
+        $esmtpres = $contents->{'smtp.response'};
+
+        isa_ok $request1, 'HTTP::Request';
+        isa_ok $response, 'HTTP::Response';
+        isa_ok $contents, 'HASH';
+        isa_ok $esmtpres, 'HASH';
+
+        is $response->code, $d->{'status'}, sprintf( "[%s] HTTP Status = %s", $e, $d->{'status'} );
+        is $esmtpres->{'host'}, '127.0.0.1', sprintf( "[%s] host = 127.0.0.1", $e );
+        is $esmtpres->{'error'}, 1, sprintf( "[%s] error = 1", $e );
+
+        for my $r ( keys %$d ) {
+            next if $r =~ m/(?:status|json|data|message)/;
+            is $esmtpres->{ $r }, $d->{ $r }, sprintf( "[%s] SMTP %s = %s", $e, $r, ( $d->{ $r } || q() ) );
+        }
+
+        is $esmtpres->{'message'}->[0], $d->{'message'}, sprintf( "[%s] SMTP message = %s", $e, $d->{'message'} );
+        is substr( $esmtpres->{'code'}, 0, 1 ), substr( $esmtpres->{'dsn'}, 0, 1 ) if $esmtpres->{'dsn'};
+    }
+};
+test_psgi $nekochan, $nekopost;
+done_testing();
+__END__
+
+
+
+
+
+
+
 
 my $t = Test::Mojo->new('Haineko');
 my $c = { 'Content-Type' => 'application/json' };
@@ -13,171 +186,7 @@ my $j = q();    # JSON as a String
 my $h = qx(hostname); chomp $h;
 
 
-CONNECT: {
-    $r = $t->get_ok('/submit')->status_is(405);
-    $r = $t->post_ok('/submit')->status_is(400);
 
-    isa_ok( $t, 'Test::Mojo' );
-    ok $r->header_is( 'Server' => 'Mojolicious (Perl)' );
-    ok $r->header_is( 'X-Content-Type-Options' => 'nosniff' );
-    ok $r->header_is( 'Content-Type' => 'application/json' );
-}
-
-JSON: {
-    $j = '{ neko';
-    $r = $t->post_ok( '/submit', $c, $j );
-
-    ok $r->json_is( '/smtp.response/dsn', undef );
-    ok $r->json_is( '/smtp.response/code', 421 );
-    ok $r->json_is( '/smtp.response/error', 1 );
-    ok $r->json_is( '/smtp.response/command', 'HTTP' );
-    ok $r->json_is( '/smtp.response/message', [ 'Malformed JSON string' ] );
-}
-
-EHLO: {
-    # /
-    $p = { 'ehlo' => q() };
-    $j = JSON::Syck::Dump $p;
-    $r = $t->post_ok( '/submit', $c, $j );
-
-    ok $r->json_is( '/smtp.response/dsn', '5.0.0' );
-    ok $r->json_is( '/smtp.response/code', 501 );
-    ok $r->json_is( '/smtp.response/error', 1 );
-    ok $r->json_is( '/smtp.response/command', 'EHLO' );
-    ok $r->json_is( '/smtp.response/message', [ 'EHLO requires domain address' ] );
-
-    # /ehlo=0
-    $p = { 'ehlo' => 0 };
-    $j = JSON::Syck::Dump $p;
-    $r = $t->post_ok( '/submit', $c, $j );
-
-    #$r = $t->post_ok( '/submit', 'form' => $j );
-    ok $r->json_is( '/smtp.response/dsn', '5.0.0' );
-    ok $r->json_is( '/smtp.response/code', 501 );
-    ok $r->json_is( '/smtp.response/error', 1 );
-    ok $r->json_is( '/smtp.response/command', 'EHLO' );
-    ok $r->json_is( '/smtp.response/message', [ 'Invalid domain name' ] );
-
-    # /ehlo=example.jp
-    $p = { 'ehlo' => 'example.jp' };
-    $j = JSON::Syck::Dump $p;
-    $r = $t->post_ok( '/submit', $c, $j );
-
-    ok $r->json_is( '/smtp.response/dsn', '5.5.2' );
-    ok $r->json_is( '/smtp.response/code', 501 );
-    ok $r->json_is( '/smtp.response/error', 1 );
-    ok $r->json_is( '/smtp.response/command', 'MAIL' );
-    ok $r->json_is( '/smtp.response/message', [ 'Syntax error in parameters scanning "FROM"' ] );
-}
-
-MAIL: {
-    # mail=kijitora
-    $p = { 'ehlo' => 'example.jp', 'mail' => 'kijitora' };
-    $j = JSON::Syck::Dump $p;
-    $r = $t->post_ok( '/submit', $c, $j );
-    
-    ok $r->json_is( '/smtp.response/dsn', '5.5.4' );
-    ok $r->json_is( '/smtp.response/code', 553 );
-    ok $r->json_is( '/smtp.response/error', 1 );
-    ok $r->json_is( '/smtp.response/command', 'MAIL' );
-    ok $r->json_is( '/smtp.response/message', [ 'Domain name required for sender address' ] );
-
-    # /mail=kijitora@example.jp
-    $p = { 'ehlo' => 'example.jp', 'mail' => 'kijitora@example.jp' };
-    $j = JSON::Syck::Dump $p;
-    $r = $t->post_ok( '/submit', $c, $j );
-
-    ok $r->json_is( '/smtp.response/dsn', '5.0.0' );
-    ok $r->json_is( '/smtp.response/code', 553 );
-    ok $r->json_is( '/smtp.response/error', 1 );
-    ok $r->json_is( '/smtp.response/command', 'RCPT' );
-    ok $r->json_is( '/smtp.response/message', [ 'User address required' ] );
-}
-
-RCPT: {
-    # /rcpt=kijitora
-    $p = { 
-        'ehlo' => 'example.jp', 
-        'mail' => 'kijitora@example.jp', 
-        'rcpt' => [ 'kijitora' ],
-    };
-    $j = JSON::Syck::Dump $p;
-    $r = $t->post_ok( '/submit', $c, $j );
-    
-    ok $r->json_is( '/smtp.response/dsn', '5.1.5' );
-    ok $r->json_is( '/smtp.response/code', 553 );
-    ok $r->json_is( '/smtp.response/error', 1 );
-    ok $r->json_is( '/smtp.response/command', 'RCPT' );
-    ok $r->json_is( '/smtp.response/message', [ 'Recipient address is invalid' ] );
-
-    # /rcpt=...
-    $p = { 
-        'ehlo' => 'example.jp', 
-        'mail' => 'kijitora@example.jp', 
-        'rcpt' => [], 
-    };
-    map { push @{ $p->{'rcpt'} }, sprintf( "%04d@%s", $_, $h ) } ( 1..5 );
-    $j = JSON::Syck::Dump $p;
-    $r = $t->post_ok( '/submit', $c, $j );
-    
-    ok $r->json_is( '/smtp.response/dsn', '4.5.3' );
-    ok $r->json_is( '/smtp.response/code', 452 );
-    ok $r->json_is( '/smtp.response/error', 1 );
-    ok $r->json_is( '/smtp.response/command', 'RCPT' );
-    ok $r->json_is( '/smtp.response/message', [ 'Too many recipients' ] );
-}
-
-BODY: {
-    $p = { 
-        'ehlo' => 'example.jp', 
-        'mail' => 'kijitora@example.jp', 
-        'rcpt' => [ 'haineko@'.$h ],
-    };
-    $j = JSON::Syck::Dump $p;
-    $r = $t->post_ok( '/submit', $c, $j );
-    
-    ok $r->json_is( '/smtp.response/dsn', '5.6.0' );
-    ok $r->json_is( '/smtp.response/code', 500 );
-    ok $r->json_is( '/smtp.response/error', 1 );
-    ok $r->json_is( '/smtp.response/command', 'DATA' );
-    ok $r->json_is( '/smtp.response/message', [ 'Message body is empty' ] );
-
-    $p = { 
-        'ehlo' => 'example.jp', 
-        'mail' => 'kijitora@example.jp', 
-        'rcpt' => [ 'haineko@'.$h ],
-        'body' => 'ニャー',
-    };
-    $j = JSON::Syck::Dump $p;
-    $r = $t->post_ok( '/submit', $c, $j );
-    
-    ok $r->json_is( '/smtp.response/dsn', '5.6.0' );
-    ok $r->json_is( '/smtp.response/code', 500 );
-    ok $r->json_is( '/smtp.response/error', 1 );
-    ok $r->json_is( '/smtp.response/command', 'DATA' );
-    ok $r->json_is( '/smtp.response/message', [ 'Subject header is empty' ] );
-}
-
-CANNOT_CONNECT: {
-
-    $p = { 
-        'ehlo' => 'example.jp', 
-        'mail' => 'kijitora@example.jp', 
-        'rcpt' => [ 'haineko@'.$h ],
-        'body' => 'ニャー',
-        'header' => {
-            'subject' => 'にゃんこ',
-        },
-    };
-    $j = JSON::Syck::Dump $p;
-    $r = $t->post_ok( '/submit', $c, $j );
-    
-    ok $r->json_is( '/smtp.response/dsn', undef );
-    ok $r->json_is( '/smtp.response/code', 421 );
-    ok $r->json_is( '/smtp.response/error', 1 );
-    ok $r->json_is( '/smtp.response/command', 'CONN' );
-    ok $r->json_is( '/smtp.response/message', [ 'Cannot connect SMTP Server' ] );
-}
 
 done_testing();
 
