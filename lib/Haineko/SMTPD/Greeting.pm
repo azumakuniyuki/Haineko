@@ -38,19 +38,24 @@ sub new {
         chomp $e;
 
         if( $e =~ /SIZE (\d+)/ ) {
+            # 250-SIZE 26214400
             $feats->{'size'} = int $1;
 
         } elsif( $e =~ /AUTH (.+)\z/ ) {
+            # 250-AUTH LOGIN PLAIN CRAM-MD5
             $feats->{'auth'} = 1;
             $feats->{'mechanism'} = [ split( ' ', $1 ) ];
 
         } elsif( $e =~ /PIPELINING/ ) {
+            # 250-PIPELINING
             $feats->{'pipelining'} = 1;
 
         } elsif( $e =~ /STARTTLS/ ) {
+            # 250-STARTTLS
             $feats->{'starttls'} = 1;
 
         } elsif( $e =~ /DSN/ ) {
+            # 250-DSN
             $feats->{'dsn'} = 1;
         }
 
@@ -63,6 +68,7 @@ sub new {
 sub mechs {
     my $self = shift;
     my $mech = shift || return 0;
+
     return 1 if grep { uc $mech eq $_ } @{ $self->{'mechanism'} };
     return 0;
 }
