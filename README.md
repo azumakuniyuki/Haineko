@@ -36,7 +36,6 @@ System requirements
 -------------------
 
 * Perl 5.10.1 or later
-* Mojolicious 4.00 or later
 
 Dependencies
 ------------
@@ -47,17 +46,21 @@ Haineko relies on:
 * Class::Accessor::Lite
 * Email::MIME
 * Encode (core module from v5.7.3)
+* File::Basename (core module from v5)
+* IO::File (core module from 5.00307)
 * IO::Socket::SSL
 * Furl
 * JSON::Syck
 * Module::Load (core module from v5.9.4)
-* __Mojolicious__
 * Net::SMTP (core module from v5.7.3)
 * Net::SMTPS
 * Net::CIDR::Lite
 * Path::Class
+* Plack
+* Router::Simple
 * Sys::Syslog (core module from v5.0.0)
 * Time::Piece (core module from v5.9.5)
+* Try::Tiny
 
 Get the source
 --------------
