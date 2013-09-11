@@ -10,11 +10,11 @@ What is Haineko ?
 =================
 
 Haineko is an HTTP API server for sending email from a browser or any HTTP client.
-It is implemented as a web server based on Mojolicious and relays an email posted
-by HTTP client as JSON to other SMTP server or external email cloud service.
+It is implemented as a web server based on Plack and relays an email posted by 
+HTTP client as JSON to other SMTP server or external email cloud service.
 
 Haineko runs on the server like following systems which can execute Perl 5.10.1
-or later and its web application framework Mojolicious.
+or later and Plack.
 
 * OpenBSD
 * FreeBSD
@@ -79,9 +79,8 @@ A. Run at the source directory
     > done
 
     Run by the one of the followings:
-    $ morbo --listen 'http://127.0.0.1:2794' -w ./lib -w ./etc script/haineko
-    $ hypnotoad script/haineko
-    $ plackup -o '127.0.0.1' -p 2794 script/haineko
+    $ sbin/hainekod -a libexec/haineko.psgi
+    $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
 
 B. Build and install into /usr/local/haineko
 --------------------------------------------
@@ -106,9 +105,8 @@ B. Build and install into /usr/local/haineko
     $ export PERL5LIB=/usr/local/haineko/lib/perl5
 
     Run by the one of the followings:
-    $ ./libexec/morbo --listen 'http://127.0.0.1:2794' -w ./lib -w ./etc script/haineko
-    $ hypnotoad script/haineko
-    $ plackup -o '127.0.0.1' -p 2794 script/haineko
+    $ ./sbin/hainekod -a libexec/haineko.psgi
+    $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
 
 C. Build and install into /usr/local
 ------------------------------------
@@ -125,9 +123,8 @@ C. Build and install into /usr/local
 
     Run by the one of the followings:
     $ cd /usr/local
-    $ morbo --listen 'http://127.0.0.1:2794' -w ./etc bin/haineko
-    $ hypnotoad bin/haineko
-    $ plackup -o '127.0.0.1' -p 2794 bin/haineko
+    $ ./sbin/hainekod -a libexec/haineko.psgi
+    $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
 
 
 Configure files in /usr/local/haineko/etc
