@@ -52,13 +52,13 @@ smtpd:
     #   libs: [ '/path/to/perl/lib', '/another/lib/perl5/for/my/milter' ]
     #   mail: [ 'CheckFrom' ]
     #   rcpt: [ 'AlwaysBcc', '@Check::DDNS' ]
-    #   body: [ '@Make::Me::A::Cat', '@My::Encrypt' ]
+    #   body: [ '+Make::Me::A::Cat', '@My::Encrypt' ]
     #
     #   ``CheckFrom'' is called as Haineko::SMTPD::Milter::CheckFrom->mail();
     #   ``AlwaysBcc' is called as Haineko::SMTPD::Milter::AlwaysBcc->rcpt();
-    #   ``@Check::DDNS'' is called as Check::DDNS->rcpt();
-    #   ``@Make::Me::A::Cat'' is called as Make::Me::A::Cat->body();
-    #   ``@My::Encrypt'' is called as My::Encrypt->body();
+    #   ``+Check::DDNS'' is called as Check::DDNS->rcpt();
+    #   ``+Make::Me::A::Cat'' is called as Make::Me::A::Cat->body();
+    #   ``+My::Encrypt'' is called as My::Encrypt->body();
     #
     milter:
         libs: []
