@@ -1,16 +1,16 @@
-# $Id: Makefile.am,v 1.4.2.1 2011/06/20 03:43:40 ak Exp $
+# $Id: Makefile.am,v 1.20.2.1 2011/06/20 03:43:39 ak Exp $
 # Copyright (C) 2013 azumakuniyuki
-distdir = $(BUILDROOT)/dist/lib/Haineko/Ctrl
-instdir = @prefix@/lib/Haineko/Ctrl
-pkgdatadir = @libdir@/Haineko/Ctrl
-pkgdata_DATA = Submit.pm
+distdir = $(BUILDROOT)/dist/lib/Haineko/HTTPD
+instdir = @libdir@/Haineko/HTTPD
+pkgdatadir = @libdir@/Haineko/HTTPD
+pkgdata_DATA = Request.pm Response.pm Router.pm
 
 .PHONY: clean
-all-am: 
+all-am:
 	test -d $(distdir) || mkdir -p $(distdir)
 	cp -Rp $(pkgdata_DATA) $(distdir)/
 
-install-am: all-am
+install-am:
 	test -d $(instdir) || mkdir -p $(instdir)
 	test -d $(pkgdatadir) || mkdir -p $(pkgdatadir)
 	for P in $(pkgdata_DATA) ; do \
@@ -18,8 +18,9 @@ install-am: all-am
 	done
 
 uninstall-am:
-	rm -f $(pkgdatadir)/*.pm
+	rm -f $(pkgdatadir)/*.pm 2> /dev/null
 
 clean-am:
 	:
+
 
