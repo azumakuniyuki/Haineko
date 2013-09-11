@@ -24,8 +24,8 @@ sub new {
 
 sub sign {
     my $class = shift;
-    my $value = shift;
-    my $skeyv = shift;
+    my $value = shift;  # (String) Text
+    my $skeyv = shift;  # (String) Key
 
     my $signedtext = Digest::SHA::hmac_sha256_base64( $value, $skeyv );
     while( length( $signedtext ) % 4 ) {
@@ -35,11 +35,10 @@ sub sign {
 }
 
 sub sendmail {
-
     my $self = shift;
 
     if( ! $self->{'username'} || ! $self->{'password'} ) {
-
+        # Access Key ID(username) or Secret Key(password) is empty
         my $r = {
             'code'    => 400,
             'error'   => 1,
@@ -60,22 +59,22 @@ sub sendmail {
     };
     utf8::encode $methodargv->{'body'} if utf8::is_utf8 $methodargv->{'body'};
 
-    # Convert email headers
     for my $e ( @{ $self->{'head'}->{'Received'} } ) {
+        # Convert email headers
         push @$headerlist, 'Received' => $e;
     }
 
     for my $e ( keys %{ $self->{'head'} } ) {
-
+        # Make email headers except ``MIME-Version''
         next if $e eq 'MIME-Version';
 
         if( ref $self->{'head'}->{ $e } eq 'ARRAY' ) {
-
+            # Such as Received: header
             for my $f ( @{ $self->{'head'}->{ $e } } ) {
                 push @$headerlist, $e => $f;
             }
-        }
-        else { 
+
+        } else { 
             push @$headerlist, $e => $self->{'head'}->{ $e };
         }
     }
@@ -137,8 +136,7 @@ sub sendmail {
         return 1;
     };
 
-    while(1)
-    {
+    while(1) {
         last if $sendmailto->();
         last if $retryuntil == 0;
 
@@ -146,8 +144,8 @@ sub sendmail {
         sleep $self->{'sleep'};
     }
 
-    if( defined $htresponse )
-    {
+    if( defined $htresponse ) {
+        # Check response from API
         my $htcontents = undef;
         my $nekoparams = { 
             'code'    => $htresponse->code,
@@ -163,8 +161,7 @@ sub sendmail {
             eval { $htcontents = XML::Simple::XMLin( $htresponse->content ) };
         }
 
-        while(1)
-        {
+        while(1) {
             last if $@;
             last unless ref $htcontents eq 'HASH';
             last unless exists $htcontents->{'Error'};

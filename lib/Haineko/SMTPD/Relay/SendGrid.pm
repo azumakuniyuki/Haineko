@@ -3,8 +3,8 @@ use parent 'Haineko::SMTPD::Relay';
 use strict;
 use warnings;
 use Furl;
-use JSON::Syck;
 use Time::Piece;
+use Haineko::JSON;
 use Haineko::SMTPD::Response;
 use Encode;
 
@@ -21,6 +21,7 @@ sub sendmail {
     my $self = shift;
 
     if( ! $self->{'username'} || ! $self->{'password'} ) {
+        # API-USER(username) or API-KEY(password) is empty
         my $r = {
             'code'    => 400,
             'error'   => 1,
@@ -50,16 +51,16 @@ sub sendmail {
     my $identifier = shift [ split( '@', $self->{'head'}->{'Message-Id'} ) ];
 
     for my $e ( keys %{ $self->{'head'} } ) {
-
+        # Prepare email headers except headers which begin with ``X-''
         next unless $e =~ m/\AX-/;
         $jsonheader->{ $e } = $self->{'head'}->{ $e };
     }
     $jsonheader->{'X-Haineko-QueueId'} = $identifier;
     $jsonheader->{'X-Haineko-Message-Id'} = $self->{'head'}->{'Message-Id'};
-    $parameters->{'headers'} = JSON::Syck::Dump $jsonheader;
+    $parameters->{'headers'} = Haineko::JSON->dumpjson( $jsonheader );
 
     $jsonheader = { 'unique_args' => { 'queueid' => $identifier } };
-    $parameters->{'x-smtpapi'} = JSON::Syck::Dump $jsonheader;
+    $parameters->{'x-smtpapi'} = Haineko::JSON->dumpjson( $jsonheader );
     $parameters->{'text'}  = Encode::encode( 'UTF-8', ${ $self->{'body'} } );
     $parameters->{'text'} .= qq(\n\n);
 
@@ -93,7 +94,7 @@ sub sendmail {
     }
 
     if( defined $htresponse ) {
-
+        # Check the response from SendGrid API
         my $htcontents = undef;
         my $nekoparams = { 
             'code'    => $htresponse->code,
@@ -168,7 +169,7 @@ sub getbounce {
     }
 
     if( defined $htresponse ) {
-
+        # Check the response of getting bounce from SendGrid API
         my $htcontents = undef;
         my $nekoparams = undef;
 

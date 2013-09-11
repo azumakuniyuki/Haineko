@@ -28,15 +28,14 @@ sub sendmail {
     };
     utf8::decode $methodargv->{'body'} unless utf8::is_utf8 $methodargv->{'body'} ;
 
-    # Convert email headers
     for my $e ( @{ $self->{'head'}->{'Received'} } ) {
-
+        # Convert email headers
         push @$headerlist, 'Received' => $e;
     }
     push @$headerlist, 'To' => $self->{'rcpt'};
 
     for my $e ( keys %{ $self->{'head'} } ) {
-
+        # Make email headers except ``Received'' and ``MIME-Version''
         next if $e eq 'Received';
         next if $e eq 'MIME-Version';
 
@@ -64,7 +63,7 @@ sub sendmail {
     };
 
     if( $self->{'starttls'} ) {
-
+        # Sendmail using TLS(Net::SMTPS)
         Module::Load::load('Net::SMTPS');
         $smtpparams->{'doSSL'} = 'starttls';
         $smtpparams->{'SSL_verify_mode'} = 'SSL_VERIFY_NONE';
@@ -84,9 +83,8 @@ sub sendmail {
         return 0 unless $netsmtpobj = $esmtpclass->new( $self->{'host'}, %$smtpparams );
         $nekogreets = Haineko::SMTPD::Greeting->new( $netsmtpobj->message );
 
-        # SMTP-AUTH
         if( $nekogreets->auth && $self->{'auth'} ) {
-
+            # SMTP-AUTH
             require Authen::SASL;
             $authensasl = Authen::SASL->new( 
                 'mechanism' => join( ' ', @{ $nekogreets->mechanism } ),
@@ -101,7 +99,7 @@ sub sendmail {
         }
 
         if( $nekogreets->pipelining ) {
-
+            # 250-PIPELINING
             $thecommand  = 'data';
             $pipelining  = sprintf( "MAIL FROM: <%s>", $self->{'mail'} );
             $pipelining .= sprintf( ' RET=FULL' ) if $nekogreets->dsn;
@@ -116,7 +114,7 @@ sub sendmail {
             return 0 unless $netsmtpobj->dataend();
 
         } else {
-
+            # External SMTP Server does not support PIPELINING
             my $cmdargvs = [];
             my $cmdparam = {};
 
@@ -155,7 +153,7 @@ sub sendmail {
     }
 
     if( defined $netsmtpobj ) {
-
+        # Check the response from SMTP server
         $smtpparams = { 
             'code'    => $netsmtpobj->code,
             'host'    => $self->{'host'},
