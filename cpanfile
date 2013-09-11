@@ -24,6 +24,9 @@ requires 'XML::Simple', '2.20';
 
 on test => sub {
 	requires 'Test::More', '0.98';
+    requires 'Plack::Test', '';
+    requires 'HTTP::Request', '6.00';
+    requires 'HTTP::Request::Common', '6.03';
 };
 
 on develop => sub {
