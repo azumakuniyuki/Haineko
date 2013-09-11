@@ -154,6 +154,8 @@ my $nekopost = sub {
         isa_ok $contents, 'HASH';
         isa_ok $esmtpres, 'HASH';
 
+        ok $response->is_error;
+        is $response->header('Content-Type'), 'application/json';
         is $response->code, $d->{'status'}, sprintf( "[%s] HTTP Status = %s", $e, $d->{'status'} );
         is $esmtpres->{'host'}, '127.0.0.1', sprintf( "[%s] host = 127.0.0.1", $e );
         is $esmtpres->{'error'}, 1, sprintf( "[%s] error = 1", $e );
