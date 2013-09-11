@@ -30,7 +30,6 @@ sub startup {
 
 1;
 __END__
-
 =encoding utf-8
 
 =head1 NAME
@@ -43,9 +42,8 @@ Haineko - HTTP API into ESMTP
 
 =head1 SYNOPSYS
 
-    $ morbo --listen 'http://127.0.0.1:2794' -w ./lib -w ./etc script/haineko
-    $ hypnotoad script/haineko
-    $ plackup -o '127.0.0.1' -p 2794 script/haineko
+    $ sbin/hainekod -a libexec/haineko.psgi
+    $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
 
 =head1 EMAIL SUBMISSION
 
@@ -71,7 +69,12 @@ To send email via Haineko, POST email data as a JSON format like the following:
     }
 
     $ curl 'http://127.0.0.1:2794/submit' -X POST -H 'Content-Type: application/json' \
-      -d '{ ehlo: "[127.0.0.1]", mail: "kijitora@example.jp", ... }'
+        -d '{ ehlo: "[127.0.0.1]", mail: "kijitora@example.jp", ... }'
+
+    OR
+
+    $ curl 'http://127.0.0.1:2794/submit' -X POST -H 'Content-Type application/json' \
+        -d '@/path/to/email.json'
 
 
 =head1 CONFIGURATION FILES
