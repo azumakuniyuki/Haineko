@@ -1,15 +1,16 @@
 package Haineko;
 use 5.010001;
+use strict;
+use warnings;
 use parent 'Haineko::HTTPD';
-use Data::Dumper;
 
 our $VERSION = '0.1.0';
 our $SYSNAME = 'Haineko';
 
 sub startup {
     my $class = shift;
-    my $httpd = shift;  # Haineko::HTTPD;
-    my $nekor = shift;  # Haineko::HTTPD::Request
+    my $httpd = shift;  # (Haineko::HTTPD);
+    my $nekor = shift;  # (Haineko::HTTPD::Request)
 
     my $nekorouter = $httpd->router;
     my $serverconf = $httpd->conf;
