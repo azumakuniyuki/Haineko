@@ -78,6 +78,12 @@ L<Haineko::SMTPD::Relay::ESMTP> - Relaying via ESMTP
 =item *
 L<Haineko::SMTPD::Relay::SendGrid> - Relaying via SendGrid Web API
 
+=item *
+L<Haineko::SMTPD::Relay::AmazonSES> - Relaying via Amazon SES API
+
+=item *
+L<Haineko::SMTPD::Relay::Discard> - Email blackhole
+
 =back
 
 =head1 REPOSITORY
