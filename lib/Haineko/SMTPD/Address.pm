@@ -57,11 +57,12 @@ sub canonify {
     }
 
     if( scalar( @$emailtoken ) == 1 ) {
+        # kijitora@example.jp
         push @$addressset, $emailtoken->[0];
 
     } else {
         foreach my $e ( @$emailtoken ) {
-
+            # Kijitora cat <kijitora@example.jp>
             chomp $e;
             next unless $e =~ m{\A[<]?.+[@][-.0-9A-Za-z]+[.][A-Za-z]{2,}[>]?\z};
             push @$addressset, $e;
@@ -69,11 +70,12 @@ sub canonify {
     }
 
     if( scalar( @$addressset ) > 1 ) {
-
+        # Get an <email address> from string
         $canonified = [ grep { $_ =~ m{\A[<].+[>]\z} } @$addressset ]->[0];
         $canonified = $addressset->[0] unless $canonified;
 
     } else {
+        # kijitora@example.jp
         $canonified = shift @$addressset;
     }
 
@@ -81,7 +83,7 @@ sub canonify {
     return q() unless $canonified;
 
     $canonified =~ y{<>[]():;}{}d;  # Remove brackets, colons
-    $canonified =~ y/{}'"`//d;  # Remove brackets, quotations
+    $canonified =~ y/{}'"`//d;      # Remove brackets, quotations
     return $canonified;
 }
 
