@@ -4,16 +4,15 @@ use warnings;
 use Module::Load;
 
 sub import {
-
     my $class = shift;
-    my $argvs = shift || return 0;
+    my $argvs = shift || return 0;  # (Ref->Array) Module names
     my $llist = [];
 
     return 0 unless ref $argvs eq 'ARRAY';
     for my $e ( @$argvs ){
-
-        $e =~ s/\A/Haineko::SMTPD::Milter::/ unless $e =~ /\A[@]/;
-        $e =~ s/\A[@]//;
+        # Load each module
+        $e =~ s/\A/Haineko::SMTPD::Milter::/ unless $e =~ /\A[+]/;
+        $e =~ s/\A[+]//;
         eval { Module::Load::load( $e ); };
         next if $@;
         push @$llist, $e;
@@ -24,7 +23,7 @@ sub import {
 
 sub libs {
     my $class = shift;
-    my $argvs = shift || return 0;
+    my $argvs = shift || return 0;  # (Ref->Array) Path names
     my $count = 0;
 
     return 0 unless ref $argvs eq 'ARRAY';
@@ -37,26 +36,32 @@ sub libs {
 }
 
 sub conn {
+    # Implement at sub class
     return 1;
 }
 
 sub ehlo {
+    # Implement at sub class
     return 1;
 }
 
 sub mail {
+    # Implement at sub class
     return 1
 }
 
 sub rcpt {
+    # Implement at sub class
     return 1;
 }
 
 sub head {
+    # Implement at sub class
     return 1;
 }
 
 sub body {
+    # Implement at sub class
     return 1;
 }
 
@@ -81,7 +86,7 @@ Each method is called from /submit for example: MAIL -> mail(), RCPT -> rcpt().
     my $x = Haineko::SMTPD::Milter->import( [ 'Neko' ] );   # Load Haineko::SMTPD::Milter::Neko
     warn Dumper $x;                                         # [ Haineko::SMTPD::Milter::Neko ]
 
-    my $y = Haineko::SMTPD::Milter->import( [ '@My::Encrypt' ]);    # Load My::Encrypt module
+    my $y = Haineko::SMTPD::Milter->import( [ '+My::Encrypt' ]);    # Load My::Encrypt module
     warn Dumper $y;                                                 # [ 'My::Encrypt' ]
 
 =head1 CLASS METHODS
