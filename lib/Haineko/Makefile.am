@@ -1,10 +1,10 @@
 # $Id: Makefile.am,v 1.20.2.1 2011/06/20 03:43:39 ak Exp $
 # Copyright (C) 2013 azumakuniyuki
-SUBDIRS = Ctrl HTTPD SMTPDD
+SUBDIRS = HTTPD SMTPDD
 distdir = $(BUILDROOT)/dist/lib/Haineko
 instdir = @libdir@/Haineko
 pkgdatadir = @libdir@/Haineko
-pkgdata_DATA = Log.pm
+pkgdata_DATA = Default.pm Log.pm HTTPD.pm JSON.pm Root.pm Sendmail.pm
 
 .PHONY: clean
 all-am:
@@ -23,5 +23,4 @@ uninstall-am:
 
 clean-am:
 	:
-
 
