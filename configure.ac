@@ -98,5 +98,6 @@ AC_CONFIG_FILES([
         lib/Haineko/SMTPD/Makefile
         lib/Haineko/SMTPD/Milter/Makefile
         lib/Haineko/SMTPD/Relay/Makefile
+        sbin/Makefile
         libexec/Makefile])
 AC_OUTPUT

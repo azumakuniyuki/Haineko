@@ -2,7 +2,7 @@
 # Copyright (C) 2013 azumakuniyuki
 SYSTEMNAME = Haineko
 SYSVERSION = 0.1.0
-SUBDIRS = etc lib libexec
+SUBDIRS = etc lib libexec sbin
 
 .PHONY: clean
 all-am: Makefile
