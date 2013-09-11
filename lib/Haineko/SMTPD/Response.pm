@@ -245,22 +245,22 @@ sub new {
 
 sub r {
     my $class = shift;
-    my $esmtp = shift || return undef;  # SMTP Command
-    my $rname = shift || return undef;  # Response name
-    my $mesgs = shift || [];            # Additional messages
+    my $esmtp = shift || return undef;  # (String) SMTP Command
+    my $rname = shift || return undef;  # (String) Response name
+    my $mesgs = shift || [];            # (String) Additional messages
     my $argvs = {};
 
     return undef unless grep { $esmtp eq $_ } keys %$Replies;
     return undef unless grep { $rname eq $_ } keys %{ $Replies->{ $esmtp } };
 
     for my $e ( keys %{ $Replies->{ $esmtp }->{ $rname } } ) {
-
+        # Get the defined message and code
         $argvs->{ $e } = $Replies->{ $esmtp }->{ $rname }->{ $e };
     }
 
     $argvs->{'message'} = $mesgs if scalar @$mesgs;
     $argvs->{'command'} = uc $esmtp;
-    $argvs->{'error'} = $argvs->{'code'} =~ m/\A[45]\d+/ ? 1 : 0;
+    $argvs->{'error'}   = $argvs->{'code'} =~ m/\A[45]\d+/ ? 1 : 0;
     return __PACKAGE__->new( %$argvs );
 }
 
@@ -278,7 +278,7 @@ sub p {
 
     $lines = ref $argvs->{'message'} eq 'ARRAY' ? $argvs->{'message'} : [ $argvs->{'message'} ];
     while( my $r = shift @$lines ) {
-
+        # Parse the response from external SMTP server
         $r =~ s|\r\n||g;
         $r =~ s|\A *||;
         $r =~ s| *\z||;
@@ -290,6 +290,20 @@ sub p {
     $nekor->{'error'} = 1 if( defined $nekor->{'dsn'} && $nekor->{'dsn'} =~ /\A[45]/ );
     $nekor->{'error'} = 1 if( defined $nekor->{'code'} && $nekor->{'code'} =~ /\A[45]/ );
     return __PACKAGE__->new( %$nekor );
+}
+
+sub mesg {
+    my $self = shift;
+    my $argv = shift;   # (Ref->Array) New messages
+    my $mesg = undef;
+
+    return $self unless $argv;
+
+    $self->{'message'} = [] unless ref $self->{'message'} eq 'ARRAY';
+    $mesg = ref $argv eq 'ARRAY' ? $argv : [ $argv ];
+    push @{ $self->{'message'} }, @$mesg;
+
+    return $self;
 }
 
 sub damn {
@@ -368,6 +382,14 @@ p() creates an Haineko::SMTPD::Response object from SMTP response message.
     ];
 
 =head1 INSTANCE METHODS
+
+=head2 B<mesg>
+
+mesg() add messages to the instance->message
+
+    my $f = Haineko::SMTPD::Response->new();
+    my $v = [ 'new message1', 'new message2' ];
+    $f->m( $v );
 
 =head2 B<damn>
 
