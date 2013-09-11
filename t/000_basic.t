@@ -1,7 +1,9 @@
-use lib './lib';
+use lib qw|./lib ./blib/lib|;
+use strict;
+use warnings;
 use Haineko;
-use Plack::Test;
 use Test::More;
+use Plack::Test;
 use HTTP::Request;
 
 my $nekochan = Haineko->start;
