@@ -110,8 +110,8 @@ sub res {
 
 sub rdr {
     my $self = shift;
-    my $next = shift;
     my $code = shift || 302;
+    my $next = shift;
 
     $self->response->redirect( $next, $code );
     return $self->response;
@@ -151,3 +151,102 @@ sub r {
 }
 
 1;
+__END__
+=encoding utf-8
+
+=head1 NAME
+
+Haineko::HTTPD - Something like web application framework
+
+=head1 DESCRIPTION
+
+    Haineko::HTTPD is something like web application framework for Haineko. It
+    contain wrapper methods of Plack::Request and Plack::Response.
+
+=head1 SYNOPSYS
+
+    $ cat haineko.psgi
+    use Haineko;
+    Haineko->start;
+
+=head1 CLASS METHODS
+
+=head2 B<new( I<%argvs> )>
+
+new() is a constructor of Haineko::HTTPD, is called from start() method.
+
+=head2 B<start>
+
+start() is a constructor of Haineko::HTTPD, is called from psgi file.
+
+=head1 INSTANCE METHODS
+
+=head2 B<req>
+
+req() method is a shortcut to Haineko::HTTPD::Request.
+
+=head2 B<res>
+
+res() method is a shortcut to Haineko::HTTPD::Response.
+
+=head2 B<rdr( I<Code> I<URL> ])>
+
+rdr() method is for redirecting to the specified URL.
+
+=head3 Arguments
+
+=head4 B<CODE> HTTP status code
+
+HTTP status code for redirecting. If it is omitted, 302 will be used.
+
+=head4 B<URL> URL to redirect
+
+
+=head2 B<err( [ I<Code> [, I<Message>] ] )>
+
+err() method is for making error response and returns Haineko::HTTPD::Response object.
+
+=head3 Arguments
+
+=head4 B<CODE> HTTP status code
+
+HTTP status code for responding error. If it is omitted, 404 will be used.
+
+=head4 B<Message> Error message
+
+Error message. If it is omitted, 'Not Found' will be used.
+
+
+=head2 B<r>
+
+r() method is a dispatcher to each controller, is called from Haineko->start().
+
+=head1 SEE ALSO
+
+=over 2
+
+=item *
+L<Haineko::HTTPD::Request> - Child class of Plack::Request
+
+=item *
+L<Haineko::HTTPD::Response> - Child class of Plack::Response
+
+=item *
+L<Haineko::HTTPD::Router> - Child class of Router::Simple
+
+=back
+
+=head1 REPOSITORY
+
+https://github.com/azumakuniyuki/Haineko
+
+=head1 AUTHOR
+
+azumakuniyuki E<lt>perl.org [at] azumakuniyuki.orgE<gt>
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify it under 
+the same terms as Perl itself.
+
+=cut
