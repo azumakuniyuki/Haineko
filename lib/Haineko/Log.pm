@@ -41,14 +41,14 @@ sub new {
     my $argvs = { @_ };
 
     my $logoptions = {
-        'cons' => 0,
-        'ndelay' => 1,
-        'noeol' => 0,
+        'cons'    => 0,
+        'ndelay'  => 1,
+        'noeol'   => 0,
         'nofatal' => 1,
-        'nonul' => 0,
-        'nowait' => 0,
-        'perror' => 0,
-        'pid' => 1,
+        'nonul'   => 0,
+        'nowait'  => 0,
+        'perror'  => 0,
+        'pid'     => 1,
     };
 
     $argvs->{'facility'} ||= 'local2';
@@ -63,12 +63,12 @@ sub new {
     $argvs->{'remoteport'} //= q();
 
     if( defined $argvs->{'option'} && ref $argvs->{'option'} eq 'HASH' ) {
-
+        # Set logging options
         for my $e ( keys %$logoptions ) {
             $argvs->{'option'}->{ $e } //= $logoptions->{ $e };
         }
-    }
-    else {
+
+    } else {
         $argvs->{'option'} = $logoptions;
     }
 
