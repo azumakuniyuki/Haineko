@@ -34,7 +34,6 @@ sub new {
 }
 
 sub defaulthub {
-
     my $class = shift;
     return {
         'host' => '127.0.0.1',
@@ -46,17 +45,13 @@ sub defaulthub {
 
 sub sendmail {
     my $self = shift;
-
     # Code for sending email at each class in Relay/*.pm
-
     return 0;
 }
 
 sub getbounce {
     my $self = shift;
-
     # Code for getting email bounce at each class in Relay/*.pm
-
     return 0;
 }
 
