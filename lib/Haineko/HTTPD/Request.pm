@@ -12,7 +12,7 @@ Haineko::HTTPD::Request - Child class of Plack::Request
 
 =head1 DESCRIPTION
 
-    Haineko::HTTPD::Request is child class of Plack::Request.
+Haineko::HTTPD::Request is child class of Plack::Request.
 
 =head1 SYNOPSYS
 

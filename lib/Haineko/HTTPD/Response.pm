@@ -64,8 +64,8 @@ Haineko::HTTPD::Response - Child class of Plack::Response
 
 =head1 DESCRIPTION
 
-    Haineko::HTTPD::Response is child class of Plack::Response and contain some
-    wrapper methods.
+Haineko::HTTPD::Response is child class of Plack::Response and contain some
+wrapper methods.
 
 =head1 SYNOPSYS
 

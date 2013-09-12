@@ -26,7 +26,7 @@ Haineko::Root - Controller except /submit
 
 =head1 DESCRIPTION
 
-    Haineko::Root is a controller except url /submit.
+Haineko::Root is a controller except url /submit.
 
 =head1 SYNOPSYS
 

@@ -49,8 +49,8 @@ Haineko::Default - Default configuration instead of etc/haineko.cf
 
 =head1 DESCRIPTION
 
-    When etc/haineko.cf does not exist or failed to load at Haineko::HTTPD, This
-    class provides default configuration to run haineko server.
+When etc/haineko.cf does not exist or failed to load at Haineko::HTTPD, This
+class provides default configuration to run haineko server.
 
 =head1 CLASS METHODS
 

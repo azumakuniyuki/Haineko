@@ -160,8 +160,8 @@ Haineko::HTTPD - Something like web application framework
 
 =head1 DESCRIPTION
 
-    Haineko::HTTPD is something like web application framework for Haineko. It
-    contain wrapper methods of Plack::Request and Plack::Response.
+Haineko::HTTPD is something like web application framework for Haineko. It contain
+wrapper methods of Plack::Request and Plack::Response.
 
 =head1 SYNOPSYS
 

@@ -12,7 +12,7 @@ Haineko::HTTPD::Request - Child class of Plack::Request
 
 =head1 DESCRIPTION
 
-    Haineko::HTTPD::Router is child class of Router::Simple.
+Haineko::HTTPD::Router is child class of Router::Simple.
 
 =head1 SYNOPSYS
 

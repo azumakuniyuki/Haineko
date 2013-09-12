@@ -749,8 +749,8 @@ Haineko::Sendmail - Controller for /submit
 
 =head1 DESCRIPTION
 
-    Haineko::Sendmail is a controller for url /submit and receive email data as
-    a JSON format or as a parameter in URL.
+Haineko::Sendmail is a controller for url /submit and receive email data as
+a JSON format or as a parameter in URL.
 
 =head1 SYNOPSYS
 

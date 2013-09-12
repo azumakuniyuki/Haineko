@@ -49,8 +49,8 @@ Haineko::JSON - Wrapper class to load/dump JSON.
 
 =head1 DESCRIPTION
 
-    Haineko::JSON is a wrapper class for parsing or dumping JSON. As of present,
-    the module is using JSON::Syck module.
+Haineko::JSON is a wrapper class for parsing or dumping JSON. As of present,
+the module is using JSON::Syck module.
 
 =head1 CLASS METHODS
 
