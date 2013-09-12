@@ -22,9 +22,9 @@ sub startup {
     $serverconf->{'smtpd'}->{'version'} = $VERSION;
     $serverconf->{'smtpd'}->{'hostname'} ||= $servername;
 
-    $nekorouter->conn( '/', { 'controller' => 'Root', 'action' => 'index' } );
-    $nekorouter->conn( '/neko', { 'controller' => 'Root', 'action' => 'neko' } );
-    $nekorouter->conn( '/submit', { 'controller' => 'Sendmail', 'action' => 'submit' } );
+    $nekorouter->connect( '/', { 'controller' => 'Root', 'action' => 'index' } );
+    $nekorouter->connect( '/neko', { 'controller' => 'Root', 'action' => 'neko' } );
+    $nekorouter->connect( '/submit', { 'controller' => 'Sendmail', 'action' => 'submit' } );
 
     return $httpd->r;
 }
@@ -39,7 +39,11 @@ Haineko - HTTP API into ESMTP
 
 =head1 DESCRIPTION
 
-    Haineko runs as a web server on port 2794 using Plack
+Haineko is a HTTP-API server for sending email. It runs as a web server on 
+port 2794 using Plack. 
+
+Haineko stands for B<H>TTP B<A>PI B<IN>TO B<E>SMTP B<K>=undef B<O>=undef, means
+a gray cat.
 
 =head1 SYNOPSYS
 
