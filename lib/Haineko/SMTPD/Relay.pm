@@ -57,7 +57,6 @@ sub getbounce {
 
 1;
 __END__
-
 =encoding utf8
 
 =head1 NAME
@@ -66,7 +65,8 @@ Haineko::SMTPD::Relay - SMTP Connection class
 
 =head1 DESCRIPTION
 
-    Base class for relaying to external SMTP server
+    Base class for relaying to external SMTP server. Two instance methods: sendmail()
+    and getbounce() should be implemented at sub class.
 
 =head1 SEE ALSO
 
