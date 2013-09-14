@@ -60,7 +60,7 @@ sub new {
                 # are used as a configuration files for debugging.
                 #
                 if( not $g =~ m/[-]debug\z/ ) {
-                    $g .= '-debug' if( -f $g.'-debug' && -s _ && -r _ );
+                    $g .= '-debug' if -f -s -r $g.'-debug';
                 }
             }
             $argvs->{'conf'}->{'smtpd'}->{ $e }->{ $ee } = $g;
