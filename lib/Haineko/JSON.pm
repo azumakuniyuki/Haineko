@@ -10,9 +10,7 @@ sub loadfile {
     my $class = shift;
     my $argvs = shift // return undef;
 
-    return undef unless -f $argvs;
-    return undef unless -r $argvs;
-    return undef unless -s $argvs;
+    return undef unless -f -r -s $argvs;
 
     my $filehandle = IO::File->new( $argvs, 'r' ) || croak $!;
     my $jsonstring = do { local $/; <$filehandle> };
