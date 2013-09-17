@@ -1,452 +1,432 @@
-#!/usr/bin/env perl
-=head1 DESCRIPTION
-    Template for a single file script with perl
+#!/bin/sh
+# $Id: hainekod,v 1.22 2013/02/11 05:09:49 ak Exp $
+# @(#) hainekod(8) - Start and stop haineko server
+#  _           _            _             _ 
+# | |__   __ _(_)_ __   ___| | _____   __| |
+# | '_ \ / _` | | '_ \ / _ \ |/ / _ \ / _` |
+# | | | | (_| | | | | |  __/   < (_) | (_| |
+# |_| |_|\__,_|_|_| |_|\___|_|\_\___/ \__,_|
+#                                           
+readonly SYSTEMNAME='haineko'
+readonly SYSVERSION="0.1.0"
+readonly SERVERPROG='libexec/haineko.psgi'
+readonly SCRIPTNAME="`basename $0`" # Called name.
+readonly SCRIPTROOT="`dirname $0`/.."
+readonly SERVERROOT="`(cd $SCRIPTROOT && pwd)`"
+readonly SERVERPATH="$SERVERROOT/bin:$SERVERROOT/sbin"
+readonly SERVERLIBS="$SERVERROOT/lib/perl5:$SERVEROOT/lib"
 
-=head1 USAGE
-    Try --help option
-=cut
+export LANG='C'
+export PATH="$SERVERPATH:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+export LC_CTYPE='C'
+export PERL5LIB="$SERVERLIBS:$PERL5LIB"
 
-#   ____ _     ___ 
-#  / ___| |   |_ _|
-# | |   | |    | | 
-# | |___| |___ | | 
-#  \____|_____|___|
-#                  
-package CLI;
-use strict;
-use warnings;
-use 5.010001;
-use IO::File;
-use Fcntl qw(:flock);
-use File::Basename qw/basename/;
-use Sys::Syslog;
-use Time::Piece;
+# * Error or exit status code. see sysexits.h
+EX_OK=0         # operation completed successfully
+EX_GENERAL=1    # generic error
+EX_USAGE=64     # invalid option or argument
+EX_SOFTWARE=70  # internal software error
+EX_OSERR=71     # system error
+EX_OSFILE=72    # critical OS file missing
+EX_NOPERM=77    # permission denied
+EX_CONFIG=78    # environment error
 
-sub new {
-    my $class = shift;
-    my $argvs = { @_ };
-    my $param = {};
-    my $thing = undef;
+# * Values which is specified in commandline options
+O_PLACKRUNNER="`which plackup`"
+O_PIDFILENAME="$SERVERROOT/run/$SYSTEMNAME.pid"
+O_SERVERSTATS="$SERVERROOT/run/$SYSTEMNAME.status"
+O_HAINEKOCONF="$SERVERROOT/etc/haineko.cf"          # -C
+O_HAINEKOPSGI="$SERVERROOT/libexec/haineko.psgi"    # -a: -a option argument of plackup
 
-    return $class if ref $class eq __PACKAGE__;
-    $param = {
-        'started' => Time::Piece->new,
-        'pidfile' => $argvs->{'pidfile'} || q(),
-        'verbose' => $argvs->{'verbose'} || 0,
-        'command' => $argvs->{'command'} ? $argvs->{'command'} : $0,
-        'runmode' => $argvs->{'runmode'} || 1,
-        'syslog'  => $argvs->{'syslog'}  || { 'enabled' => 0, 'facility' => 'user' },
-        'stream'  => {
-            'stdin'  => -t STDIN  ? 1 : 0,
-            'stdout' => -t STDOUT ? 1 : 0,
-            'stderr' => -t STDERR ? 1 : 0,
-        },
-    };
-    $thing = bless $param, __PACKAGE__;
-    $thing->mkpf;
-    return $thing;
+O_DEVELOPMENT='0'           # -d: Development mode, PLACK_ENV=development
+O_HANDLERPROG=''            # -s: -s option argument of plackup
+O_LISTENINGON='127.0.0.1'   # -h: -o option argument of plackup
+O_BINDPORTNUM='2794'        # -p: -p option argument of plackup
+O_WORKERPROCS='2'           # -w: --max_workers
+O_INTERVALSEC='1'           # --interval
+
+# * Other variables
+C_DEBUGPRINT1=' *debug1:'
+C_ERRORPRINT1=' *error1:'
+
+printmessage() {
+    #             _       _   
+    #  _ __  _ __(_)_ __ | |_ 
+    # | '_ \| '__| | '_ \| __|
+    # | |_) | |  | | | | | |_ 
+    # | .__/|_|  |_|_| |_|\__|
+    # |_|                     
+    local mesg="$1"     # ($1) message content
+    local mark="$2"     # ($2) e=error, d=debug
+
+    if [ -n "$TERM" ]; then
+
+        if [ -n "$mark" ]; then
+            if [ "$mark" = "e" ]; then
+                mark=$C_ERRORPRINT1
+            else
+                mark=$C_DEBUGPRINT1
+            fi
+        else
+            mark=$C_DEBUGPRINT1
+        fi
+        echo $mark $mesg > /dev/stderr
+    fi
 }
 
-sub stdin  { shift->{'stream'}->{'stdin'} }
-sub stdout { shift->{'stream'}->{'stdout'} }
-sub stderr { shift->{'stream'}->{'stderr'} }
-sub r { my( $x, $y ) = @_; $x->{'runmode'} = $y if defined $y; return $x->{'runmode'}; }
-sub v { my( $x, $y ) = @_; $x->{'verbose'} = $y if defined $y; return $x->{'verbose'}; }
+checkprocess() {
+    #  _ __  _ __ ___   ___ ___  ___ ___ 
+    # | '_ \| '__/ _ \ / __/ _ \/ __/ __|
+    # | |_) | | | (_) | (_|  __/\__ \__ \
+    # | .__/|_|  \___/ \___\___||___/___/
+    # |_|                                
+    local actionname="$1"
+    local piddirname="`dirname $O_PIDFILENAME`"
+    local processid1=0
+    local hainekoapp="`basename $O_HAINEKOPSGI`"
 
-sub l {
-    # @Description  Interface to UNIX syslog(3)
-    # @Param <str>  (String) Log message
-    # @Param <str>  (String) Syslog level
-    # @Return       (Integer) 1 = No error occurred
-    #               (Integer) 0 = No log message or Error occurred
-    #
-    my $self = shift; return 0 unless $self->{'syslog'}->{'enabled'};
-    my $messages = shift || ''; return 0 unless length $messages;
-    my $priority = shift || 'LOG_INFO';
-    my $facility = $self->{'facility'} || 'LOG_USER';
+    if [ ! -d $piddirname ]; then
+        # If run/ directory is not writable, use /tmp instead.
+        piddirname='/tmp'
+        O_PIDFILENAME="/tmp/$SYSTEMNAME.pid"
+    fi
 
-    # Don't send message to syslogd if it's disabled in 'syslog' property
-    return 0 unless $self->{'syslog'}->{'enabled'};
-    return 0 unless length $messages;
+    if [ -n "$actionname" ]; then
+        # Remove or Create the pid file
+        if [ "$actionname" = "remove" ]; then
+            # Remove PID file
+            rm -f $O_PIDFILENAME
 
-    my $syslogps = { 
-        'a' => 'LOG_ALERT', 'c' => 'LOG_CRIT', 'e' => 'LOG_ERR', 'w' => 'LOG_WARNING',
-        'n' => 'LOG_NOTICE', 'i' => 'LOG_INFO', 'd' => 'LOG_DEBUG',
-    };
-    my $logargvs = [ 'ndelay', 'pid', 'nofatal' ];
-    my $identity = basename $0;
-    my $username = $ENV{'LOGNAME'} || $ENV{'USER'} || 'NOBODY';
+        elif [ "$actionname" = "make" ]; then
 
-    $priority = $syslogps->{ $priority } if length $priority == 1;
-    $priority = 'LOG_INFO' unless grep { $priority eq $_ } values %$syslogps;
+            if [ -w "$piddirname" ]; then
+                # Create PID file
+                printmessage "Process id file = $O_PIDFILENAME"
+                touch $O_PIDFILENAME
+                echo $$ >> $O_PIDFILENAME
 
-    $messages .= sprintf( " by uid=%d(%s)", $>, $username );
-    $messages =~ y{\n\r}{}d;
-    $messages =~ y{ }{}s;
+                if [ -n "$2" ]; then
+                    echo $2 >> $O_PIDFILENAME
+                fi
+            else
+                # Cannot create the pid file
+                printmessage "Cannot create pid file: $O_PIDFILENAME" 'e'
+                exit $EX_NOPERM
+            fi
 
-    openlog( $identity, join( ',', @$logargvs ), $facility ) || return 0;
-    syslog( $priority, $messages ) || return 0;
-    closelog() || return 0;
+        elif [ "$actionname" = "list" ]; then
 
-    return 1;
+            if [ -f $O_PIDFILENAME ]; then
+                processid1="`head -1 $O_PIDFILENAME`"
+                ps axuww | grep plackup | grep $hainekoapp | grep -v grep | grep " $processid1 "
+            else
+                ps axuww | grep plackup | grep $hainekoapp | grep -v grep
+            fi
+        fi
+    else
+        # No action name in the arguments
+        if [ -f $O_PIDFILENAME ]; then
+
+            processid1="`head -1 $O_PIDFILENAME`"
+            ps axuww | grep plackup | grep $hainekoapp | grep -v grep | grep " $processid1 " > /dev/null 2>&1
+
+            if [ "$?" -eq "1" ]; then
+                # pid file exists but hainekod process is not running.
+                processid1=0
+                rm -f $O_PIDFILENAME 2> /dev/null
+            fi
+        fi
+
+        # Return process id
+        echo $processid1
+    fi
 }
 
-sub e {
-    # @Description  Print error message and exit
-    # @Param <mesg> (String) Error message text
-    # @Param <bool> (Boolean) continue or not
-    # @Return       1 or exit(1)
-    my $self = shift;
-    my $mesg = shift; return 0 unless length $mesg;
-    my $cont = shift || 0;
+startserver() {
+    #      _             _   
+    #  ___| |_ __ _ _ __| |_ 
+    # / __| __/ _` | '__| __|
+    # \__ \ || (_| | |  | |_ 
+    # |___/\__\__,_|_|   \__|
+    #                        
+    local processid1=`checkprocess`
+    if [ $processid1 -ne "0" ]; then
+        printmessage "Server is running, pid = $processid1" 'e'
+        exit $EX_GENERAL
+    fi
 
-    $self->l( $mesg, 'e' ) if $self->{'syslog'}->{'enabled'};
-    printf( STDERR " * error0: %s\n", $mesg ) if $self->stderr;
-    printf( STDERR " * error0: ******** ABORT ********\n" ) if $self->stderr;
-    $cont ? return 1 : exit(1);
+    if [ -x "$O_PLACKRUNNER" ]; then
+
+        local hainekoapp="-a $O_HAINEKOPSGI"
+        local serveropts=''
+        local runneropts=''
+        local wdirectory=''
+
+        local daemonprog=''
+        local daemonopts=''
+        local runcommand=''
+
+        printmessage "Listen = $O_LISTENINGON:$O_BINDPORTNUM"
+        printmessage "PSGI Application = $O_HAINEKOPSGI"
+
+        serveropts="$serveropts --host $O_LISTENINGON --port $O_BINDPORTNUM"
+        serveropts="$serveropts -L Restarter"
+
+        if [ -n "$O_HANDLERPROG" ]; then
+            serveropts="$serveropts --server $O_HANDLERPROG"
+            serveropts="$serveropts --max-workers=$O_WORKERPROCS"
+            printmessage "Handler = $O_HANDLERPROG"
+            printmessage "Workers = $O_WORKERPROCS"
+        fi
+
+        export HAINEKO_ROOT=$SERVERROOT
+        export HAINEKO_CONF=$O_HAINEKOCONF
+
+        if [ $O_DEVELOPMENT -eq "1" ]; then
+            #  ____                 _                                  _   
+            # |  _ \  _____   _____| | ___  _ __  _ __ ___   ___ _ __ | |_ 
+            # | | | |/ _ \ \ / / _ \ |/ _ \| '_ \| '_ ` _ \ / _ \ '_ \| __|
+            # | |_| |  __/\ V /  __/ | (_) | |_) | | | | | |  __/ | | | |_ 
+            # |____/ \___| \_/ \___|_|\___/| .__/|_| |_| |_|\___|_| |_|\__|
+            #                              |_|                             
+            export PLACKENV='development'
+            export HAINEKO_DEBUG=1
+            printmessage 'Development mode = 1'
+            printmessage 'PLACKENV = development'
+
+            # Add -R,--Reload option
+            wdirectory="$SERVERROOT/etc,$SERVERROOT/lib"
+            serveropts="$serveropts -R $wdirectory"
+
+            for D in `echo $wdirectory | tr ',' ' '`; do
+                printmessage "Watching = $D"
+            done
+
+            # Build command line
+            runneropts="`echo $serveropts $hainekoapp | tr -s ' '`"
+            runcommand="$O_PLACKRUNNER $runneropts"
+
+            printmessage "Run command = $runcommand"
+            printmessage "Listen = $O_LISTENINGON:$O_BINDPORTNUM"
+            exec $runcommand
+
+        else
+            #  ____                _            _   _             
+            # |  _ \ _ __ ___   __| |_   _  ___| |_(_) ___  _ __  
+            # | |_) | '__/ _ \ / _` | | | |/ __| __| |/ _ \| '_ \ 
+            # |  __/| | | (_) | (_| | |_| | (__| |_| | (_) | | | |
+            # |_|   |_|  \___/ \__,_|\__,_|\___|\__|_|\___/|_| |_|
+            #                                                     
+            export PLACKENV=''
+
+            # Add --daemonize option
+            serveropts="$serveropts --daemonize"
+            runneropts="`echo $serveropts $hainekoapp | tr -s ' '`"
+            daemonprog="`which start_server`"
+
+            if [ -x "$daemonprog" ]; then
+                #      _             _                                    
+                #  ___| |_ __ _ _ __| |_     ___  ___ _ ____   _____ _ __ 
+                # / __| __/ _` | '__| __|   / __|/ _ \ '__\ \ / / _ \ '__|
+                # \__ \ || (_| | |  | |_    \__ \  __/ |   \ V /  __/ |   
+                # |___/\__\__,_|_|   \__|___|___/\___|_|    \_/ \___|_|   
+                #                      |_____|                            
+                daemonopts="--port $O_BINDPORTNUM"
+                daemonopts="$daemonopts --interval=$O_INTERVALSEC"
+                daemonopts="$daemonopts --pid-file=$O_PIDFILENAME"
+                daemonopts="$daemonopts --status-file=$O_SERVERSTATS"
+
+                # Build command line
+                runcommand="$daemonprog $daemonopts -- $O_PLACKRUNNER $runneropts"
+
+                printmessage "Server starter = $daemonprog"
+                printmessage "Respawn interval = $O_INTERVALSEC"
+                printmessage "Process id file = $O_PIDFILENAME"
+
+                exec nohup $runcommand > /dev/null &
+
+            else
+                #        _            _                
+                #  _ __ | | __ _  ___| | ___   _ _ __  
+                # | '_ \| |/ _` |/ __| |/ / | | | '_ \ 
+                # | |_) | | (_| | (__|   <| |_| | |_) |
+                # | .__/|_|\__,_|\___|_|\_\\__,_| .__/ 
+                # |_|                           |_|    
+                # No start_server script
+                runcommand="$O_PLACKRUNNER $runneropts"
+                printmessage "Run command = $runcommand"
+
+                exec $runcommand
+            fi
+        fi
+
+    elif [ -z "$O_PLACKRUNNER" ]; then
+        # No plackup command
+        printmessage "Command not found: $O_PLACKRUNNER" 'e'
+        exit $EX_OSFILE
+
+    else
+        # plackup
+        printmessage "Cannot execute $O_PLACKRUNNER" 'e'
+        exit $EX_NOPERM
+    fi
+
 }
 
-sub p {
-    # @Description  Print debug message
-    # @Param <mesg> (String) Debug message text
-    # @Param <level>(Integer) Debug level
-    # @Return       0 or 1
-    my $self = shift;
-    my $mesg = shift; return 0 unless length $mesg;
-    my $rung = shift // 1;
+serverctrl() {
+    #      _                _                 _             _    
+    #  ___| |_ ___  _ __   | |  _ __ ___  ___| |_ __ _ _ __| |_  
+    # / __| __/ _ \| '_ \  | | | '__/ _ \/ __| __/ _` | '__| __| 
+    # \__ \ || (_) | |_) | | | | | |  __/\__ \ || (_| | |  | |_  
+    # |___/\__\___/| .__/  | | |_|  \___||___/\__\__,_|_|   \__| 
+    #              |_|     |_|                                   
+    local actionname="$1"
+    local processid1=`checkprocess`
 
-    return 0 unless $self->stderr;
+    if [ -n "$actionname" ]; then
 
-    if( $rung > -1 ) {
-        return 0 unless $self->v;
-        return 0 unless $self->v >= $rung;
+        if [ "$processid1" -eq "0" ]; then
 
-        chomp $mesg; 
-        printf( STDERR " * debug%d: %s\n", $rung, $mesg );
+            if [ -f "$O_PIDFILENAME" ]; then
+                # No process
+                printmessage "Server is not running" 'e'
+                exit $EX_GENERAL
+            else
+                # no pid file
+                printmessage 'pid file does not exist' 'e'
+                exit $EX_GENERAL
+            fi
 
-    } else {
-        printf( STDERR "%s\n", $mesg );
-    }
+        else
+            # Server is running
+            if [ "X$actionname" = "Xstop" ]; then
+                # Stop server
+                kill -TERM $processid1
+                checkprocess remove
 
-    return 1;
+                if [ "$?" -eq "0" ]; then
+                    printmessage "Server stopped: pid = $processid1"
+                else
+                    printmessage "Failed to stop server: pid = $processid1" 'e'
+                fi
 
+            elif [ "X$actionname" = "Xrestart" ]; then
+                # Restart server
+                kill -HUP $processid1
+
+                if [ "$?" -eq "0" ]; then
+                    printmessage "Server restarted: pid = $processid1"
+                else
+                    printmessage "Failed to restart server: pid = $processid1" 'e'
+                fi
+            fi
+        fi
+    fi
 }
 
-sub mkpf {
-    # @Description  Create process id file
-    # @Return       0 or 1
-    my $self = shift;
-    my $file = undef;
-    my $text = '';
-
-    return 0 unless $self->{'pidfile'};
-    return 0 if -e  $self->{'pidfile'};
-
-    $file = IO::File->new( $self->{'pidfile'}, 'w' ) || return 0;
-    $text = sprintf( "%d\n%s\n", $$, $self->{'command'} );
-
-    flock( $file, LOCK_EX ) ? $file->print( $text ) : return 0;
-    flock( $file, LOCK_UN ) ? $file->close : return 0;
-    return 1;
+help() {
+    #  _          _       _ 
+    # | |__   ___| |_ __ | |
+    # | '_ \ / _ \ | '_ \| |
+    # | | | |  __/ | |_) |_|
+    # |_| |_|\___|_| .__/(_)
+    #              |_|      
+    echo
+    echo 'usage:'
+    echo " $SCRIPTNAME COMMAND [ OPTION [ARGV] ]"
+    echo
+    echo '  * Commands'
+    echo '     start        : Start server'
+    echo '     stop         : Stop server'
+    echo '     restart      : Restart server'
+    echo '     status       : Show processes'
+    echo
+    echo '  * Daemon options'
+    echo '     -a <app>     : Path to haineko.psgi, default = '$O_HAINEKOPSGI
+    echo '     -C <conf>    : Path to haineko.cf, default = '$O_HAINEKOCONF
+    echo '     -d           : Development mode: PLACK_ENV=development'
+    echo '     -h <host>    : Host name to listen, default = '$O_LISTENINGON
+    echo '     -p <port>    : Port number to bind(HTTP), default = '$O_BINDPORTNUM
+    echo '     -s <server>  : Plack handler name, default = Standalone'
+    echo '     -w <worker>  : The number of max workers'
+    echo
+    echo '  * Other options'
+    echo '     -H           : Show this screen(help).'
+    echo "     -V           : Print $SCRIPTNAME version"
+    echo 
 }
 
-sub rmpf { 
-    # @Description  Remove process id file
-    # @Return       1
-    my $self = shift; 
-    return 0 unless -f $self->{'pidfile'};
-    unlink $self->{'pidfile'};
-    return 1;
-}
-sub DESTROY { shift->rmpf }
-1;
+#              _   _                 
+#   ___  _ __ | |_(_) ___  _ __  ___ 
+#  / _ \| '_ \| __| |/ _ \| '_ \/ __|
+# | (_) | |_) | |_| | (_) | | | \__ \
+#  \___/| .__/ \__|_|\___/|_| |_|___/
+#       |_|                          
+while getopts ":a:C:dHh:p:s:Vw:" opt; do
+    case $opt in
+        a)
+            O_HAINEKOPSGI="$OPTARG"
+            ;;
+        C)
+            O_HAINEKOCONF="$OPTARG"
+            ;;
+        d)
+            O_DEVELOPMENT=1
+            ;;
+        h)
+            O_LISTENINGON="$OPTARG"
+            ;;
+        p)
+            O_BINDPORTNUM="$OPTARG"
+            ;;
+        s)
+            O_HANDLERPROG="$OPTARG"
+            ;;
+        w)
+            O_WORKERPROCS="$OPTARG"
+            ;;
+        H)
+            help
+            exit $EX_OK
+            ;;
+        V)
+            echo $SYSVERSION
+            exit $EX_OK
+            ;;
+        \?|*)
+            help
+            exit $EX_OK
+            ;;
+    esac
+done
 
-#                  _       
-#  _ __ ___   __ _(_)_ __  
-# | '_ ` _ \ / _` | | '_ \ 
-# | | | | | | (_| | | | | |
-# |_| |_| |_|\__,_|_|_| |_|
-#                          
-package main;
-use strict;
-use warnings;
+shift `expr ${OPTIND} - 1`
 
-BEGIN {
-    if( @ARGV ) {
-        if( $ARGV[0] eq '--modules' ) {
+#                                                _ 
+#   ___ ___  _ __ ___  _ __ ___   __ _ _ __   __| |
+#  / __/ _ \| '_ ` _ \| '_ ` _ \ / _` | '_ \ / _` |
+# | (_| (_) | | | | | | | | | | | (_| | | | | (_| |
+#  \___\___/|_| |_| |_|_| |_| |_|\__,_|_| |_|\__,_|
+#                                                  
+case "$1" in
+    start)
+        startserver
+        ;;
+    stop)
+        serverctrl stop
+        ;;
+    restart)
+        serverctrl restart
+        ;;
+    status)
+        checkprocess list
+        ;;
+    help)
+        help
+        ;;
+    *)
+        echo "try $SCRIPTNAME help"
+        exit $EX_USAGE
+        ;;
+esac
 
-            require IO::File;
-            my $filehandle = IO::File->new( $0, 'r' ) || die $!;
-            my $modulelist = [];
-            my $modulename = '';
-
-            while( ! $filehandle->eof ) {
-                # Find used modules
-                my $r = $filehandle->getline;
-                next if $r =~ /\A\s*#/;
-                next if $r =~ /\A=/;
-                next if $r =~ /\A\s*\z/;
-                next if $r =~ /\buse (?:strict|warnings|utf8)/;
-
-                $modulename = $1 if $r =~ m{\b(?:use|require)[ ]+([A-Za-z][0-9A-Za-z:]+)[ ;]};
-
-                next unless $modulename;
-                next if grep { $modulename eq $_ } @$modulelist;
-                push @$modulelist, $modulename; $modulename = q();
-            }
-            $filehandle->close;
-            printf( "%s\n", $_ ) for @$modulelist;
-            exit 0;
-
-        } elsif( $ARGV[0] eq '--cpanm' ) {
-
-            my $commandurl = 'http://xrl.us/cpanm';
-            my $searchpath = [ '/usr/local/bin/', '/usr/bin/', '/bin/', './' ];
-            my $commandset = { 'wget' => '-c', 'curl' => '-LOk' };
-            my $scriptpath = qx/which cpanm/; chomp $scriptpath;
-            my $getcommand = q();
-
-            if( -x $scriptpath ) {
-                printf "%s\n", $scriptpath;
-                exit 0;
-            }
-
-            foreach my $e ( keys %$commandset ) {
-                # Find a command to fetch cpanm
-                $getcommand   = qx/which $e/; chomp $getcommand;
-                $getcommand   = q() unless -x $getcommand;
-                $getcommand ||= shift [ grep { $_ .= $e; $_ if -x $_ } @$searchpath ];
-                next unless $getcommand;
-
-                $getcommand .= ' '.$commandset->{ $e };
-                last;
-            }
-
-            $scriptpath = './cpanm';
-            if( -f $scriptpath ) {
-                chmod( '0755', $scriptpath );
-                printf( "%s\n", $scriptpath ); 
-                exit 0;
-            }
-            system qq($getcommand $commandurl > /dev/null 2>&1);
-            chmod( '0755', $scriptpath ) if -x $scriptpath;
-            printf "%s\n", $scriptpath;
-            exit 0;
-        }
-    }
-}
-
-use Getopt::Long qw/:config posix_default no_ignore_case bundling auto_help/;
-use File::Basename qw/basename/;
-use Path::Class;
-use Plack::Util;
-use Plack::Builder;
-use Plack::Loader::Restarter;
-
-my $Version = '0.1.0';
-my $Rootdir = '',
-my $Setting = {};
-my $Default = {
-    'env'     => 'production',
-    'app'     => '',
-    'root'    => '',
-    'host'    => '127.0.0.1',
-    'port'    => 2794,
-    'config'  => '',
-    'server'  => 'Standalone',
-    'syslog'  => { 'enabled' => 0, 'facility' => 'user' },
-    'workers' => 2,
-};
-my $Options = {
-    'exec' => ( 1 << 0 ),
-    'test' => ( 1 << 1 ),
-    'neko' => ( 1 << 2 ),
-};
-my $Command = CLI->new( 
-    'command' => join( ' ', $0, @ARGV ),
-    'pidfile' => sprintf( "/tmp/%s.pid", basename $0 ),
-);
-$Command->r( parseoptions() );
-
-if( $Command->r & $Options->{'exec'} ) {
-
-    my $hainekoapp = undef;
-    my $nekoserver = $Setting->{'server'};
-    my $nekoloader = undef;
-    my $methodargv = {
-        'max_workers' => $Setting->{'workers'},
-        'host' => $Setting->{'host'},
-        'port' => $Setting->{'port'},
-    };
-
-    my $middleware = [ 'JSONP', 'ContentLength' ];
-    my $plackmwarg = [];
-    my $plackuparg = sprintf( "-E %s -s %s -L Shotgun --max-workers=%d",
-                        $Setting->{'env'}, $Setting->{'server'}, $Setting->{'workers'} );
-    my $nekolisten = sprintf( "Haineko listening on http://%s:%d",
-                        $Setting->{'host'}, $Setting->{'port'} );
-
-    # Set environment variables for Plack
-    $ENV{'PLACK_ENV'}     = $Setting->{'env'};
-    $ENV{'HAINEKO_PID'}   = $$;
-    $ENV{'HAINEKO_ROOT'}  = $Setting->{'root'};
-    $ENV{'HAINEKO_CONF'}  = $Setting->{'config'};
-
-    if( $Command->r & $Options->{'test'} ) {
-        # Debug mode if --devel option specified
-        $ENV{'HAINEKO_DEBUG'} = 1;
-        push @$middleware, 'Debug';
-    }
-    $plackmwarg = [ map { sprintf( "enable '%s'; ", $_ ) } @$middleware ];
-
-    $hainekoapp = Plack::Util::load_psgi $Setting->{'app'};
-    $hainekoapp = builder {
-        $plackmwarg,
-        $hainekoapp;
-    };
-
-    $Command->p( 'plackup options = '.$plackuparg, 1 );
-    $Command->p( $nekolisten, -1 );
-    $nekoloader = Plack::Loader::Restarter->load( $nekoserver, %$methodargv );
-    #$nekoloader->loader->watch( 'lib' );
-    $nekoloader->run( $hainekoapp );
-}
-
-sub parseoptions {
-    # Command-line option parser
-    my $r = 0;      # Run mode value
-    my $p = {};     # Parsed options
-    my $q = undef;  # Path::Class::File
-
-    Getopt::Long::GetOptions( $p,
-        'devel|d',      # Developement mode
-        'app|a=s',      # Path to psgi file
-        'conf|C=s',     # Configuration file
-        'host|h=s',     # Hostname
-        'port|p=i',     # Port
-        'server|s=s',   # Server, -s option of plackup
-        'workers|w=i',  # --max-workers of plackup
-        'verbose|v+',   # Verbose
-
-        'data'      => sub { print <DATA>; exit 0; },
-        'help'      => sub { help(); exit 0; },
-        'version'   => sub { printf( STDERR "%s\n", $Version ); exit 0; },
-    );
-
-    $Setting = $Default;
-
-    if( defined $p->{'devel'} ) {
-        # Turn on the development mode
-        $r |= $Options->{'test'};
-        $Setting->{'env'} = 'development';
-    }
-
-    if( $p->{'conf'} ) {
-        # Load configuration file specified with -C or --conf option
-        if( -f $p->{'conf'} && -r _ && -s _ ) {
-            $Setting->{'config'} = $p->{'conf'};
-
-        } else {
-            $Command->e( sprintf( "Config file: %s not found", $p->{'conf'} ) ) unless -f $p->{'conf'};
-            $Command->e( sprintf( "Config file: %s is empty", $p->{'conf'} ) ) unless -s $p->{'conf'};
-            $Command->e( sprintf( "Config file: cannot read %s", $p->{'conf'} ) ) unless -r $p->{'conf'};
-        }
-
-    } else {
-        for my $g ( '/usr/local/haineko/etc', '/usr/local/etc', '.' ) {
-            # Find haineko.cf
-            my $f = sprintf( "%s/haineko.cf", $g );
-            next unless -f $f;
-            next unless -s $f;
-            next unless -r $f;
-
-            $Setting->{'config'} = $f;
-            last;
-        }
-    }
-
-    if( $Setting->{'config'} ) {
-        $q = Path::Class::File->new( $Setting->{'config'} )->dir;
-        $$Setting->{'root'} = $q->resolve->absolute->parent;
-
-    } else {
-        $Setting->{'config'} = '/dev/null';
-        $q = Path::Class::Dir->new( './' );
-        $Setting->{'root'} = $q->resolve->absolute;
-    }
-
-    if( $p->{'app'} ) {
-
-        if( -f $p->{'app'} && -s _ && -r _ ) {
-            $Setting->{'app'} = $p->{'app'};
-
-        } else {
-            $Command->e( sprintf( "psgi file: %s not found", $p->{'app'} ) ) unless -f $p->{'app'};
-            $Command->e( sprintf( "psgi file: %s is empty", $p->{'app'} ) ) unless -s $p->{'app'};
-            $Command->e( sprintf( "psgi file: cannot read %s", $p->{'app'} ) ) unless -r $p->{'app'};
-        }
-
-    } else {
-        for my $g ( '/usr/local/haineko/libexec', '/usr/local/libexec', '.' ) {
-            # Find haineko.psgi
-            my $f = sprintf( "%s/haineko.psgi", $g );
-            next unless -f $f;
-            next unless -s $f;
-            next unless -r $f;
-
-            $Setting->{'app'} = $f;
-            last;
-        }
-    }
-
-    for my $e ( 'host', 'port' ) {
-        # Host, Port and PSGI file
-        next unless defined $p->{ $e };
-        $Setting->{ $e } = $p->{ $e };
-    }
-    for my $e ( 'server', 'workers' ) {
-        # Override the value with the value in argument
-        next unless $p->{ $e };
-        $Setting->{ $e } = $p->{ $e };
-    }
-
-    $Command->v( $p->{'verbose'} );
-    $Command->p( sprintf( "Run mode = %d", $r ), 1 );
-    $Command->p( sprintf( "Debug level = %d", $Command->v ), 1 );
-    $Command->p( sprintf( "Hostname = %s", $Setting->{'host'} ), 1 );
-    $Command->p( sprintf( "Port = %d", $Setting->{'port'} ), 1 );
-    $Command->p( sprintf( "Server = %s", $Setting->{'server'} ), 1 );
-    $Command->p( sprintf( "psgi application file = %s", $Setting->{'app'} ), 1 );
-    $Command->p( sprintf( "Configuration file = %s", $Setting->{'config'} ), 1 );
-
-    $Command->{'syslog'} = $Setting->{'syslog'} || $Default->{'syslog'};
-    if( $Command->{'syslog'}->{'enabled'} ) {
-        # syslog
-        $Command->p( sprintf( "Syslog enabled = %d", $Command->{'syslog'}->{'enabled'} ), 2 );
-        $Command->p( sprintf( "Syslog Facility = %s", $Command->{'syslog'}->{'facility'} ), 2 );
-    }
-
-    $r |= $Options->{'exec'};
-    return $r;
-}
-
-sub help {
-    my $d = $Default;
-    printf( STDERR "%s OPTIONS \n", $0 );
-    printf( STDERR "  -a, --app <psgi>    : Path to a psgi file. (Default: $d->{'app'})\n" );
-    printf( STDERR "  -C, --conf <file>   : Configuration file path. (Default: $d->{'config'})\n" );
-    printf( STDERR "  -d, --devel         : Run on developement mode.\n");
-    printf( STDERR "  -h, --host <host>   : Binds to a TCP interface. (Default: $d->{'host'})\n" );
-    printf( STDERR "  -p, --port <port>   : Binds to a TCP port. (Default: $d->{'port'})\n" );
-    printf( STDERR "  -s, --server <name> : Server implementation to run on. (plackup/-s, Default: $d->{'server'})\n");
-    printf( STDERR "  -w, --workers <n>   : Max workers (plackup/--max-workers, Default: $d->{'workers'})\n");
-    printf( STDERR "\n" );
-    printf( STDERR '  --help              : Help screen'."\n" );
-    printf( STDERR '  --version           : Print the version number'."\n" );
-    printf( STDERR '  -v, --verbose       : Verbose mode'."\n" );
-    printf( STDERR '  --cpanm             : Find or download cpanm command'."\n" );
-    printf( STDERR '  --modules           : Print required perl module list'."\n" );
-    printf( STDERR "\n" );
-}
-
-__DATA__
