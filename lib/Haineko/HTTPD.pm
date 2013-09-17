@@ -19,6 +19,7 @@ my $rwaccessors = [
 ];
 my $roaccessors = [
     'name',     # (String) System name
+    'host',     # (String) SERVER_NAME
     'conf',     # (Ref->Hash) Haineko Configuration
     'root',     # (Path::Class::Dir) Root directory
 ];
@@ -73,10 +74,12 @@ sub new {
         Haineko::SMTPD::Milter->libs( $milterlibs );
     }
 
-    $argvs->{'debug'}      = $ENV{'HAINEKO_DEBUG'} ? 1 : 0;
     $argvs->{'router'}   ||= Haineko::HTTPD::Router->new;
     $argvs->{'request'}  ||= Haineko::HTTPD::Request->new;
     $argvs->{'response'} ||= Haineko::HTTPD::Response->new;
+
+    $argvs->{'host'}  = $argvs->{'request'}->env->{'SERVER_NAME'};
+    $argvs->{'debug'} = $ENV{'HAINEKO_DEBUG'} ? 1 : 0;
 
     return bless $argvs, __PACKAGE__;
 }
