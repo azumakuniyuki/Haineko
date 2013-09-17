@@ -354,6 +354,12 @@ sub submit {
             if( ref $accessconf eq 'HASH' ) {
                 # etc/recipients file has loaded successfully
                 #
+                if( $remoteaddr eq '127.0.0.1' && $remoteaddr eq $httpd->host ) {
+                    # Allow relaying when the value of REMOTE_ADDR is equal to 
+                    # the value value SERVER_NAME and the value is 127.0.0.1
+                    $accessconf->{'open-relay'} = 1;
+                }
+
                 if( not $accessconf->{'open-relay'} ) {
                     # When ``open-relay'' is 0, check the all recipient addresses
                     # with entries defined in etc/recipients.
