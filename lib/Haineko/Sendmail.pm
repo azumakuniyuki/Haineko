@@ -70,7 +70,6 @@ sub submit {
             $ip4network = Net::CIDR::Lite->new( @{ $relayhosts->{'relayhosts'} } );
 
         } catch {
-            warn $_;
             $exceptions = 1;
         };
 
