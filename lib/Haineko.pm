@@ -24,6 +24,8 @@ sub startup {
 
     $nekorouter->connect( '/', { 'controller' => 'Root', 'action' => 'index' } );
     $nekorouter->connect( '/neko', { 'controller' => 'Root', 'action' => 'neko' } );
+    $nekorouter->connect( '/dump', { 'controller' => 'Root', 'action' => 'info' } );
+    $nekorouter->connect( '/conf', { 'controller' => 'Root', 'action' => 'info' } );
     $nekorouter->connect( '/submit', { 'controller' => 'Sendmail', 'action' => 'submit' } );
 
     return $httpd->r;
