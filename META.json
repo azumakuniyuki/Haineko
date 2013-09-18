@@ -48,30 +48,37 @@
             "Digest::SHA" : "5.61",
             "Email::MIME" : "1.910",
             "Encode" : "2.42",
+            "File::Basename" : "2.82",
             "Furl" : "2.17",
+            "IO::File" : "1.15",
             "IO::Socket::SSL" : "1.94",
             "JSON::Syck" : "1.18",
             "MIME::Base64" : "3.13",
             "Module::Load" : "0.18",
-            "Mojolicious" : "3.89",
             "Net::CIDR::Lite" : "0.21",
             "Net::SMTP" : "2.31",
             "Net::SMTPS" : "0.03",
             "Path::Class" : "0.24",
+            "Plack" : "1.0027",
+            "Router::Simple" : "0.14",
             "Sys::Syslog" : "0.33",
             "Time::Piece" : "1.20",
+            "Try::Tiny" : "0.16",
             "XML::Simple" : "2.20",
             "perl" : "5.010001"
          }
       },
       "test" : {
          "requires" : {
+            "HTTP::Request" : "6.00",
+            "HTTP::Request::Common" : "6.03",
+            "Plack::Test" : "0",
             "Test::More" : "0.98"
          }
       }
    },
    "release_status" : "unstable",
-   "version" : "0.0.4",
+   "version" : "0.1.0",
    "x_contributors" : [
       "azumakuniyuki <perl.org@azumakuniyuki.org>"
    ]
