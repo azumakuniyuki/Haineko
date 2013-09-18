@@ -86,10 +86,10 @@ my $jsondata = {
         'data' => { 
             'ehlo' => 'example.jp', 
             'mail' => 'kijitora@example.jp',
-            'rcpt' => [ 'kijitora@example.org' ],
+            'rcpt' => [ 'キジトラ@example.org' ],
         },
-        'code' => 553, 'dsn' => '5.7.1', 'status' => 403, 'command' => 'RCPT',
-        'message' => 'Recipient address is not permitted',
+        'code' => 553, 'dsn' => '5.1.5', 'status' => 400, 'command' => 'RCPT',
+        'message' => 'Recipient address is invalid',
     },
     'RCPT03' => {
         'json' => q(), 
@@ -127,7 +127,7 @@ my $jsondata = {
             'rcpt' => [
                 'haineko@'.$hostname,
             ],
-            'body' => 'ニャー',
+            'body' => '猫が出た'
         },
         'code' => 500, 'dsn' => '5.6.0', 'status' => 400, 'command' => 'DATA',
         'message' => 'Subject header is empty',
