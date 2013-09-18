@@ -18,9 +18,6 @@ my $f = [ qw|
     SMTPD/Relay/AmazonSES.pm
     SMTPD/Relay/Discard.pm
     SMTPD/Relay/ESMTP.pm
-    SMTPD/Relay/Haineko.pm
-    SMTPD/Relay/MailChimp.pm
-    SMTPD/Relay/Mirror.pm
     SMTPD/Relay/SendGrid.pm
     SMTPD/Relay.pm
     SMTPD/Response.pm
