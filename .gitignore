@@ -23,3 +23,6 @@ cover_db/
 /local/
 MYMETA.*
 /Haineko-*
+lib/Haineko/SMTPD/Relay/Haineko.pm
+lib/Haineko/SMTPD/Relay/MailChimp.pm
+lib/Haineko/SMTPD/Relay/Mirror.pm
