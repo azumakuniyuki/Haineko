@@ -1,5 +1,14 @@
 Revision history for Haineko
 
+0.1.0   Thu, 19 Sep 2013 16:22:22 +0900 (JST)
+    - Haineko is now PSGI application.
+    - Name space has been changed: Haineko::* => Haineko::SMTPD::*.
+    - Haineko::HTTPD is something like web application framework for Haineko.
+    - Haineko::JSON is a wrapper class for JSON parser/dumper.
+    - Haineko::Default is loaded when etc/haineko.cf does not exist.
+    - Haineko::Sendmail is a controller class for sending email.
+    - Haineko::Root is a controller class except URL: "/submit".
+
 0.0.4   Sun, 11 Aug 2013 17:22:22 +0900 (JST)
     - Implement Haineko::Relay::Discard, Mailer for discarding an email.
     - Implement Haineko::Relay::AmazonSES, for sending via Amazon SES API.
@@ -13,7 +22,7 @@ Revision history for Haineko
 0.0.2   Tue, 16 Jul 2013 05:22:22 +0900 (JST)
     - GET method support has been removed. Haineko only receive email data via 
       POST method and as a JSON format. 
-      Thank to @nekokak.
+      Thanks to @nekokak.
     - As follow as possible ``perl style'': indent style has been changed from 
       8 width tab to 4 space characters and position of left curly brace ``{'' 
       for beginning each block and subroutine is the end of a line. 
