@@ -78,8 +78,8 @@ A. Run at the source directory
     >   vi $CF
     > done
 
-    Run by the one of the followings:
-    $ sbin/hainekod -a libexec/haineko.psgi
+Run by the one of the followings:
+
     $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
 
 B. Build and install into /usr/local/haineko
@@ -90,7 +90,9 @@ B. Build and install into /usr/local/haineko
     $ sh configure --prefix=/path/to/dir (default=/usr/local/haineko)
 
     $ cpanm -L./dist --installdeps .
-      OR
+
+OR
+
     $ make depend
 
     $ make && make test && sudo make install
@@ -104,8 +106,8 @@ B. Build and install into /usr/local/haineko
     $ cd /usr/local/haineko
     $ export PERL5LIB=/usr/local/haineko/lib/perl5
 
-    Run by the one of the followings:
-    $ ./sbin/hainekod -a libexec/haineko.psgi
+Run by the one of the followings:
+
     $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
 
 C. Build and install into /usr/local
@@ -121,30 +123,43 @@ C. Build and install into /usr/local
     >   sudo vi $CF
     > done
 
-    Run by the one of the followings:
+Run by the one of the followings:
+
     $ cd /usr/local
-    $ ./sbin/hainekod -a libexec/haineko.psgi
     $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
 
+Starting Haineko server
+-----------------------
+
+### Use plackup command
+
+    $ plackup -o 127.0.0.1 -p 2794 -a libexec/haineko.psgi
+
+### Use wrapper script
+
+    $ sbin/hainekod -d -a libexec/haineko.psgi start
+
+When `start_server` command (Server::Starter) exists on your system, hainekod script
+will use the command as a server program.
 
 Configure files in /usr/local/haineko/etc
 -----------------------------------------
 Please have a look at the complete format description in each file listed at the
 followings. These files are read from Haineko as a YAML-formatted file.
 
-## etc/haineko.cf
+### etc/haineko.cf
 Main configuration file for Haineko. If you want to use other configuration file,
 set $HAINEKO\_CONF environment variable like 'export HAINEKO\_CONF=/etc/neko.cf'.
 
-## etc/mailertable
+### etc/mailertable
 Defines "mailer table": Recipient's domain part based routing table like the 
 same named file in Sendmail. This file is taken precedence over the routing 
 table defined in etc/sendermt for deciding the mailer.
 
-## etc/sendermt
+### etc/sendermt
 Defines "mailer table" which decide the mailer by sender's domain part.
 
-## etc/authinfo
+### etc/authinfo
 Provide credentials for client side authentication information. 
 Credentials defined in this file are used at relaying an email to external
 SMTP server.
@@ -152,10 +167,10 @@ SMTP server.
 __This file should be set secure permission: The only user who runs haineko server
 can read this file.__
 
-## etc/relayhosts
+### etc/relayhosts
 Permitted hosts or network table for relaying via /submit.
 
-## etc/recipients
+### etc/recipients
 Permitted envelope recipients and domains for relaying via /submit.
 
 Special notes for OpenBSD
