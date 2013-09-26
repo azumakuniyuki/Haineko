@@ -191,6 +191,11 @@ startserver() {
             #                              |_|                             
             export PLACKENV='development'
             export HAINEKO_DEBUG=1
+
+            if [ -f "${O_HAINEKOCONF}-debug" ]; then
+                export HAINEKO_CONF=${O_HAINEKOCONF}-debug
+                printmessage "Configuration file = ${O_HAINEKOCONF}-debug"
+            fi
             printmessage 'Development mode = 1'
             printmessage 'PLACKENV = development'
 
