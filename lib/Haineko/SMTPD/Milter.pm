@@ -211,7 +211,7 @@ Values defined in "header" field in HTTP-POSTed JSON data.
 
 =head2 B<body( I<Haineko::SMTPD::Response>, I< \EMAIL_BODY > )>
 
-head() method is for checking email body. Email body is passwd as an scalar
+body() method is for checking email body. Email body is passwd as an scalar
 reference.
 
 =head3 Arguments
@@ -223,7 +223,7 @@ by ->message( [ 'Error message' ]), and override SMTP status code by ->code(),
 override D.S.N value by ->dsn(). Default SMTP status codes is 554, dsn is 5.6.0
 in this method.
 
-=head4 B<EMAIL_HEADER>
+=head4 B<EMAIL_BODY>
 
 Value defined in "body" field in HTTP-POSTed JSON data.
 
