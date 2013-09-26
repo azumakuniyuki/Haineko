@@ -578,7 +578,7 @@ sub submit {
     XXFI_BODY: {
         # Act like xxfi_body() function
         #
-        @$milterlibs = @{ $serverconf->{'milter'}->{'head'} || [] };
+        @$milterlibs = @{ $serverconf->{'milter'}->{'body'} || [] };
         for my $e ( @{ Haineko::SMTPD::Milter->import( $milterlibs ) } ) {
             # Check the email body with body() method of each milter
             #
