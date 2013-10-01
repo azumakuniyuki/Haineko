@@ -62,6 +62,14 @@ Haineko relies on:
 * Time::Piece (core module from v5.9.5)
 * Try::Tiny
 
+Dependencies with Basic Authentication
+--------------------------------------
+
+Haineko with Basic Authentication at sending an email relies on the following modules:
+
+* Crypt::SaltedHash
+* Plack::MiddleWare::Auth::Basic
+
 Get the source
 --------------
 
@@ -164,6 +172,11 @@ Provide credentials for client side authentication information.
 Credentials defined in this file are used at relaying an email to external
 SMTP server.
 
+### etc/password
+Username and password pairs for basic authentication. Haineko require an username
+and a password at receiving an email if HAINEKO_AUTH environment variable was set.
+The value of HAINEKO_AUTH environment variable is the path to password file.
+
 __This file should be set secure permission: The only user who runs haineko server
 can read this file.__
 
@@ -172,6 +185,33 @@ Permitted hosts or network table for relaying via /submit.
 
 ### etc/recipients
 Permitted envelope recipients and domains for relaying via /submit.
+
+Environment Variables
+---------------------
+
+### HAINEKO_ROOT
+
+Haineko decides the root directory by HAINEKO_ROOT or the result of `pwd` command,
+and read haineko.cf from HAINEKO_ROOT/etc/haineko.cf if HAINEKO_CONF environment
+variable is not defined.
+
+### HAINEKO_CONF
+
+The value of HAINEKO_CONF is the path to __haineko.cf__ file. If this variable is
+not defined, Haineko finds the file from HAINEKO_ROOT/etc directory. This variable
+can be set with -C /path/to/haineko.cf at sbin/hainekod script.
+
+### HAINEKO_AUTH
+
+Haineko requires Basic-Authentication at connecting Haineko server when HAINEK_AUTH
+environment variable is set. The value of HAINEKO_AUTH should be the path to the
+password file such as 'export HAINEKO_AUTH=/path/to/password'. This variable can be
+set with -A option of sbin/hainekod script.
+
+### HAINEKO_DEBUG
+
+Haineko runs on debug(development) mode when this variable is set. -d option of
+sbin/hainekod turns on debug mode.
 
 Special notes for OpenBSD
 -------------------------
