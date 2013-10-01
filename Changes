@@ -1,5 +1,13 @@
 Revision history for Haineko
 
+0.1.1   Tue,  1 Oct 2013 15:22:22 +0900 (JST)
+    - New option ``-A'' of sbin/hainekod and HAINEKO_AUTH environment variable 
+      for using Basic Authentication at connecting Haineko server.
+    - Haineko::HTTPD::Auth is authenticator for Basic Authentication.
+    - etc/password is a password database for Basic Authentication.
+    - Fix hash key name for calling milter at XXFI_BODY block in Haineko::Sendmail.
+    - Register Haineko::SMTPD::Milter::Nyaa as an example.
+
 0.1.0   Thu, 19 Sep 2013 16:22:22 +0900 (JST)
     - Haineko is now PSGI application.
     - Name space has been changed: Haineko::* => Haineko::SMTPD::*.
