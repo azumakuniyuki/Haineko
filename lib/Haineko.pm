@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use parent 'Haineko::HTTPD';
 
-our $VERSION = '0.1.0';
+our $VERSION = '0.1.1';
 our $SYSNAME = 'Haineko';
 
 sub startup {
@@ -118,6 +118,39 @@ To send email via Haineko, POST email data as a JSON format like the following:
 =head2 etc/recipients
 
     Permitted envelope recipients and domains for relaying via /submit.
+
+=head2 etc/password
+
+    Username and password pairs for basic authentication. Haineko require an username
+    and a password at receiving an email if HAINEKO_AUTH environment variable was set.
+    The value of HAINEKO_AUTH environment variable is the path to password file.
+
+
+=head1 ENVIRONMENT VARIABLES
+
+=head2 HAINEKO_ROOT
+
+    Haineko decides the root directory by HAINEKO_ROOT or the result of `pwd` command,
+    and read haineko.cf from HAINEKO_ROOT/etc/haineko.cf if HAINEKO_CONF environment
+    variable is not defined.
+
+=head2 HAINEKO_CONF
+
+    The value of HAINEKO_CONF is the path to __haineko.cf__ file. If this variable is
+    not defined, Haineko finds the file from HAINEKO_ROOT/etc directory. This variable
+    can be set with -C /path/to/haineko.cf at sbin/hainekod script.
+
+=head2 HAINEKO_AUTH
+
+    Haineko requires Basic-Authentication at connecting Haineko server when HAINEK_AUTH
+    environment variable is set. The value of HAINEKO_AUTH should be the path to the
+    password file such as 'export HAINEKO_AUTH=/path/to/password'. This variable can be
+    set with -A option of sbin/hainekod script.
+
+=head2 HAINEKO_DEBUG
+
+    Haineko runs on debug(development) mode when this variable is set. -d option of
+    sbin/hainekod turns on debug mode.
 
 =head1 REPOSITORY
 
