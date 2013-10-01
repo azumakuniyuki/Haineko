@@ -36,8 +36,10 @@ O_PLACKRUNNER="`which plackup`"
 O_PIDFILENAME="$SERVERROOT/run/$SYSTEMNAME.pid"
 O_SERVERSTATS="$SERVERROOT/run/$SYSTEMNAME.status"
 O_HAINEKOCONF="$SERVERROOT/etc/haineko.cf"          # -C
+O_HAINEKOAUTH="$SERVERROOT/etc/password"            # -A
 O_HAINEKOPSGI="$SERVERROOT/libexec/haineko.psgi"    # -a: -a option argument of plackup
 
+O_BASICAUTHEN='0'           # -A: Require basic authentication
 O_DEVELOPMENT='0'           # -d: Development mode, PLACK_ENV=development
 O_HANDLERPROG=''            # -s: -s option argument of plackup
 O_LISTENINGON='127.0.0.1'   # -h: -o option argument of plackup
@@ -191,6 +193,14 @@ startserver() {
             #                              |_|                             
             export PLACKENV='development'
             export HAINEKO_DEBUG=1
+
+            if [ $O_BASICAUTHEN -eq 1 ]; then
+                if [ -f "${O_HAINEKOAUTH}-debug" ]; then
+                    O_HAINEKOAUTH="${O_HAINEKOAUTH}-debug"
+                fi
+                export HAINEKO_AUTH=$O_HAINEKOAUTH
+                printmessage "Password file = ${HAINEKO_AUTH}"
+            fi
 
             if [ -f "${O_HAINEKOCONF}-debug" ]; then
                 export HAINEKO_CONF=${O_HAINEKOCONF}-debug
@@ -347,6 +357,9 @@ help() {
     echo '     status       : Show processes'
     echo
     echo '  * Daemon options'
+    echo '     -A           : Require Basic Authentication. If this option is specified,'
+    echo "                    $O_HAINEKOAUTH will be used as a password file."
+    echo '                    Default is disabled'
     echo '     -a <app>     : Path to haineko.psgi, default = '$O_HAINEKOPSGI
     echo '     -C <conf>    : Path to haineko.cf, default = '$O_HAINEKOCONF
     echo '     -d           : Development mode: PLACK_ENV=development'
@@ -367,8 +380,11 @@ help() {
 # | (_) | |_) | |_| | (_) | | | \__ \
 #  \___/| .__/ \__|_|\___/|_| |_|___/
 #       |_|                          
-while getopts ":a:C:dHh:p:s:Vw:" opt; do
+while getopts ":Aa:C:dHh:p:s:Vw:" opt; do
     case $opt in
+        A)
+            O_BASICAUTHEN=1
+            ;;
         a)
             O_HAINEKOPSGI="$OPTARG"
             ;;
