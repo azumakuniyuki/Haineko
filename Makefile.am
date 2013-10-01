@@ -1,7 +1,7 @@
 # $Id: Makefile.am,v 1.12.2.2 2011/06/20 03:43:39 ak Exp $
 # Copyright (C) 2013 azumakuniyuki
 SYSTEMNAME = Haineko
-SYSVERSION = 0.1.0
+SYSVERSION = 0.1.1
 SUBDIRS = etc lib libexec sbin
 
 .PHONY: clean
@@ -52,7 +52,7 @@ message:
 	@echo "     > plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi"
 	@echo "     OR"
 	@echo "     > ./sbin/hainekod help"
-	@echo "  3. Connect http://127.0.0.1:2794"
+	@echo "  3. Connect http://127.0.0.1:2794/submit"
 	@echo
 	@echo "-----------------------------------------------------------------------------"
 	@echo " To show this screen, type 'make message' and hit 'Return' key"
