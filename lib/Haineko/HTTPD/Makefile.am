@@ -3,7 +3,7 @@
 distdir = $(BUILDROOT)/dist/lib/Haineko/HTTPD
 instdir = @libdir@/Haineko/HTTPD
 pkgdatadir = @libdir@/Haineko/HTTPD
-pkgdata_DATA = Request.pm Response.pm Router.pm
+pkgdata_DATA = Auth.pm Request.pm Response.pm Router.pm
 
 .PHONY: clean
 all-am:
