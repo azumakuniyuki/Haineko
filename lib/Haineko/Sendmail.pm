@@ -23,7 +23,8 @@ sub submit {
     my $xforwarded = [ split( ',', $httpd->req->header('X-Forwarded-For') || q() ) ];
     my $remoteaddr = pop @$xforwarded || $httpd->req->address // undef;
     my $remoteport = $httpd->req->env->{'REMOTE_PORT'} // undef;
-    my $remotehost = $httpd->req->env->{'REMOTE_HOST'} // undef,
+    my $remotehost = $httpd->req->env->{'REMOTE_HOST'} // undef;
+    my $remoteuser = $httpd->req->env->{'REMOTE_USER'} // undef;
     my $useragent1 = $httpd->req->user_agent // undef;
 
     # Syslog object
@@ -77,6 +78,7 @@ sub submit {
         # to relay.
         $ip4network //= Net::CIDR::Lite->new( '127.0.0.1/32' );
         $ip4network->add( '127.0.0.1/32' ) unless $ip4network->list;
+        $relayhosts->{'open-relay'} = 1 if $remoteuser;
 
         if( not $relayhosts->{'open-relay'} ) {
             # When the value of ``openrelay'' is 0 in etc/relayhosts,
@@ -356,6 +358,10 @@ sub submit {
                 if( $remoteaddr eq '127.0.0.1' && $remoteaddr eq $httpd->host ) {
                     # Allow relaying when the value of REMOTE_ADDR is equal to 
                     # the value value SERVER_NAME and the value is 127.0.0.1
+                    $accessconf->{'open-relay'} = 1;
+
+                } elsif( $remoteuser ) {
+                    # Turn on open-relay if REMOTE_USER environment variable exists.
                     $accessconf->{'open-relay'} = 1;
                 }
 
