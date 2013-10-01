@@ -8,13 +8,15 @@ my $f = [ qw|
     Root.pm
     Sendmail.pm
     HTTPD.pm
+    HTTPD/Auth.pm
     HTTPD/Request.pm
     HTTPD/Response.pm
     HTTPD/Router.pm
     SMTPD/Address.pm
     SMTPD/Greeting.pm
-    SMTPD/Milter/Example.pm
     SMTPD/Milter.pm
+    SMTPD/Milter/Example.pm
+    SMTPD/Milter/Nyaa.pm
     SMTPD/Relay/AmazonSES.pm
     SMTPD/Relay/Discard.pm
     SMTPD/Relay/ESMTP.pm
