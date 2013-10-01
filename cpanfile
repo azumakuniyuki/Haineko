@@ -1,6 +1,7 @@
 requires 'perl', '5.010001';
 requires 'Authen::SASL', '2.16';
 requires 'Class::Accessor::Lite', '0.05';
+requires 'Crypt::SaltedHash', '0.05';
 requires 'Digest::SHA', '5.61';
 requires 'Email::MIME', '1.910';
 requires 'Encode', '2.42';
@@ -23,12 +24,12 @@ requires 'Time::Piece', '1.20';
 requires 'XML::Simple', '2.20';
 
 on test => sub {
-	requires 'Test::More', '0.98';
+    requires 'Test::More', '0.98';
     requires 'Plack::Test', '';
     requires 'HTTP::Request', '6.00';
-    requires 'HTTP::Request::Common', '6.03';
 };
 
 on develop => sub {
-	requires 'Test::UsedModules', '0.03';
+    requires 'Test::UsedModules', '0.03';
+    requires 'Plack::Middleware::Auth::Basic', '';
 };
