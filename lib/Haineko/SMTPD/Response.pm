@@ -272,6 +272,7 @@ sub p {
         'dsn'     => undef,
         'code'    => $argvs->{'code'} // undef,
         'error'   => 0,
+        'mailer'  => $argvs->{'mailer'} // undef,
         'message' => [],
         'command' => uc( $argvs->{'command'} // q() ),
     };
