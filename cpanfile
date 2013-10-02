@@ -31,5 +31,6 @@ on test => sub {
 
 on develop => sub {
     requires 'Test::UsedModules', '0.03';
+    requires 'IO::Socket::INET', '1.31';
     requires 'Plack::Middleware::Auth::Basic', '';
 };
