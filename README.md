@@ -150,8 +150,8 @@ Starting Haineko server
 When `start_server` command (Server::Starter) exists on your system, hainekod script
 will use the command as a server program.
 
-Configure files in /usr/local/haineko/etc
------------------------------------------
+Configuration files in /usr/local/haineko/etc
+---------------------------------------------
 Please have a look at the complete format description in each file listed at the
 followings. These files are read from Haineko as a YAML-formatted file.
 
@@ -185,6 +185,10 @@ Permitted hosts or network table for relaying via /submit.
 
 ### etc/recipients
 Permitted envelope recipients and domains for relaying via /submit.
+
+### Configuration data on the web
+
+/conf display Haineko configuration data but it can be accessed from 127.0.0.1
 
 Environment Variables
 ---------------------

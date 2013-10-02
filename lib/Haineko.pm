@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use parent 'Haineko::HTTPD';
 
-our $VERSION = '0.1.1';
+our $VERSION = '0.1.2';
 our $SYSNAME = 'Haineko';
 
 sub startup {
@@ -125,6 +125,12 @@ To send email via Haineko, POST email data as a JSON format like the following:
     and a password at receiving an email if HAINEKO_AUTH environment variable was set.
     The value of HAINEKO_AUTH environment variable is the path to password file.
 
+=head2 URL
+
+    http://127.0.0.1:2794/conf
+
+    /conf can be accessed from 127.0.0.1 and display Haineko configuration data as a
+    JSON.
 
 =head1 ENVIRONMENT VARIABLES
 
