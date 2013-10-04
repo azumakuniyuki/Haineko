@@ -105,7 +105,7 @@ sub sendmail {
             'command' => 'POST',
         };
 
-        eval { $htcontents = JSON::Syck::Load( $htresponse->body ) };
+        eval { $htcontents = Haineko::JSON->loadjson( $htresponse->body ) };
 
         while(1) {
             last if $@;
@@ -173,7 +173,7 @@ sub getbounce {
         my $htcontents = undef;
         my $nekoparams = undef;
 
-        eval { $htcontents = JSON::Syck::Load( $htresponse->body ) };
+        eval { $htcontents = Haineko::JSON->loadjson( $htresponse->body ) };
 
         while(1) {
             last if $@;
@@ -288,6 +288,10 @@ getbounce() retrieve bounced records using SendGrid API.
                               ],
                  'command' => 'POST'
                }, 'Haineko::SMTPD::Response' );
+
+=head2 SEE ALSO
+
+http://sendgrid.com/docs/API_Reference/Web_API/
 
 =head1 REPOSITORY
 
