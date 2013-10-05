@@ -37,6 +37,10 @@ my $nekotest = sub {
     for my $e ( 'sendermt', 'authinfo', 'relayhosts', 'recipients', 'mailertable' ) {
         isa_ok $contents->{ $e }, 'HASH';
     }
+
+    if( defined $ENV{'HAINEKO_AUTH'} && -r -f -s $ENV{'HAINEKO_AUTH'} ) {
+        isa_ok $contents->{'password'}, 'HASH';
+    }
 };
 test_psgi $nekochan, $nekotest;
 done_testing;
