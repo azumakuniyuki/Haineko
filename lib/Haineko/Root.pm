@@ -85,6 +85,14 @@ sub info {
                 }
             }
 
+            if( defined $ENV{'HAINEKO_AUTH'} && -f -r -s $ENV{'HAINEKO_AUTH'} ) {
+                # Load password file
+                $configdata->{'password'} = {
+                    'path' => $ENV{'HAINEKO_AUTH'},
+                    'data' => Haineko::JSON->loadfile( $ENV{'HAINEKO_AUTH'} ),
+                };
+            }
+
             return $httpd->res->json( 200, Haineko::JSON->dumpjson( $configdata ) );
         }
 
