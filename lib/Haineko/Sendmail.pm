@@ -458,11 +458,8 @@ sub submit {
     } # End of ``DATA''
 
 
-    my $timestamp1 = localtime Time::Piece->new;
-    my $methodargv = {};
-
     # Create a new SMTP Session
-    $methodargv = { 
+    my $methodargv = { 
         'queueid'    => $queueident,
         'referer'    => $httpd->req->referer // q(),
         'addresser'  => $mail,
@@ -473,6 +470,7 @@ sub submit {
     };
     my $neko = Haineko::SMTPD::Session->new( %$methodargv );
 
+    my $timestamp1 = localtime Time::Piece->new;
     my $attributes = { 'content_type' => 'text/plain' };
     my $mailheader = {
         'Date'       => sprintf( "%s", $timestamp1->strftime ),
