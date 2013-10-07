@@ -1,9 +1,11 @@
 package Haineko::SMTPD::Relay;
 use strict;
 use warnings;
+use Time::Piece;
 use Class::Accessor::Lite;
 
 my $rwaccessors = [
+    'time',     # (Time::Piece)
     'mail',     # (String) Envelope from
     'rcpt',     # (String) Envelope to
     'head',     # (ArrayRef) Email headers
