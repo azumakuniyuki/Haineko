@@ -39,6 +39,9 @@ INSTANCE_METHODS: {
     my $r = undef;
     my $m = undef;
 
+    isa_ok $o->time, 'Time::Piece';
+    ok $o->time, '->time => '.$o->time->epoch;
+
     is $o->mail, $methodargv->{'mail'}, '->mail => '.$o->mail;
     is $o->rcpt, $methodargv->{'rcpt'}, '->rcpt => '.$o->rcpt;
     is $o->body, $methodargv->{'body'}, '->body => '.$o->body;

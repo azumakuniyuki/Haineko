@@ -21,7 +21,10 @@ my $methodargv = {
     'attr' => {},
 };
 my $testobject = $modulename->new();
-my $properties = [ qw/mail rcpt head body host port attr mxrr auth timeout username password/ ];
+my $properties = [ qw/
+    time mail rcpt head body host port attr 
+    mxrr auth timeout username password
+/ ];
 
 isa_ok $testobject, $modulename;
 can_ok $modulename, @$pkgmethods;
