@@ -2,15 +2,17 @@ package Haineko::SMTPD::Relay::Discard;
 use parent 'Haineko::SMTPD::Relay';
 use strict;
 use warnings;
+use Time::Piece;
 use Haineko::SMTPD::Response;
 
 sub new {
     my $class = shift;
     my $argvs = { @_ };
 
-    $argvs->{'retry'} = 0;
-    $argvs->{'sleep'} = 0;
-    $argvs->{'timeout'} = 0;
+    $argvs->{'time'}    ||= Time::Piece->new;
+    $argvs->{'retry'}     = 0;
+    $argvs->{'sleep'}     = 0;
+    $argvs->{'timeout'}   = 0;
     return bless $argvs, __PACKAGE__;
 }
 

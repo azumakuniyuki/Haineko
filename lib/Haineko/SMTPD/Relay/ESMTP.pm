@@ -1,16 +1,20 @@
 package Haineko::SMTPD::Relay::ESMTP;
 use parent 'Haineko::SMTPD::Relay';
+use strict;
+use warnings;
 use Net::SMTP;
 use Module::Load;
 use Haineko::SMTPD::Response;
 use Haineko::SMTPD::Greeting;
 use Email::MIME;
+use Time::Piece;
 use Encode;
 
 sub new {
     my $class = shift;
     my $argvs = { @_ };
 
+    $argvs->{'time'}    ||= Time::Piece->new;
     $argvs->{'sleep'}   ||= 5;
     $argvs->{'timeout'} ||= 30;
     return bless $argvs, __PACKAGE__;

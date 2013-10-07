@@ -17,7 +17,8 @@ sub new {
     my $class = shift;
     my $argvs = { @_ };
 
-    $argvs->{'sleep'} ||= 5;
+    $argvs->{'time'}    ||= Time::Piece->new;
+    $argvs->{'sleep'}   ||= 5;
     $argvs->{'timeout'} ||= 30;
     return bless $argvs, __PACKAGE__;
 }

@@ -8,10 +8,14 @@ use Haineko::JSON;
 use Haineko::SMTPD::Response;
 use Encode;
 
+use constant 'SENDGRID_ENDPOINT' => 'sendgrid.com/api';
+use constant 'SENDGRID_APIVERSION' => '';
+
 sub new {
     my $class = shift;
     my $argvs = { @_ };
 
+    $argvs->{'time'}    ||= Time::Piece->new;
     $argvs->{'sleep'}   ||= 5;
     $argvs->{'timeout'} ||= 30;
     return bless $argvs, __PACKAGE__;
@@ -33,7 +37,7 @@ sub sendmail {
         return 0
     }
 
-    my $sendgridif = 'https://sendgrid.com/api/mail.send.json';
+    my $sendgridep = sprintf( "https://%s/mail.send.json", SENDGRID_ENDPOINT );
     my $parameters = {
         'to'        => $self->{'rcpt'},
         'from'      => $self->{'mail'},
@@ -76,7 +80,7 @@ sub sendmail {
     my $smtpstatus = 0;
 
     my $sendmailto = sub {
-        $htresponse = $httpclient->post( $sendgridif, undef, $parameters );
+        $htresponse = $httpclient->post( $sendgridep, undef, $parameters );
 
         return 0 unless defined $htresponse;
         return 0 unless $htresponse->is_success;
@@ -127,7 +131,7 @@ sub getbounce {
 
     return 0 if( ! $self->{'username'} || ! $self->{'password'} );
 
-    my $sendgridif = 'https://sendgrid.com/api/bounces.get.json';
+    my $sendgridep = sprintf( "https://%s/bounces.get.json", SENDGRID_ENDPOINT );
     my $timepiece1 = gmtime;
     my $yesterday1 = Time::Piece->new( $timepiece1->epoch - 86400 );
     my $parameters = {
@@ -151,7 +155,7 @@ sub getbounce {
     my $httpstatus = 0;
 
     my $getbounced = sub {
-        $htresponse = $httpclient->post( $sendgridif, undef, $parameters );
+        $htresponse = $httpclient->post( $sendgridep, undef, $parameters );
 
         return 0 unless defined $htresponse;
         return 0 unless $htresponse->is_success;
