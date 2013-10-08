@@ -8,9 +8,9 @@
 # |_| |_|\__,_|_|_| |_|\___|_|\_\___/ \__,_|
 #                                           
 readonly SYSTEMNAME='haineko'
-readonly SYSVERSION="0.1.0"
+readonly SYSVERSION="0.1.2"
 readonly SERVERPROG='libexec/haineko.psgi'
-readonly SCRIPTNAME="`basename $0`" # Called name.
+readonly SCRIPTNAME="`basename $0`"
 readonly SCRIPTROOT="`dirname $0`/.."
 readonly SERVERROOT="`(cd $SCRIPTROOT && pwd)`"
 readonly SERVERPATH="$SERVERROOT/bin:$SERVERROOT/sbin"
