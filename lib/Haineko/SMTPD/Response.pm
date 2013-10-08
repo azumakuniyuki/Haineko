@@ -65,6 +65,11 @@ my $Replies = {
             'code' => 500,
             'message' => [ 'Security features not supported' ],
         },
+        'auth-required' => {
+            'dsn' => '5.7.1',
+            'code' => 500,
+            'message' => [ 'Access denied. Proper authentication required.' ],
+        },
         'access-denied' => {
             'dsn' => '5.7.1',
             'code' => 500,
