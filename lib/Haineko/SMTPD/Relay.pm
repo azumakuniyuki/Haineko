@@ -1,7 +1,6 @@
 package Haineko::SMTPD::Relay;
 use strict;
 use warnings;
-use Time::Piece;
 use Class::Accessor::Lite;
 
 my $rwaccessors = [
