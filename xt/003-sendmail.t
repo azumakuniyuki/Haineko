@@ -13,8 +13,8 @@ my $serverport = 2794;
 my $nekosocket = undef;
 my $htrequests = [];
 my $emailfiles = [
-    './tmp/make-author-test-1.json',
-    './tmp/make-author-test-2.json',
+    'tmp/make-author-test-1.json',
+    'tmp/make-author-test-2.json',
 ];
 my $methodargv = { 
     'PeerAddr' => $servername, 
@@ -22,11 +22,16 @@ my $methodargv = {
     'proto'    => 'tcp',
 };
 
+my $n = 0;
+my $p = undef;
 for my $e ( @$emailfiles ) {
 
-    ok( -f $e, '-f '.$e );
-    ok( -r $e, '-r '.$e );
-    ok( -s $e, '-s '.$e );
+    $n++;
+    $p = sprintf( "[%02d] ", $n );
+    $e = '../../'.$e unless -f $e;
+    ok( -f $e, $p.'-f '.$e );
+    ok( -r $e, $p.'-r '.$e );
+    ok( -s $e, $p.'-s '.$e );
 
     my $t = Time::Piece->new;
     my $c = 0;
@@ -41,7 +46,7 @@ for my $e ( @$emailfiles ) {
     $x->{'header'}->{'subject'} = sprintf( 
         "MAKE TEST: [%s %s] %s", $t->ymd, $t->hms, $x->{'header'}->{'subject'} );
     $y = Haineko::JSON->dumpjson( $x );
-    ok( length $y, 'Haineko::JSON->dumpjson' );
+    ok( length $y, $p.'Haineko::JSON->dumpjson' );
 
     $htrequests = [];
     push @$htrequests, sprintf( "POST /submit HTTP/1.0\n" );
@@ -55,8 +60,8 @@ for my $e ( @$emailfiles ) {
     select STDOUT;
     isa_ok( $nekosocket, 'IO::Socket::INET' );
 
-    ok( $nekosocket->print( join( '', @$htrequests ) ), $e.' => /submit' );
-    like( $nekosocket->getline, qr|\AHTTP/1.0 200 OK|, '200 OK' );
+    ok( $nekosocket->print( join( '', @$htrequests ) ), $p.$e.' => /submit' );
+    like( $nekosocket->getline, qr|\AHTTP/1.0 200 OK|, $p.'200 OK' );
 
     while( my $r = $nekosocket->getline ) {
         $r =~ s/\r\n//g; chomp $r;
@@ -103,43 +108,43 @@ for my $e ( @$emailfiles ) {
                 $j = Haineko::JSON->loadjson( $r );
                 isa_ok( $j, 'HASH' );
 
-                is( $j->{'smtp.stage'}, 0, 'smtp.stage = 0' );
-                ok( $j->{'smtp.queueid'}, 'smtp.queueid = '.$j->{'smtp.queueid'} );
-                is( $j->{'smtp.referer'}, undef, 'smtp.referer = undef' );
-                is( $j->{'smtp.useragent'}, undef, 'smtp.useragent = undef' );
-                is( $j->{'smtp.addresser'}, $x->{'mail'}, 'smtp.addresser = '.$x->{'mail'} );
-                is( $j->{'smtp.remoteaddr'}, '127.0.0.1', 'smtp.remoteaddr = 127.0.0.1' );
-                ok( $j->{'smtp.remoteport'}, 'smtp.remoteport = '.$j->{'smtp.remoteport'} );
+                is( $j->{'smtp.stage'}, 0, $p.'smtp.stage = 0' );
+                ok( $j->{'smtp.queueid'}, $p.'smtp.queueid = '.$j->{'smtp.queueid'} );
+                is( $j->{'smtp.referer'}, undef, $p.'smtp.referer = undef' );
+                is( $j->{'smtp.useragent'}, undef, $p.'smtp.useragent = undef' );
+                is( $j->{'smtp.addresser'}, $x->{'mail'}, $p.'smtp.addresser = '.$x->{'mail'} );
+                is( $j->{'smtp.remoteaddr'}, '127.0.0.1', $p.'smtp.remoteaddr = 127.0.0.1' );
+                ok( $j->{'smtp.remoteport'}, $p.'smtp.remoteport = '.$j->{'smtp.remoteport'} );
 
                 $k = 'smtp.response';
                 $s = $j->{ $k };
                 isa_ok( $s, 'HASH' );
                 isa_ok( $s->{'message'}, 'ARRAY' );
-                is( $s->{'dsn'}, '2.0.0', sprintf( "%s->dsn = %s", $k, '2.0.0' ) );
-                ok( $s->{'code'}, sprintf( "%s->code = %d", $k, $s->{'code'} ) );
-                ok( $s->{'host'}, sprintf( "%s->host = %s", $k, $s->{'host'} ) );
-                is( $s->{'error'}, 0, sprintf( "%s->error = %d", $k, 0 ) );
-                ok( $s->{'mailer'}, sprintf( "%s->mailer = %s", $k, ( $s->{'mailer'} || undef ) ) );
-                ok( $s->{'command'}, sprintf( "%s->command = %s", $k, $s->{'command'} ) );
-                ok( $s->{'message'}->[0], sprintf( "%s->message->[0] = %s", $k, $s->{'message'}->[0] ) );
+                is( $s->{'dsn'}, '2.0.0', $p.sprintf( "%s->dsn = %s", $k, '2.0.0' ) );
+                ok( $s->{'code'}, $p.sprintf( "%s->code = %d", $k, $s->{'code'} ) );
+                ok( $s->{'host'}, $p.sprintf( "%s->host = %s", $k, $s->{'host'} ) );
+                is( $s->{'error'}, 0, $p.sprintf( "%s->error = %d", $k, 0 ) );
+                ok( $s->{'mailer'}, $p.sprintf( "%s->mailer = %s", $k, ( $s->{'mailer'} || undef ) ) );
+                ok( $s->{'command'}, $p.sprintf( "%s->command = %s", $k, $s->{'command'} ) );
+                ok( $s->{'message'}->[0], $p.sprintf( "%s->message->[0] = %s", $k, $s->{'message'}->[0] ) );
 
 
                 $k = 'smtp.timestamp';
                 $s = $j->{ $k };
                 isa_ok( $s, 'HASH' );
-                ok( $s->{'datetime'}, sprintf( "%s->datetime = %s", $k, $s->{'datetime'} ) );
-                ok( $s->{'unixtime'}, sprintf( "%s->unixtime = %d", $k, $s->{'unixtime'} ) );
+                ok( $s->{'datetime'}, $p.sprintf( "%s->datetime = %s", $k, $s->{'datetime'} ) );
+                ok( $s->{'unixtime'}, $p.sprintf( "%s->unixtime = %d", $k, $s->{'unixtime'} ) );
                 
                 $k = 'smtp.recipient';
                 $s = $j->{ $k };
                 isa_ok( $s, 'ARRAY' );
                 for my $w ( @$s ) {
-                    ok( $w, sprintf( "%s = %s", $k, $w ) );
+                    ok( $w, $p.sprintf( "%s = %s", $k, $w ) );
                 }
 
             } else {
                 # Header
-                like( $r, qr/:/, 'HTTP-HEADER => '.$r );
+                like( $r, qr/:/, $p.'HTTP-HEADER => '.$r );
             }
         }
     }
