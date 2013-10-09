@@ -34,6 +34,7 @@
       },
       "develop" : {
          "requires" : {
+            "IO::Socket::INET" : "1.31",
             "Plack::Middleware::Auth::Basic" : "0",
             "Test::CPAN::Meta" : "0",
             "Test::MinimumVersion" : "0.10108",
@@ -79,7 +80,7 @@
       }
    },
    "release_status" : "unstable",
-   "version" : "0.1.1",
+   "version" : "0.1.2",
    "x_contributors" : [
       "azumakuniyuki <perl.org@azumakuniyuki.org>"
    ]
