@@ -27,6 +27,7 @@ Supported email clouds to relay using Web API
 
 * [SendGrid](http://sendgrid.com) - lib/Haineko/SMTPD/Relay/SendGrid.pm
 * [Amazon SES](http://aws.amazon.com/ses/) - lib/Haineko/SMTPD/Relay/AmazonSES.pm
+* [Mandrill](http://mandrill.com) - lib/Haineko/SMTPD/Relay/Mandrill.pm
 
 
 How to build, configure and run
@@ -217,7 +218,13 @@ set with -A option of sbin/hainekod script.
 Haineko runs on debug(development) mode when this variable is set. -d option of
 sbin/hainekod turns on debug mode.
 
-Special notes for OpenBSD
+SAMPLE CODE IN EACH LANGUAGE
+----------------------------
+
+Sample codes in each language are available in eg/ directory: Perl, Python Ruby,
+PHP and shell script.
+
+SPECIAL NOTES FOR OpenBSD
 -------------------------
 If you look error messages like following at running configure,
 
