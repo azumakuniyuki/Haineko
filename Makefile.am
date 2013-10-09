@@ -1,7 +1,7 @@
 # $Id: Makefile.am,v 1.12.2.2 2011/06/20 03:43:39 ak Exp $
 # Copyright (C) 2013 azumakuniyuki
 SYSTEMNAME = Haineko
-SYSVERSION = 0.1.1
+SYSVERSION = 0.1.2
 SUBDIRS = etc lib libexec sbin
 
 .PHONY: clean

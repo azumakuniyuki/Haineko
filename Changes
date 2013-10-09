@@ -1,5 +1,9 @@
 Revision history for Haineko
 
+0.1.2   Wed,  9 Oct 2013 08:22:22 +0900 (JST)
+    - Basic Authentication returns error message as a JSON.
+    - Haineko::SMTPD::Relay::Mandrill, for sending via Mandrill API.
+
 0.1.1   Tue,  1 Oct 2013 15:22:22 +0900 (JST)
     - New option ``-A'' of sbin/hainekod and HAINEKO_AUTH environment variable 
       for using Basic Authentication at connecting Haineko server.
