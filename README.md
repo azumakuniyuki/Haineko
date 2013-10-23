@@ -173,11 +173,6 @@ Provide credentials for client side authentication information.
 Credentials defined in this file are used at relaying an email to external
 SMTP server.
 
-### etc/password
-Username and password pairs for basic authentication. Haineko require an username
-and a password at receiving an email if HAINEKO_AUTH environment variable was set.
-The value of HAINEKO_AUTH environment variable is the path to password file.
-
 __This file should be set secure permission: The only user who runs haineko server
 can read this file.__
 
@@ -186,6 +181,14 @@ Permitted hosts or network table for relaying via /submit.
 
 ### etc/recipients
 Permitted envelope recipients and domains for relaying via /submit.
+
+### etc/password
+Username and password pairs for basic authentication. Haineko require an username
+and a password at receiving an email if HAINEKO_AUTH environment variable was set.
+The value of HAINEKO_AUTH environment variable is the path to password file.
+
+__This file should be set secure permission: The only user who runs haineko server
+can read this file.__
 
 ### Configuration data on the web
 
