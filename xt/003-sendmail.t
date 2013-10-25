@@ -24,12 +24,13 @@ my $methodargv = {
 
 my $n = 0;
 my $p = undef;
-for my $e ( @$emailfiles ) {
 
+for my $e ( @$emailfiles ) {
     $n++;
     $p = sprintf( "[%02d] ", $n );
     $e = '../../'.$e unless -f $e;
-    ok( -f $e, $p.'-f '.$e );
+
+    next unless -f $e;
     ok( -r $e, $p.'-r '.$e );
     ok( -s $e, $p.'-s '.$e );
 
