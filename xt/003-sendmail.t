@@ -153,5 +153,6 @@ for my $e ( @$emailfiles ) {
     $nekosocket->close();
 }
 
+ok(1);
 done_testing();
 __END__
