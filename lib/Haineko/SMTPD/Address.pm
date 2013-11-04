@@ -1,4 +1,5 @@
 package Haineko::SMTPD::Address;
+use v5.10;
 use strict;
 use warnings;
 use Class::Accessor::Lite;
@@ -19,10 +20,10 @@ sub new {
 
     return undef unless defined $argvs->{'address'};
 
-    if( $argvs->{'address'} =~ m{\A([^@]+)[@]([^@]+)\z} ) {
+    if( $argvs->{'address'} =~ m{\A(?<localpart>[^@]+)[@](?<domainpart>[^@]+)\z} ) {
 
-        $argvs->{'user'} = lc $1;
-        $argvs->{'host'} = lc $2;
+        $argvs->{'user'} = lc $+{'localpart'};
+        $argvs->{'host'} = lc $+{'domainpart'};
 
         map { $argvs->{ $_ } =~ y{`'"<>}{}d } keys %$argvs;
         $argvs->{'address'} = sprintf( "%s@%s", $argvs->{'user'}, $argvs->{'host'} );
@@ -43,7 +44,7 @@ sub canonify {
 
     # "=?ISO-2022-JP?B?....?="<user@example.jp>
     # no space character between " and < .
-    $email =~ s{(.)"<}{$1" <};
+    $email =~ s/(?<C>.)"</$+{'C'}" </;
 
     my $canonified = q();
     my $addressset = [];

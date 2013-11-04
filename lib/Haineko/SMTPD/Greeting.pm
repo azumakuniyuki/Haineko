@@ -37,14 +37,14 @@ sub new {
     for my $e ( @$greet ) {
         chomp $e;
 
-        if( $e =~ /SIZE (\d+)/ ) {
+        if( $e =~ /SIZE (?<SIZE>\d+)/ ) {
             # 250-SIZE 26214400
-            $feats->{'size'} = int $1;
+            $feats->{'size'} = int $+{'SIZE'};
 
-        } elsif( $e =~ /AUTH (.+)\z/ ) {
+        } elsif( $e =~ /AUTH (?<MECHS>.+)\z/ ) {
             # 250-AUTH LOGIN PLAIN CRAM-MD5
             $feats->{'auth'} = 1;
-            $feats->{'mechanism'} = [ split( ' ', $1 ) ];
+            $feats->{'mechanism'} = [ split( ' ', $+{'MECHS'} ) ];
 
         } elsif( $e =~ /PIPELINING/ ) {
             # 250-PIPELINING

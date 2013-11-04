@@ -1,7 +1,7 @@
 package Haineko::HTTPD;
 use strict;
 use warnings;
-use 5.010001;
+use v5.10;
 use Try::Tiny;
 use Path::Class;
 use Haineko::JSON;

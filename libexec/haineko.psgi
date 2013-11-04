@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use 5.010001;
+use v5.10;
 
 BEGIN { 
     use FindBin;
