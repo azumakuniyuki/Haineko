@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 use v5.10;
+use lib './lib';
 use File::Basename qw/basename dirname/;
 use Path::Class;
 
