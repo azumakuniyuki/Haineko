@@ -1,7 +1,8 @@
 Revision history for Haineko
 
-0.2.0   Thu,  7 Nov 2013 18:22:22 +0900 (JST)
-    - bin/hainekoctl: script for controlling haineko server.
+0.2.0   Thu,  7 Nov 2013 21:22:22 +0900 (JST)
+    - Fix bug in cpanfile: required perl version.
+    - New script bin/hainekoctl: script for controlling haineko server.
     - Removed sbin/hainekod, use bin/hainekoctl instead of hainekod.
     - Haineko::CLI is a base class for command-lile tool.
     - Haineko::CLI::Daemon for bin/hainekoctl script.
