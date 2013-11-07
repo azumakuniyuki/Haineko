@@ -7,6 +7,7 @@ sub options {
     return {
         'exec' => ( 1 << 0 ),
         'test' => ( 1 << 1 ),
+        'auth' => ( 1 << 2 ),
     };
 }
 
@@ -70,17 +71,32 @@ sub run {
             $p->{'config'} .= '-debug';
         }
 
-        if( -f $p->{'root'}.'/etc/password-debug' && -r _ && -e _ ) {
-            # Use etc/password-debug if it exists
-            $ENV{'HAINEKO_AUTH'} = $p->{'root'}.'/etc/password-debug';
+        if( $r & $o->{'auth'} ) {
+            # Require Basic-Authentication when connected to Haineko server
+            if( -f $p->{'root'}.'/etc/password-debug' && -r _ && -e _ ) {
+                # Use etc/password-debug if it exists
+                $ENV{'HAINEKO_AUTH'} = $p->{'root'}.'/etc/password-debug';
+                $self->p( 'Require Basic-Authentication: '.$ENV{'HAINEKO_AUTH'}, 1 );
+            }
         }
 
         $runnerprog->parse_options( @$plackuparg );
         $runnerprog->run;
+        $self->p( 'Start Haineko server', 0 );
 
     } else {
         # Production mode
         use Server::Starter qw(start_server restart_server);
+
+        if( $r & $o->{'auth'} ) {
+            # Require Basic-Authentication when connected to Haineko server
+            if( -f $p->{'root'}.'/etc/password' && -r _ && -e _ ) {
+                # Use etc/password-debug if it exists
+                $ENV{'HAINEKO_AUTH'} = $p->{'root'}.'/etc/password';
+                $self->p( 'Require Basic-Authentication: '.$ENV{'HAINEKO_AUTH'}, 1 );
+            }
+        }
+
         $serverargv->{'port'} = [ $p->{'port'} ];
         $serverargv->{'interval'} = $p->{'interval'};
         $serverargv->{'pid_file'} = $self->{'pidfile'};
@@ -97,6 +113,8 @@ sub run {
         $commandarg .= ' -- ';
         $commandarg .= join( ' ', @$plackuparg );
         $commandarg .= ' > /dev/null &';
+
+        $self->p( 'Start Haineko server', 0 );
         exec $commandarg;
     }
 }
@@ -123,6 +141,7 @@ sub ctrl {
         $self->e( sprintf( "Cannot read %s", $self->pidfile ) ) unless $p;
         $s = kill( $sigs->{ $argv }, $p );
         $self->removepf if $argv eq 'stop';
+        $self->p( ucfirst $argv.' Haineko server', 0 );
         return $s;
     }
 }
@@ -140,10 +159,11 @@ sub parseoptions {
 
     use Getopt::Long qw/:config posix_default no_ignore_case bundling auto_help/;
     Getopt::Long::GetOptions( $p,
+        'app|a=s',      # Path to psgi file
+        'auth|A',       # Require basic-authenticaion
+        'conf|C=s',     # Configuration file
         'devel|d',      # Developement mode
         'debug',        # same as --devel
-        'app|a=s',      # Path to psgi file
-        'conf|C=s',     # Configuration file
         'host|h=s',     # Hostname
         'port|p=i',     # Port
         'server|s=s',   # Server, -s option of plackup
@@ -156,6 +176,9 @@ sub parseoptions {
         $r |= $opts->{'test'};
         $conf->{'env'} = 'development';
     }
+
+    # Require Basic-Authentication
+    $r |= $opts->{'auth'} if defined $p->{'auth'};
 
     if( $p->{'conf'} ) {
         # Load configuration file specified with -C or --conf option
@@ -256,6 +279,7 @@ sub help {
 
     my $d = __PACKAGE__->default;
     my $commoption = [
+        '-A, --auth'            => 'Require Basic Authentication.',
         '-a, --app <psgi>'      => 'Path to a psgi file.',
         '-C, --conf <file>'     => 'Path to a configuration file.',
         '-d, --devel,--debug'   => 'Runon developement mode.',
@@ -341,6 +365,8 @@ L<Haineko::CLI> - Base class of Haineko::CLI::Daemon
 
 =item *
 L<bin/haineoctl> - Script of Haineko::CLI::* implementation
+
+=back
 
 =head1 REPOSITORY
 

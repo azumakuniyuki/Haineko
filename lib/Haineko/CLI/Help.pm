@@ -167,6 +167,8 @@ L<Haineko::CLI> - Base class of Haineko::CLI::Daemon
 =item *
 L<bin/haineoctl> - Script of Haineko::CLI::* implementation
 
+=back
+
 =head1 REPOSITORY
 
 https://github.com/azumakuniyuki/Haineko
