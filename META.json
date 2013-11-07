@@ -45,6 +45,7 @@
       },
       "runtime" : {
          "requires" : {
+            "Archive::Tar" : "1.76",
             "Authen::SASL" : "2.16",
             "Class::Accessor::Lite" : "0.05",
             "Crypt::SaltedHash" : "0.05",
@@ -52,7 +53,10 @@
             "Email::MIME" : "1.910",
             "Encode" : "2.42",
             "File::Basename" : "2.82",
+            "File::Copy" : "2.21",
+            "File::Temp" : "0.22",
             "Furl" : "2.17",
+            "Getopt::Long" : "2.39",
             "IO::File" : "1.15",
             "IO::Socket::SSL" : "1.94",
             "JSON::Syck" : "1.18",
@@ -64,11 +68,12 @@
             "Path::Class" : "0.24",
             "Plack" : "1.0027",
             "Router::Simple" : "0.14",
+            "Server::Starter" : "0.15",
             "Sys::Syslog" : "0.33",
             "Time::Piece" : "1.20",
             "Try::Tiny" : "0.16",
             "XML::Simple" : "2.20",
-            "perl" : "5.010001"
+            "perl" : "5.10"
          }
       },
       "test" : {
@@ -80,8 +85,8 @@
       }
    },
    "release_status" : "unstable",
-   "version" : "0.1.2",
+   "version" : "0.2.0",
    "x_contributors" : [
-      "azumakuniyuki <perl.org@azumakuniyuki.org>"
+      "azumakuniyuki <perl.org@azumakuniyuki>"
    ]
 }
