@@ -1,4 +1,4 @@
-requires 'perl', '5.010001';
+requires 'perl', '5.010';
 requires 'Archive::Tar', '1.76';
 requires 'Authen::SASL', '2.16';
 requires 'Class::Accessor::Lite', '0.05';

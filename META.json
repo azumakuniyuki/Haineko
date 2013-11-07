@@ -73,7 +73,7 @@
             "Time::Piece" : "1.20",
             "Try::Tiny" : "0.16",
             "XML::Simple" : "2.20",
-            "perl" : "5.10"
+            "perl" : "5.010"
          }
       },
       "test" : {
