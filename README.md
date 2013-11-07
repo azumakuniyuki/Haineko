@@ -88,42 +88,50 @@ A. Run at the source directory
 
     $ cd ./Haineko
     $ sudo cpanm --installdeps .
-    $ for CF in haineko.cf mailertable sendermt recipients relayhosts authinfo; do
-    >   cp $CF-example $CF
-    >   vi $CF
-    > done
+    $ ./bin/hainekoctl --dest . setup
+    $ vi ./etc/haineko.cf
+
+    And edit other files in etc/ directory if you needed.
+    
 
 Run by the one of the followings:
 
     $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
+    $ ./bin/hainekoctl --devel start
 
 B. Build and install into /usr/local/haineko
 --------------------------------------------
+
+### 1. Prepare ``configure'' script
 
     $ cd ./Haineko
     $ ./bootstrap
     $ sh configure --prefix=/path/to/dir (default=/usr/local/haineko)
 
-    $ cpanm -L./dist --installdeps .
-
-OR
+### 2. Install required modules
 
     $ make depend
 
+OR
+
+    $ cpanm -L./dist --installdeps .
+
+### 3. Build haineko
+
     $ make && make test && sudo make install
 
-    $ cd /usr/local/haineko/etc
-    $ for CF in haineko.cf mailertable sendermt recipients relayhosts authinfo; do
-    >   sudo cp $CF-example $CF
-    >   sudo vi $CF
-    > done
-
+    $ /usr/local/haineko/bin/hainekoctl --dest /usr/local/haineko setup
     $ cd /usr/local/haineko
+    $ vi ./etc/haineko.cf
+
+    And edit other files in etc/ directory if you needed.
+
     $ export PERL5LIB=/usr/local/haineko/lib/perl5
 
 Run by the one of the followings:
 
     $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
+    $ ./bin/hainekoctl --devel start
 
 C. Build and install into /usr/local
 ------------------------------------
@@ -132,16 +140,16 @@ C. Build and install into /usr/local
     $ sudo cpanm .
     $ sudo cpanm -L/usr/local --installdeps .
 
-    $ cd /usr/local/etc
-    $ for CF in haineko.cf mailertable sendermt recipients relayhosts authinfo; do
-    >   sudo cp $CF-example $CF
-    >   sudo vi $CF
-    > done
+    $ /usr/local/bin/hainekoctl --dest /usr/local/etc setup
+    $ cd /usr/local
+    $ vi ./etc/haineko.cf
+
+    And edit other files in etc/ directory if you needed.
 
 Run by the one of the followings:
 
-    $ cd /usr/local
     $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
+    $ ./bin/hainekoctl --devel start
 
 Starting Haineko server
 -----------------------
@@ -152,8 +160,11 @@ Starting Haineko server
 
 ### Use wrapper script
 
+    $ bin/hainekoctl --devel -a libexec/haineko.psgi start
+
+The following command shows other options of bin/hainekoctl:
+
     $ bin/hainekoctl help
-    $ bin/hainekoctl -d -a libexec/haineko.psgi start
 
 Configuration files in /usr/local/haineko/etc
 ---------------------------------------------
@@ -211,19 +222,19 @@ variable is not defined.
 
 The value of HAINEKO_CONF is the path to __haineko.cf__ file. If this variable is
 not defined, Haineko finds the file from HAINEKO_ROOT/etc directory. This variable
-can be set with -C /path/to/haineko.cf at sbin/hainekod script.
+can be set with -C /path/to/haineko.cf at bin/hainekoctl script.
 
 ### HAINEKO_AUTH
 
 Haineko requires Basic-Authentication at connecting Haineko server when HAINEK_AUTH
 environment variable is set. The value of HAINEKO_AUTH should be the path to the
 password file such as 'export HAINEKO_AUTH=/path/to/password'. This variable can be
-set with -A option of sbin/hainekod script.
+set with -A option of bin/hainekoctl script.
 
 ### HAINEKO_DEBUG
 
-Haineko runs on debug(development) mode when this variable is set. -d option of
-sbin/hainekod turns on debug mode.
+Haineko runs on debug(development) mode when this variable is set. -d, --devel,and
+--debug option of bin/hainekoctl turns on debug mode.
 
 SAMPLE CODE IN EACH LANGUAGE
 ----------------------------
