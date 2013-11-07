@@ -1,5 +1,6 @@
 # $Id: Makefile.am,v 1.20.2.1 2011/06/20 03:43:39 ak Exp $
 # Copyright (C) 2013 azumakuniyuki
+SUBDIRS = Setup
 distdir = $(BUILDROOT)/dist/lib/Haineko/CLI
 instdir = @libdir@/Haineko/CLI
 pkgdatadir = @libdir@/Haineko/CLI
