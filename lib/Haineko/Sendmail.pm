@@ -42,9 +42,9 @@ sub submit {
     my $milterlibs = [];
     my $mfresponse = undef;
 
-    if( $httpd->req->method eq 'GET' ) {
-        # GET method is not permitted. Use POST method instead
-        #
+    if( $httpd->debug == 0 && $httpd->req->method eq 'GET' ) {
+        # GET method is not permitted in production mode.
+        # Use POST method instead
         $esmtpreply = $responsecn->r( 'http', 'method-not-supported' )->damn;
         $nekosyslog->w( 'err', $esmtpreply );
 
