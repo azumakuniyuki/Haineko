@@ -43,15 +43,20 @@ Dependencies
 
 Haineko relies on:
 
+* Archive::Tar (core module from v5.9.3)
 * Authen::SASL
 * Class::Accessor::Lite
 * Email::MIME
 * Encode (core module from v5.7.3)
 * File::Basename (core module from v5)
-* IO::File (core module from 5.00307)
-* IO::Socket::SSL
+* File::Copy (core module from v5.2)
+* File::Temp (core module from v5.6.1)
 * Furl
+* Getopt::Long (core module from v5)
+* IO::File (core module from 5.3.7)
+* IO::Socket::SSL
 * JSON::Syck
+* MIME::Base64 (core module from v5.7.3)
 * Module::Load (core module from v5.9.4)
 * Net::SMTP (core module from v5.7.3)
 * Net::SMTPS
@@ -59,7 +64,8 @@ Haineko relies on:
 * Path::Class
 * Plack
 * Router::Simple
-* Sys::Syslog (core module from v5.0.0)
+* Server::Starter
+* Sys::Syslog (core module from v5)
 * Time::Piece (core module from v5.9.5)
 * Try::Tiny
 
@@ -146,10 +152,8 @@ Starting Haineko server
 
 ### Use wrapper script
 
-    $ sbin/hainekod -d -a libexec/haineko.psgi start
-
-When `start_server` command (Server::Starter) exists on your system, hainekod script
-will use the command as a server program.
+    $ bin/hainekoctl help
+    $ bin/hainekoctl -d -a libexec/haineko.psgi start
 
 Configuration files in /usr/local/haineko/etc
 ---------------------------------------------
