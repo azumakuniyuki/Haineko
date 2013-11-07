@@ -3,7 +3,7 @@ dnl # Process this file with autoconf to produce a configure script.
 dnl # -Id: configure.ac,v 1.35 2009/08/27 05:09:04 ak Exp -
 dnl # Copyright (C) 2013 azumakuniyuki
 AC_PREREQ(2.61)
-AC_INIT([haineko], [0.1.2], [haineko@azumakuniyuki.org])
+AC_INIT([haineko], [0.2.0], [haineko@azumakuniyuki.org])
 AM_INIT_AUTOMAKE([foreign])
 AC_PREFIX_DEFAULT(/usr/local/haineko)
 AC_CANONICAL_HOST
@@ -91,13 +91,15 @@ fi
 dnl # Checks for library functions.
 AC_CONFIG_FILES([
         Makefile
+        bin/Makefile
         etc/Makefile
         lib/Makefile
         lib/Haineko/Makefile
+        lib/Haineko/CLI/Makefile
+        lib/Haineko/CLI/Setup/Makefile
         lib/Haineko/HTTPD/Makefile
         lib/Haineko/SMTPD/Makefile
         lib/Haineko/SMTPD/Milter/Makefile
         lib/Haineko/SMTPD/Relay/Makefile
-        sbin/Makefile
         libexec/Makefile])
 AC_OUTPUT
