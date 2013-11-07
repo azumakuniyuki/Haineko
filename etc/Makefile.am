@@ -1,6 +1,6 @@
 # $Id: Makefile.am,v 1.12.2.2 2011/06/20 03:43:39 ak Exp $
 # Copyright (C) 2013 azumakuniyuki
-sysconf_DATA = authinfo-example haineko.cf-example hypnotoad.cf-example \
+sysconf_DATA = authinfo-example haineko.cf-example \
 			   mailertable-example recipients-example relayhosts-example \
 			   sendermt-example
 	
