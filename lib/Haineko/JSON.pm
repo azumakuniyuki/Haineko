@@ -1,7 +1,7 @@
 package Haineko::JSON;
+use feature ':5.10';
 use strict;
 use warnings;
-use 5.010001;
 use Carp;
 use IO::File;
 use JSON::Syck;

@@ -1,5 +1,5 @@
 package Haineko::SMTPD::Address;
-use 5.010001;
+use feature ':5.10';
 use strict;
 use warnings;
 use Class::Accessor::Lite;
