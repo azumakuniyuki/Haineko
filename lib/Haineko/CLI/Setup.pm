@@ -58,7 +58,7 @@ sub init {
         if( flock( $filehandle, LOCK_EX ) ) {
             # Write BASE64 decoded data
             require File::Copy;
-            require File::Path;
+            require Path::Class::Dir;
             require MIME::Base64;
             require Archive::Tar;
 
@@ -82,16 +82,16 @@ sub init {
             for my $e ( @$setupfiles ) {
                 my $f = sprintf( "%s/%s", $extracted1, $e );
                 my $g = sprintf( "%s/%s", $self->{'params'}->{'dest'}, $e );
-                my $s = File::Basename::dirname $g;
+                my $s = Path::Class::Dir->new( File::Basename::dirname $g );
 
                 if( -e $g && ! ( $self->r & $o->{'force'} ) ) {
                     $self->p( '[SKIP] '.$g, 1 );
                     next;
                 }
 
-                if( not -d $s ) {
-                    File::Path::mkpath( $s );
-                    $self->p( '[MAKE] '.$s, 1 );
+                if( not -d $s->stringify ) {
+                    $s->mkpath;
+                    $self->p( '[MAKE] '.$s->stringify, 1 );
                 }
 
                 $self->p( '[COPY] '.( $self->r & $o->{'force'} ? 'Overwrite: ' : '' ).$g, 1 );
