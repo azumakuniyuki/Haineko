@@ -1,7 +1,7 @@
 package Haineko::HTTPD::Auth;
 use strict;
 use warnings;
-use v5.10;
+use 5.010001;
 use Try::Tiny;
 
 our $PasswordDB = undef;

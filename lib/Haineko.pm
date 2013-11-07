@@ -1,5 +1,5 @@
 package Haineko;
-use v5.10;
+use 5.010001;
 use strict;
 use warnings;
 use parent 'Haineko::HTTPD';

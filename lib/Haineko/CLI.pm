@@ -1,7 +1,7 @@
 package Haineko::CLI;
 use strict;
 use warnings;
-use v5.10;
+use 5.010001;
 use IO::File;
 use Fcntl qw(:flock);
 use Sys::Syslog;
