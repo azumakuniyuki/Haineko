@@ -1,0 +1,140 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use v5.10;
+use File::Basename qw/basename dirname/;
+use Path::Class;
+
+my $subcommand = $ARGV[-1] // q();
+my $scriptname = basename $0;
+my $scriptroot = undef;
+my $serverroot = undef;
+my $methodargv = {};
+my $hainekocmd = undef;
+my $daemonargs = [ 'start', 'stop', 'reload', 'restart', 'status' ];
+
+if( $subcommand ) {
+
+    if( grep { $subcommand eq $_ } @$daemonargs ) {
+
+        require Haineko::CLI::Daemon;
+
+        $scriptroot = Path::Class::Dir->new( dirname $0 );
+        $serverroot = $scriptroot->parent->absolute();
+        $methodargv = {
+            'command' => join( ' ', $0, @ARGV ),
+            'pidfile' => '/tmp/haineko.pid',
+        };
+        $hainekocmd = Haineko::CLI::Daemon->new( %$methodargv );
+        $hainekocmd->p( 'Command = '.$subcommand, 1 );
+
+        if( $subcommand eq 'start' ) {
+            # Start haineko server, run as a wrapper of ``plackup'' command.
+            $hainekocmd->makepf;
+            $hainekocmd->parseoptions;
+            $hainekocmd->run;
+
+        } else {
+            # Sub command except ``start''
+            if( $subcommand =~ m/(?:stop|reload|restart)/ ) {
+                # ``stop'' or ``restart''
+                $hainekocmd->parseoptions;
+                $hainekocmd->ctrl( $subcommand );
+
+            } else {
+                # ``status'' sub command displays process id
+                my $p = $hainekocmd->readpf;
+                printf( STDERR "pid = %d\n", $p ) if defined $p;
+            }
+        }
+    } else {
+        # Sub commands except daemon mode
+        if( $subcommand eq 'help' ) {
+            # ``help'' sub command
+            require Haineko::CLI;
+            require Haineko::CLI::Help;
+            require Haineko::CLI::Daemon;
+            require Haineko::CLI::Setup;
+
+            $hainekocmd = Haineko::CLI::Help->new;
+            for my $e ( 'Daemon', 'Setup', '' ) {
+                my $c = 'Haineko::CLI';
+                $c .= '::'.$e if length $e;
+                for my $f ( 'option', 'subcommand' ) {
+                    $hainekocmd->add( $c->help( $f ), $f );
+                }
+            }
+            help();
+            $hainekocmd->mesg;
+            exit(0);
+
+        } elsif( $subcommand eq '--help' ) {
+            # --help
+            require Haineko::CLI;
+            require Haineko::CLI::Help;
+            $hainekocmd = Haineko::CLI::Help->new;
+            $subcommand = $ARGV[-2] || 'help';
+
+            if( grep { $subcommand eq $_ } @$daemonargs ) {
+                # --help for daemon sub commands
+                require Haineko::CLI::Daemon;
+                $hainekocmd->add( Haineko::CLI::Daemon->help('o'), 'option' );
+                $hainekocmd->add( Haineko::CLI::Daemon->help('s'), 'subcommand' );
+
+            } elsif( $subcommand eq 'setup' ) {
+                # --help for ``setup'' sub command
+                require Haineko::CLI::Setup;
+                $hainekocmd->add( Haineko::CLI::Setup->help('o'), 'option' );
+                $hainekocmd->add( Haineko::CLI::Setup->help('s'), 'subcommand' );
+
+            } elsif( $subcommand eq 'version' ) {
+                # ``version --help''
+                $hainekocmd->version;
+                exit(0);
+
+            } elsif( $subcommand eq 'help' ) {
+                # --help
+                exec "$0 help";
+
+            } else {
+                # Unknown sub command, print error message and exit(1)
+                $hainekocmd->e( 'Invalid subcommand: '.$subcommand );
+            }
+
+            help();
+            $hainekocmd->add( Haineko::CLI->help('o'), 'option' );
+            $hainekocmd->add( Haineko::CLI->help('s'), 'subcommand' );
+            $hainekocmd->mesg;
+            exit(0);
+
+        } elsif( $subcommand eq 'setup' ) {
+            # Initialize: Distribute files for Haineko to current directory 
+            # or specified directory.
+            require Haineko::CLI::Setup;
+            $methodargv = { 'command' => join( ' ', $0, @ARGV ) };
+            $hainekocmd = Haineko::CLI::Setup->new( %$methodargv );
+            $hainekocmd->parseoptions;
+            $hainekocmd->init;
+
+        } elsif( $subcommand eq 'make-setup-data' ) {
+            # Call Haineko::CLI::Setup->make
+            require Haineko::CLI::Setup;
+            $hainekocmd = Haineko::CLI::Setup->new;
+            $hainekocmd->parseoptions;
+            $hainekocmd->make;
+            exit(0);
+
+        } elsif( $subcommand eq 'version' ) {
+            require Haineko::CLI;
+            Haineko::CLI->version;
+            exit(0);
+        }
+    }
+} else {
+    printf( STDERR "Try %s help\n", basename $0 );
+}
+
+sub help {
+    printf( STDERR "%s [OPTION] SUBCOMMAND\n", $scriptname );
+}
+__END__
