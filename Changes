@@ -1,5 +1,13 @@
 Revision history for Haineko
 
+0.2.0   Thu,  7 Nov 2013 18:22:22 +0900 (JST)
+    - bin/hainekoctl: script for controlling haineko server.
+    - Removed sbin/hainekod, use bin/hainekoctl instead of hainekod.
+    - Haineko::CLI is a base class for command-lile tool.
+    - Haineko::CLI::Daemon for bin/hainekoctl script.
+    - Haineko::CLI::Setup for ``bin/hainekoctl setup''.
+    - Haineko::CLI::Help for ``bin/hainekoctl help''.
+
 0.1.2   Wed,  9 Oct 2013 08:22:22 +0900 (JST)
     - Basic Authentication returns error message as a JSON.
     - Haineko::SMTPD::Relay::Mandrill, for sending via Mandrill API.
