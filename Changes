@@ -1,5 +1,8 @@
 Revision history for Haineko
 
+0.2.1   Fri,  8 Nov 2013 13:22:22 +0900 (JST)
+    - README-JA.md is Japanese version of README.md.
+
 0.2.0   Thu,  7 Nov 2013 21:22:22 +0900 (JST)
     - Fix bug in cpanfile: required perl version.
     - New script bin/hainekoctl: script for controlling haineko server.
