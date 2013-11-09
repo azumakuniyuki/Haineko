@@ -32,80 +32,80 @@ sub init {
     my $self = shift;
     my $o = __PACKAGE__->options;
 
-    if( $self->r & $o->{'exec'} ) {
-        require File::Temp;
-        require Haineko::CLI::Setup::Data;
+    return undef unless( $self->r & $o->{'exec'} );
 
-        my $tempfolder = File::Temp->newdir;
-        my $tararchive = $tempfolder.'/haineko-setup-files.tar';
-        my $base64data = [ <Haineko::CLI::Setup::Data::DATA> ];
-        my $base64text = q();
-        my $filehandle = undef;
+    require File::Temp;
+    require Haineko::CLI::Setup::Data;
 
-        while( my $r = shift @$base64data ) {
-            chomp $r;
-            $base64text .= $r;
-        }
+    my $tempfolder = File::Temp->newdir;
+    my $tararchive = $tempfolder.'/haineko-setup-files.tar';
+    my $base64data = [ <Haineko::CLI::Setup::Data::DATA> ];
+    my $base64text = q();
+    my $filehandle = undef;
 
-        $self->e( 'Failed to create temporary directory' ) unless $tempfolder;
-        $self->p( 'Temporary directory = '.$tempfolder, 1 );
-        $self->e( 'Failed to get setup file data' ) unless length $base64text;
+    while( my $r = shift @$base64data ) {
+        chomp $r;
+        $base64text .= $r;
+    }
 
-        $filehandle = IO::File->new( $tararchive, 'w' );
-        $self->e( 'Failed to create the archive file: ' ) unless $filehandle;
-        $self->p( 'Archive file = '.$tararchive, 1 );
+    $self->e( 'Failed to create temporary directory' ) unless $tempfolder;
+    $self->p( 'Temporary directory = '.$tempfolder, 1 );
+    $self->e( 'Failed to get setup file data' ) unless length $base64text;
 
-        if( flock( $filehandle, LOCK_EX ) ) {
-            # Write BASE64 decoded data
-            require File::Copy;
-            require Path::Class::Dir;
-            require MIME::Base64;
-            require Archive::Tar;
+    $filehandle = IO::File->new( $tararchive, 'w' );
+    $self->e( 'Failed to create the archive file: ' ) unless $filehandle;
+    $self->p( 'Archive file = '.$tararchive, 1 );
 
-            my $archiveobj = undef; # (Archive::Tar) Object
-            my $setupfiles = undef; # (Ref->Array) File list
-            my $extracted1 = undef; # (String) Extracted directory name
+    if( flock( $filehandle, LOCK_EX ) ) {
+        # Write BASE64 decoded data
+        require File::Copy;
+        require Path::Class::Dir;
+        require MIME::Base64;
+        require Archive::Tar;
 
-            $filehandle->print( MIME::Base64::decode_base64( $base64text ) );
-            $filehandle->close if flock( $filehandle, LOCK_UN );
+        my $archiveobj = undef; # (Archive::Tar) Object
+        my $setupfiles = undef; # (Ref->Array) File list
+        my $extracted1 = undef; # (String) Extracted directory name
 
-            $archiveobj = Archive::Tar->new;
-            $archiveobj->read( $tararchive );
-            $archiveobj->setcwd( $tempfolder );
-            $archiveobj->extract();
+        $filehandle->print( MIME::Base64::decode_base64( $base64text ) );
+        $filehandle->close if flock( $filehandle, LOCK_UN );
 
-            $extracted1 = $tempfolder.'/haineko-setup-files';
-            $self->e( 'Failed to extract the archive' ) unless -d $extracted1;
-            $self->p( 'Extracted directory = '.$extracted1, 1 );
+        $archiveobj = Archive::Tar->new;
+        $archiveobj->read( $tararchive );
+        $archiveobj->setcwd( $tempfolder );
+        $archiveobj->extract();
 
-            $setupfiles = __PACKAGE__->list;
-            for my $e ( @$setupfiles ) {
-                my $f = sprintf( "%s/%s", $extracted1, $e );
-                my $g = sprintf( "%s/%s", $self->{'params'}->{'dest'}, $e );
-                my $s = Path::Class::Dir->new( File::Basename::dirname $g );
+        $extracted1 = $tempfolder.'/haineko-setup-files';
+        $self->e( 'Failed to extract the archive' ) unless -d $extracted1;
+        $self->p( 'Extracted directory = '.$extracted1, 1 );
 
-                if( -e $g && ! ( $self->r & $o->{'force'} ) ) {
-                    $self->p( '[SKIP] '.$g, 1 );
-                    next;
-                }
+        $setupfiles = __PACKAGE__->list;
+        for my $e ( @$setupfiles ) {
+            my $f = sprintf( "%s/%s", $extracted1, $e );
+            my $g = sprintf( "%s/%s", $self->{'params'}->{'dest'}, $e );
+            my $s = Path::Class::Dir->new( File::Basename::dirname $g );
 
-                if( not -d $s->stringify ) {
-                    $s->mkpath;
-                    $self->p( '[MAKE] '.$s->stringify, 1 );
-                }
-
-                $self->p( '[COPY] '.( $self->r & $o->{'force'} ? 'Overwrite: ' : '' ).$g, 1 );
-                File::Copy::copy( $f, $g );
-
-                next unless $g =~ m|/bin/|;
-                chmod( 0755, $g );
-                $self->p( '[PERM] 0755 '.$g, 1 );
+            if( -e $g && ! ( $self->r & $o->{'force'} ) ) {
+                $self->p( '[SKIP] '.$g, 1 );
+                next;
             }
-            $self->p( '[DONE] '.$self->command, 1 );
 
-        } else {
-            $self->e( 'Failed to write data to '.$tararchive );
+            if( not -d $s->stringify ) {
+                $s->mkpath;
+                $self->p( '[MAKE] '.$s->stringify, 1 );
+            }
+
+            $self->p( '[COPY] '.( $self->r & $o->{'force'} ? 'Overwrite: ' : '' ).$g, 1 );
+            File::Copy::copy( $f, $g );
+
+            next unless $g =~ m|/bin/|;
+            chmod( 0755, $g );
+            $self->p( '[PERM] 0755 '.$g, 1 );
         }
+        $self->p( '[DONE] '.$self->command, 1 );
+
+    } else {
+        $self->e( 'Failed to write data to '.$tararchive );
     }
 }
 
@@ -149,6 +149,7 @@ sub help {
     return $commoption if $argvs eq 'o' || $argvs eq 'option';
     return $subcommand if $argvs eq 's' || $argvs eq 'subcommand';
     return $forexample if $argvs eq 'e' || $argvs eq 'example';
+    return undef;
 }
 
 1;
