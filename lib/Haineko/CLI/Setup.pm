@@ -34,8 +34,8 @@ sub init {
 
     return undef unless( $self->r & $o->{'exec'} );
 
+    use Haineko::CLI::Setup::Data;
     require File::Temp;
-    require Haineko::CLI::Setup::Data;
 
     my $tempfolder = File::Temp->newdir;
     my $tararchive = $tempfolder.'/haineko-setup-files.tar';
