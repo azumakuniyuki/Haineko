@@ -32,7 +32,7 @@ sub add {
 
     } elsif( $type eq 'e' || $type eq 'example' ) {
         # Example
-        $data = $self->{'params'}->{'exapmle'};
+        $data = $self->{'params'}->{'example'};
 
     } elsif( $type eq 's' || $type eq 'subcommand' ) {
         # Subcommand
