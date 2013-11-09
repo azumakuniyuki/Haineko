@@ -300,6 +300,7 @@ sub help {
     return $commoption if $argvs eq 'o' || $argvs eq 'option';
     return $subcommand if $argvs eq 's' || $argvs eq 'subcommand';
     return $forexample if $argvs eq 'e' || $argvs eq 'example';
+    return undef;
 }
 
 1;
