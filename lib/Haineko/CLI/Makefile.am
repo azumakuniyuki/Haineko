@@ -4,7 +4,7 @@ SUBDIRS = Setup
 distdir = $(BUILDROOT)/dist/lib/Haineko/CLI
 instdir = @libdir@/Haineko/CLI
 pkgdatadir = @libdir@/Haineko/CLI
-pkgdata_DATA = Daemon.pm Setup.pm Help.pm
+pkgdata_DATA = Daemon.pm Setup.pm Help.pm Password.pm
 
 .PHONY: clean
 all-am:
