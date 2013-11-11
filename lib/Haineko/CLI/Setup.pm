@@ -3,8 +3,15 @@ use parent 'Haineko::CLI';
 use strict;
 use warnings;
 use IO::File;
+use Try::Tiny;
 use Fcntl qw(:flock);
+use File::Copy;
+use File::Temp;
 use File::Basename qw/basename dirname/;
+use Haineko::CLI::Setup::Data;
+use Path::Class::Dir;
+use MIME::Base64;
+use Archive::Tar;
 
 sub options {
     return {
@@ -28,14 +35,99 @@ sub list {
     ];
 }
 
-sub init {
+sub make {
     my $self = shift;
     my $o = __PACKAGE__->options;
 
     return undef unless( $self->r & $o->{'exec'} );
 
-    use Haineko::CLI::Setup::Data;
-    require File::Temp;
+    my $currentdir = qx(pwd); chomp $currentdir;
+    my $modulename = './lib/Haineko/CLI/Setup/Data.pm';
+    my $tempfolder = File::Temp->newdir;
+    my $subdirname = $tempfolder.'/haineko-setup-files';
+    my $tararchive = $subdirname.'.tar';
+    my $setupfiles = [];
+    my $archiveobj = undef;
+
+    try {
+        mkdir( $subdirname );
+        $self->p( 'Setup directory = '.$subdirname, 1 );
+    } catch {
+        $self->e( 'Failed to create setup directory: '.$subdirname );
+    };
+
+    for my $e ( @{ __PACKAGE__->list } ) {
+        my $f = File::Basename::dirname $e;
+        my $g = Path::Class::File->new( $subdirname.'/'.$e );
+
+        try {
+            # Copy files to a temporary directory
+            if( not -d $g->dir ) {
+                $g->dir->mkpath;
+                $self->p( '[MAKE] '.$g->dir );
+            }
+
+            if( $e =~ m|etc/| ) {
+                # cp etc/haineko.cf-example /path/to/dir/etc/haineko.cf
+                File::Copy::copy( $e.'-example', $g );
+            } else {
+                # cp libexec/haineko.psgi /path/to/dir/libexec
+                File::Copy::copy( $e, $g );
+            }
+
+            push @$setupfiles, './haineko-setup-files/'.$e;
+            $self->p( '[COPY] '.$g );
+
+        } catch {
+            # Failed to copy
+            $self->e( 'Failed to copy file: '.$e );
+        }
+    }
+
+    # tar cvf haineko-setup-files.tar
+    $archiveobj = Archive::Tar->new;
+    chdir( $tempfolder ) || $self->e( 'Cannot change directory: '.$tempfolder );
+    $archiveobj->add_files( @$setupfiles );
+    $archiveobj->write( $tararchive );
+    $self->p( 'Archive file = '.$tararchive, 1 );
+
+    # tar archive to BASE64 encoded string
+    my $filehandle = IO::File->new( $tararchive, 'r' );
+    my $readbuffer = undef;
+    my $base64data = q();
+
+    while( read $filehandle, $readbuffer, 57 * 60 ) {
+        $base64data .= MIME::Base64::encode_base64( $readbuffer );
+        $base64data .= "\n";
+    }
+    $filehandle->close;
+    chomp $base64data;
+    $self->p( 'Base64 encoded data = '.length( $base64data ).' bytes', 1 );
+
+    # Write BASE64 encoded string to the module
+    chdir( $currentdir ) || $self->e( 'Cannot change directory: '.$currentdir );
+    try {
+        $filehandle = IO::File->new( $modulename, 'w' );
+        $filehandle->print( 'package Haineko::CLI::Setup::Data;'."\n" );
+        $filehandle->print( '1;'."\n" );
+        $filehandle->print( '__DATA__'."\n" );
+        $filehandle->print( $base64data );
+        $filehandle->close;
+
+        $self->p( 'Update module data: '.$modulename );
+        $self->p( '[DONE] '.$self->command, 1 );
+
+    } catch {
+        # Failed to write the module
+        $self->e( 'Failed to write: '.$modulename );
+    };
+}
+
+sub init {
+    my $self = shift;
+    my $o = __PACKAGE__->options;
+
+    return undef unless( $self->r & $o->{'exec'} );
 
     my $tempfolder = File::Temp->newdir;
     my $tararchive = $tempfolder.'/haineko-setup-files.tar';
@@ -48,6 +140,7 @@ sub init {
         $base64text .= $r;
     }
 
+    $self->p( 'Destination directory = '.$self->{'params'}->{'dest'}, 1 );
     $self->e( 'Failed to create temporary directory' ) unless $tempfolder;
     $self->p( 'Temporary directory = '.$tempfolder, 1 );
     $self->e( 'Failed to get setup file data' ) unless length $base64text;
@@ -58,11 +151,6 @@ sub init {
 
     if( flock( $filehandle, LOCK_EX ) ) {
         # Write BASE64 decoded data
-        require File::Copy;
-        require Path::Class::Dir;
-        require MIME::Base64;
-        require Archive::Tar;
-
         my $archiveobj = undef; # (Archive::Tar) Object
         my $setupfiles = undef; # (Ref->Array) File list
         my $extracted1 = undef; # (String) Extracted directory name
@@ -81,8 +169,9 @@ sub init {
 
         $setupfiles = __PACKAGE__->list;
         for my $e ( @$setupfiles ) {
+            my $d = $self->{'params'}->{'dest'};
             my $f = sprintf( "%s/%s", $extracted1, $e );
-            my $g = sprintf( "%s/%s", $self->{'params'}->{'dest'}, $e );
+            my $g = sprintf( "%s/%s", $d, $e );
             my $s = Path::Class::Dir->new( File::Basename::dirname $g );
 
             if( -e $g && ! ( $self->r & $o->{'force'} ) ) {
@@ -91,12 +180,24 @@ sub init {
             }
 
             if( not -d $s->stringify ) {
-                $s->mkpath;
+                try {
+                    # mkdir -p
+                    $s->mkpath;
+                } catch {
+                    # Permission denied
+                    $self->e( 'Permission denied: '.$s );
+                };
                 $self->p( '[MAKE] '.$s->stringify, 1 );
             }
 
-            $self->p( '[COPY] '.( $self->r & $o->{'force'} ? 'Overwrite: ' : '' ).$g, 1 );
             File::Copy::copy( $f, $g );
+            $self->e( 'Failed to copy: '.$g, 1 ) unless -e $g;
+            $self->p( '[COPY] '.( $self->r & $o->{'force'} ? 'Overwrite: ' : '' ).$g, 1 ) if -e $g;
+
+            if( $g =~ m|/authinfo| ) {
+                chmod( 0600, $g );
+                $self->p( '[PERM] 0600'.$g, 1 );
+            }
 
             next unless $g =~ m|/bin/|;
             chmod( 0755, $g );
@@ -129,9 +230,7 @@ sub parseoptions {
 
     $self->v( $p->{'verbose'} );
     $self->v( $self->v + 1 );
-
     $self->{'params'}->{'dest'} = $p->{'dest'} // '.';   # Destination directory
-    $self->p( 'Destination directory = '.$self->{'params'}->{'dest'}, 1 );
 
     $r |= $opts->{'exec'};
     $self->r( $r );
