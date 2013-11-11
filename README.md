@@ -44,38 +44,38 @@ Dependencies
 Haineko relies on:
 
 * Archive::Tar (core module from v5.9.3)
-* Authen::SASL
-* Class::Accessor::Lite
-* Email::MIME
+* __Authen::SASL__
+* __Class::Accessor::Lite__
+* __Email::MIME__
 * Encode (core module from v5.7.3)
 * File::Basename (core module from v5)
 * File::Copy (core module from v5.2)
 * File::Temp (core module from v5.6.1)
-* Furl
+* __Furl__
 * Getopt::Long (core module from v5)
 * IO::File (core module from 5.3.7)
-* IO::Socket::SSL
-* JSON::Syck
+* __IO::Socket::SSL__
+* __JSON::Syck__
 * MIME::Base64 (core module from v5.7.3)
 * Module::Load (core module from v5.9.4)
 * Net::SMTP (core module from v5.7.3)
-* Net::SMTPS
-* Net::CIDR::Lite
-* Path::Class
-* Plack
-* Router::Simple
-* Server::Starter
+* __Net::SMTPS__
+* __Net::CIDR::Lite__
+* __Path::Class__
+* __Plack__
+* __Router::Simple__
+* __Server::Starter__
 * Sys::Syslog (core module from v5)
 * Time::Piece (core module from v5.9.5)
-* Try::Tiny
+* __Try::Tiny__
 
 Dependencies with Basic Authentication
 --------------------------------------
 
 Haineko with Basic Authentication at sending an email relies on the following modules:
 
-* Crypt::SaltedHash
-* Plack::MiddleWare::Auth::Basic
+* __Crypt::SaltedHash__
+* __Plack::MiddleWare::Auth::Basic__
 
 Get the source
 --------------
