@@ -235,7 +235,8 @@ set with -A option of bin/hainekoctl script.
 ### HAINEKO_DEBUG
 
 Haineko runs on debug(development) mode when this variable is set. -d, --devel,and
---debug option of bin/hainekoctl turns on debug mode.
+--debug option of bin/hainekoctl turns on debug mode. When Haineko is running on
+developement mode, you can send email data using GET method.
 
 SAMPLE CODE IN EACH LANGUAGE
 ----------------------------
