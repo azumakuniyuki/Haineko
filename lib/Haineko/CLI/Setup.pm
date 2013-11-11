@@ -45,7 +45,7 @@ sub make {
     my $modulename = './lib/Haineko/CLI/Setup/Data.pm';
     my $tempfolder = File::Temp->newdir;
     my $subdirname = $tempfolder.'/haineko-setup-files';
-    my $tararchive = $subdirname.'.tar';
+    my $tararchive = $subdirname.'.tar.gz';
     my $setupfiles = [];
     my $archiveobj = undef;
 
@@ -84,11 +84,11 @@ sub make {
         }
     }
 
-    # tar cvf haineko-setup-files.tar
+    # tar cvf haineko-setup-files.tar.gz
     $archiveobj = Archive::Tar->new;
     chdir( $tempfolder ) || $self->e( 'Cannot change directory: '.$tempfolder );
     $archiveobj->add_files( @$setupfiles );
-    $archiveobj->write( $tararchive );
+    $archiveobj->write( $tararchive, 5 );
     $self->p( 'Archive file = '.$tararchive, 1 );
 
     # tar archive to BASE64 encoded string
@@ -130,7 +130,7 @@ sub init {
     return undef unless( $self->r & $o->{'exec'} );
 
     my $tempfolder = File::Temp->newdir;
-    my $tararchive = $tempfolder.'/haineko-setup-files.tar';
+    my $tararchive = $tempfolder.'/haineko-setup-files.tar.gz';
     my $base64data = [ <Haineko::CLI::Setup::Data::DATA> ];
     my $base64text = q();
     my $filehandle = undef;
