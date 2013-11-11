@@ -120,7 +120,8 @@ if( $subcommand ) {
         } elsif( $subcommand eq 'make-setup-data' ) {
             # Call Haineko::CLI::Setup->make
             require Haineko::CLI::Setup;
-            $hainekocmd = Haineko::CLI::Setup->new;
+            $methodargv = { 'command' => join( ' ', $0, @ARGV ) };
+            $hainekocmd = Haineko::CLI::Setup->new( %$methodargv );
             $hainekocmd->parseoptions;
             $hainekocmd->make;
             exit(0);
