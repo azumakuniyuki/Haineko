@@ -56,17 +56,17 @@ if( $subcommand ) {
             require Haineko::CLI::Help;
             require Haineko::CLI::Daemon;
             require Haineko::CLI::Setup;
+            require Haineko::CLI::Password;
 
             $hainekocmd = Haineko::CLI::Help->new;
-            for my $e ( 'Daemon', 'Setup', '' ) {
+            for my $e ( 'Daemon', 'Setup', 'Password', '' ) {
                 my $c = 'Haineko::CLI';
                 $c .= '::'.$e if length $e;
-                for my $f ( 'option', 'subcommand' ) {
-                    $hainekocmd->add( $c->help( $f ), $f );
-                }
+                $hainekocmd->add( $c->help('subcommand'), 'subcommand' );
             }
             help();
             $hainekocmd->mesg;
+            printf( STDERR "Try '%s SUBCOMMAND --help'\n", $0 );
             exit(0);
 
         } elsif( $subcommand eq '--help' ) {
@@ -87,6 +87,12 @@ if( $subcommand ) {
                 require Haineko::CLI::Setup;
                 $hainekocmd->add( Haineko::CLI::Setup->help('o'), 'option' );
                 $hainekocmd->add( Haineko::CLI::Setup->help('s'), 'subcommand' );
+
+            } elsif( $subcommand eq 'pw' ) {
+                # --help for ``pw'' sub command
+                require Haineko::CLI::Password;
+                $hainekocmd->add( Haineko::CLI::Password->help('o'), 'option' );
+                $hainekocmd->add( Haineko::CLI::Password->help('s'), 'subcommand' );
 
             } elsif( $subcommand eq 'version' ) {
                 # ``version --help''
@@ -116,6 +122,16 @@ if( $subcommand ) {
             $hainekocmd = Haineko::CLI::Setup->new( %$methodargv );
             $hainekocmd->parseoptions;
             $hainekocmd->init;
+
+        } elsif( $subcommand eq 'pw' ) {
+            # Generate a new password for BASIC-Authentication
+            require Haineko::CLI::Password;
+            $methodargv = { 'command' => join( ' ', $0, @ARGV ) };
+            $hainekocmd = Haineko::CLI::Password->new( %$methodargv );
+            $hainekocmd->parseoptions;
+            print $hainekocmd->make;
+            print "\n";
+            exit(0);
 
         } elsif( $subcommand eq 'make-setup-data' ) {
             # Call Haineko::CLI::Setup->make
