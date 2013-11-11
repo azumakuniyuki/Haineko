@@ -8,7 +8,7 @@ my $modulename = 'Haineko::CLI::Setup';
 my $pkgmethods = [ 'options', 'list', 'new', 'version', 'witch' ];
 my $objmethods = [ 
     'stdin', 'stdout', 'stderr', 'r', 'v', 'e', 'p',
-    'makepf', 'readpf', 'removepf', 'init',
+    'makepf', 'readpf', 'removepf', 'init', 'make',
 ];
 my $testobject = $modulename->new( 
     'verbose' => 2,
