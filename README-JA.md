@@ -54,8 +54,9 @@ Hainekoは以下のモジュールに依存しています:
 * File::Temp (core module from v5.6.1)
 * __Furl__
 * Getopt::Long (core module from v5)
-* IO::File (core module from 5.3.7)
+* IO::File (core module from v5.3.7)
 * __IO::Socket::SSL__
+* IO::Zlib (core module from v5.9.3)
 * __JSON::Syck__
 * MIME::Base64 (core module from v5.7.3)
 * Module::Load (core module from v5.9.4)
