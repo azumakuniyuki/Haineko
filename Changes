@@ -1,6 +1,6 @@
 Revision history for Haineko
 
-0.2.2
+0.2.2   Tue, 12 Nov 2013 22:22:22 +0900 (JST)
     - Haineko::CLI::Password for ``bin/hainekoctl pw''.
     - Haineko::CLI::Setup::Data for ``bin/hainekoctl make-setup-data''.
     - Add test cases for Haineko::CLI::*.
