@@ -35,6 +35,11 @@ if( $subcommand ) {
 
         if( $subcommand eq 'start' ) {
             # Start haineko server, run as a wrapper of ``plackup'' command.
+            $SIG{'INT'} = sub { 
+                $hainekocmd->removepf;
+                exit(0);
+            };
+
             $hainekocmd->makepf;
             $hainekocmd->parseoptions;
             $hainekocmd->run;
