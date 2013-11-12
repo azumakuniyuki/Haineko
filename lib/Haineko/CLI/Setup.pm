@@ -87,7 +87,7 @@ sub make {
     $archiveobj = Archive::Tar->new;
     chdir( $tempfolder ) || $self->e( 'Cannot change directory: '.$tempfolder );
     $archiveobj->add_files( @$setupfiles );
-    $archiveobj->write( $tararchive, 5 );
+    $archiveobj->write( $tararchive, 9 );
     $self->p( 'Archive file = '.$tararchive, 1 );
 
     # tar archive to BASE64 encoded string
