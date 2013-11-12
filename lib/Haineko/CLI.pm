@@ -282,6 +282,12 @@ L<Haineko::CLI::Daemon> - Control Haineko server
 L<Haineko::CLI::Setup> - Setup files for Haineko
 
 =item *
+L<Haineko::CLI::Password> - Password generator for Basic Authentication
+
+=item *
+L<Haineko::CLI::Help> - Help message for hainekoctl
+
+=item *
 L<bin/haineoctl> - Script of Haineko::CLI::* implementation
 
 =back
