@@ -2,7 +2,6 @@ package Haineko::CLI::Daemon;
 use parent 'Haineko::CLI';
 use strict;
 use warnings;
-use Getopt::Long qw/:config posix_default no_ignore_case bundling auto_help/;
 
 sub options {
     return {
@@ -21,7 +20,7 @@ sub default {
         'port'    => 2794,
         'config'  => '',
         'server'  => 'Standalone',
-        'logging' => { 'enabled' => 0, 'facility' => 'user' },
+        'logging' => { 'enabled' => 0, 'facility' => 'user', 'file' => '' },
         'workers' => 2,
         'interval'=> 5,
     };
@@ -57,9 +56,16 @@ sub run {
     push @$plackuparg, '-L', 'Restarter';
     push @$plackuparg, '-s', $p->{'server'};
 
+
     if( $p->{'server'} eq 'Starlet' ) {
         push @$plackuparg, '-w', $p->{'workers'};
     }
+
+        if( length $self->{'logging'}->{'file'} ) {
+            # --access-log /path/to/logfile
+            push @$plackuparg, '--access-log', $self->{'logging'}->{'file'};
+        }
+
 
     if( $r & $o->{'test'} ) {
         # Development mode
@@ -158,6 +164,7 @@ sub parseoptions {
     my $p = {};     # Parsed options
     my $q = undef;  # Path::Class::File
 
+    use Getopt::Long qw/:config posix_default no_ignore_case bundling auto_help/;
     Getopt::Long::GetOptions( $p,
         'app|a=s',      # Path to psgi file
         'auth|A',       # Require basic-authenticaion
@@ -166,6 +173,7 @@ sub parseoptions {
         'debug',        # same as --devel
         'help',         # --help
         'host|h=s',     # Hostname
+        'log|l=s',      # Access log
         'port|p=i',     # Port
         'server|s=s',   # Server, -s option of plackup
         'workers|w=i',  # --max-workers of plackup
@@ -272,11 +280,20 @@ sub parseoptions {
     $self->p( sprintf( "PLACKENV value = %s", $conf->{'env'} ), 1 );
     $self->p( sprintf( "Configuration file = %s", $conf->{'config'} ), 1 );
 
-    $self->{'logging'} = $conf->{'logging'} // $defs->{'logging'};
-    if( $self->{'logging'}->{'enabled'} ) {
-        # syslog
-        $self->p( sprintf( "Syslog enabled = %d", $self->{'logging'}->{'enabled'} ), 2 );
-        $self->p( sprintf( "Syslog Facility = %s", $self->{'logging'}->{'facility'} ), 2 );
+    if( $p->{'log'} ) {
+
+        $self->{'logging'}->{'enabled'} = 1;
+        $self->{'logging'}->{'file'} = $p->{'log'};
+        $self->p( sprintf( "Access log file = %s", $p->{'log'} ) );
+
+    } else {
+
+        $self->{'logging'} = $conf->{'logging'} // $defs->{'logging'};
+        if( $self->{'logging'}->{'enabled'} ) {
+            # syslog
+            $self->p( sprintf( "Syslog enabled = %d", $self->{'logging'}->{'enabled'} ), 2 );
+            $self->p( sprintf( "Syslog Facility = %s", $self->{'logging'}->{'facility'} ), 2 );
+        }
     }
 
     $r |= $opts->{'exec'};
@@ -296,6 +313,7 @@ sub help {
         '-C, --conf <file>'     => 'Path to a configuration file.',
         '-d, --devel,--debug'   => 'Run on developement mode.',
         '-h, --host <host>'     => 'Binds to a TCP interface. default: '.$d->{'host'},
+        '-l, --log <file>'      => 'Access log.',
         '-p, --port <port>'     => 'Binds to a TCP port. default: '.$d->{'port'},
         '-s, --server <handler>'=> 'Server implementation to run on for plackup -s. default: '.$d->{'server'},
         '-w, --workers <n>'     => 'The number of max workers for Handler(-s option). default: '.$d->{'workers'},
