@@ -165,33 +165,6 @@ sub submit {
     };
     return $httpd->res->json( 400, { $responsejk => $esmtpreply } ) if $exceptions;
 
-    AUTH: {
-        #     _   _   _ _____ _   _ 
-        #    / \ | | | |_   _| | | |
-        #   / _ \| | | | | | | |_| |
-        #  / ___ \ |_| | | | |  _  |
-        # /_/   \_\___/  |_| |_| |_|
-        #                           
-        # NOT IMPLEMENTED YET
-        if( 0 && $serverconf->{'auth'} ) {
-
-            if( not length $mech ) {
-                # No authentication mechanism
-                $esmtpreply = $responsecn->r( 'auth', 'no-auth-mech' )->damn;
-                $nekosyslog->w( 'err', $esmtpreply );
-
-                return $httpd->res->json( 405, { $responsejk => $esmtpreply } );
-
-            } elsif( not length $auth ) {
-                # Failed to authenticate
-                $esmtpreply = $responsecn->r( 'auth', 'auth-failed' )->damn;
-                $nekosyslog->w( 'err', $esmtpreply );
-
-                return $httpd->res->json( 400, { $responsejk => $esmtpreply } );
-            }
-        }
-    }
-
     EHLO: {
         #  _____ _   _ _     ___  
         # | ____| | | | |   / _ \ 
