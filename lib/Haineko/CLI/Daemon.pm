@@ -155,7 +155,7 @@ sub ctrl {
 
 sub parseoptions {
     my $self = shift;
-    my $dirs = [ '/usr/local/haineko', '/usr/local', '.' ];
+    my $dirs = [ '.', '/usr/local/haineko', '/usr/local' ];
     my $opts = __PACKAGE__->options;
     my $defs = __PACKAGE__->default;
     my $conf = {}; %$conf = %$defs;
