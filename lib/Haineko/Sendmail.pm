@@ -716,9 +716,12 @@ sub submit {
             } else {
                 ;
             }
+
         } # End of for(ONE_TO_ONE)
+
     } # End of SENDMAIL
 
+    $nekosyslog->w( 'notice', $neko->damn );
     return $httpd->res->json( 200, $neko->damn );
 }
 
