@@ -117,4 +117,47 @@ if( $subcommand ) {
 sub help {
     printf( STDERR "Try '%s SUBCOMMAND --help'\n", $scriptname );
 }
+
 __END__
+=encoding utf8
+
+=head1 NAME
+
+hainekoctl - Controls haineko server and utilities.
+
+=head1 DESCRIPTION
+
+hainekoctl is a controller script for haineko server and have some utilities.
+
+=head1 SYNOPSYS
+
+    $ hainekoctl --help         # Help message of the script
+    $ hainekoctl start --help   # Help message of "start" sub command
+
+    $ hainekoctl setup          # Setting up files for haineko to current directory
+    $ hainekoctl start -d       # Start haineko server on development mode
+    $ hainekoctl pw             # Generate a new password for Basic Authentication
+
+=head1 SEE ALSO
+
+=over 2
+
+=item *
+L<Haineko::CLI> - Base class for Haineko command line tools
+
+=back
+
+=head1 REPOSITORY
+
+https://github.com/azumakuniyuki/Haineko
+
+=head1 AUTHOR
+
+azumakuniyuki E<lt>perl.org [at] azumakuniyuki.orgE<gt>
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify it under 
+the same terms as Perl itself.
+
+=cut
