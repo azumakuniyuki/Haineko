@@ -54,7 +54,7 @@ sub mesg {
     my $indentsize = 2;
     my $maxlength1 = 0;
 
-    for my $e ( 'option', 'subcommand' ) {
+    for my $e ( 'subcommand', 'option' ) {
         my @f = @{ $self->{'params'}->{ $e } };
         my $l = 0;
 
@@ -66,7 +66,9 @@ sub mesg {
         }
     }
 
-    for my $e ( 'option', 'subcommand' ) {
+    printf( STDERR "%s SUBCOMMAND [OPTION]\n", $self->command );
+
+    for my $e ( 'subcommand', 'option' ) {
         my @f = @{ $self->{'params'}->{ $e } };
         my $v = q();
 
@@ -91,11 +93,10 @@ sub mesg {
         printf( STDERR "\n" );
     }
 
-    
     if( scalar @{ $self->{'params'}->{'example'} } ) {
-        printf( STDERR "FOR EXAMPLE\n" );
+        printf( STDERR "  FOR EXAMPLE:\n" );
         for my $e ( @{ $self->{'params'}->{'example'} } ) {
-            printf( STDERR "  %s\n", $e );
+            printf( STDERR "    %s\n", $e );
         }
     }
 }
@@ -155,14 +156,14 @@ of run-mode.
 
 =head2 B<help()>
 
-help() prints help message of Haineko::CLI::Daemon for command line.
+help() prints help message of Haineko::CLI::Help for command line.
 
 =head1 SEE ALSO
 
 =over 2
 
 =item *
-L<Haineko::CLI> - Base class of Haineko::CLI::Daemon
+L<Haineko::CLI> - Base class of Haineko::CLI::Help
 
 =item *
 L<bin/haineoctl> - Script of Haineko::CLI::* implementation
