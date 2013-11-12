@@ -38,7 +38,7 @@ sub new {
         'verbose' => $argvs->{'verbose'} || 0,
         'command' => $argvs->{'command'} || [ caller ]->[1],
         'runmode' => $argvs->{'runmode'} || 1,
-        'logging' => $argvs->{'logging'} || { 'disabled' => 1, 'facility' => 'user', 'file' => '' },
+        'logging' => $argvs->{'logging'} || { 'disabled' => 1, 'facility' => 'local2', 'file' => '' },
         'stream'  => {
             'stdin'  => -t STDIN  ? 1 : 0,
             'stdout' => -t STDOUT ? 1 : 0,
