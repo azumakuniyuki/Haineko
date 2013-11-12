@@ -7,11 +7,14 @@
 # |_|  |_|\__,_|_|\_\___|_| |_|_|\___|
 # ---------------------------------------------------------------------------
 HERE = $(shell `pwd`)
+NEKO = 'http://127.0.0.1:2794/submit'
 MAKE = /usr/bin/make
 PERL = /usr/local/bin/perl
+CURL = /usr/bin/curl -X POST
 PROVE= /usr/local/bin/prove -Ilib --timer
 MINIL= /usr/local/bin/minil
 CF = ./etc/haineko.cf-debug
+JQ = /usr/local/bin/jq -M .
 CP = /bin/cp
 RM = /bin/rm -f
 MV = /bin/mv
@@ -22,9 +25,13 @@ CTL = ./bin/hainekoctl
 
 start:
 	netstat -tan | grep -E '127.0.0.1[.:]2794' || $(CTL) start -d -C $(CF) &
+	sleep 1
 
 stop:
 	$(CTL) stop
+
+send: start
+	$(CURL) -d'@tmp/email.json' $(NEKO) | $(JQ)
 
 test: user-test author-test
 
