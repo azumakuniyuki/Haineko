@@ -56,17 +56,17 @@ if test "x$WITH_PERLPATH" = "xnone"; then
     fi
     AC_PATH_PROG(PROVE, prove, no, /usr/local/bin:/usr/bin:/bin)
     if test "x$PROVE" = xno; then
-        PROVE="$PERL -I./blib/lib -I./lib"
+        PROVE="$PERL -I./blib/lib -I./lib -I./dist/lib/perl5"
     else
-        PROVE="$PROVE -r --timer -I./blib/lib -I./lib"
+        PROVE="$PROVE -r --timer -I./blib/lib -I./lib -I./dist/lib/perl5"
     fi
 else
     PERL=$WITH_PERLPATH
     PROVE=`dirname $WITH_PERLPATH`/prove
     if test "x$PROVE" = xno; then
-        PROVE="$PERL -I./blib/lib -I./lib"
+        PROVE="$PERL -I./blib/lib -I./lib -I./dist/lib/perl5"
     else
-        PROVE="$PROVE -r --timer -I./blib/lib -I./lib"
+        PROVE="$PROVE -r --timer -I./blib/lib -I./lib -I./dist/lib/perl5"
     fi
 fi
 
