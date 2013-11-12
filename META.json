@@ -85,8 +85,8 @@
       }
    },
    "release_status" : "unstable",
-   "version" : "0.2.1",
+   "version" : "0.2.2",
    "x_contributors" : [
-      "azumakuniyuki <perl.org@azumakuniyuki.org>"
+      "azumakuniyuki <perl.org@azumakuniyuki>"
    ]
 }

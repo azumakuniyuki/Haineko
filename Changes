@@ -1,5 +1,16 @@
 Revision history for Haineko
 
+0.2.2
+    - Haineko::CLI::Password for ``bin/hainekoctl pw''.
+    - Haineko::CLI::Setup::Data for ``bin/hainekoctl make-setup-data''.
+    - Add test cases for Haineko::CLI::*.
+    - New sub command ``pw'' for bin/hainekoctl to generate Basic Authentication
+      password.
+    - New option ``-l, --log'' for bin/hainekoctl start as a wrapper option of
+      plackup --access-log.
+    - The first argument of ./bin/hainekoctl is a ``Sub command''.
+    - Send log messages to syslog after relayed message if syslog is enabled.
+
 0.2.1   Fri,  8 Nov 2013 13:22:22 +0900 (JST)
     - README-JA.md is Japanese version of README.md.
 
