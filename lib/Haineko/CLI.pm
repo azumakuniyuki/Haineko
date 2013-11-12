@@ -38,7 +38,7 @@ sub new {
         'verbose' => $argvs->{'verbose'} || 0,
         'command' => $argvs->{'command'} || [ caller ]->[1],
         'runmode' => $argvs->{'runmode'} || 1,
-        'logging'  => $argvs->{'logging'}  || { 'enabled' => 0, 'facility' => 'user' },
+        'logging' => $argvs->{'logging'} || { 'disabled' => 1, 'facility' => 'user', 'file' => '' },
         'stream'  => {
             'stdin'  => -t STDIN  ? 1 : 0,
             'stdout' => -t STDOUT ? 1 : 0,
@@ -109,7 +109,7 @@ sub e {
     my $mesg = shift; return 0 unless length $mesg;
     my $cont = shift || 0;
 
-    $self->l( $mesg, 'e' ) if $self->{'logging'}->{'enabled'};
+    $self->l( $mesg, 'e' ) unless $self->{'logging'}->{'disabled'};
     if( $self->stderr ) {
         printf( STDERR " * error0: %s\n", $mesg );
         printf( STDERR " * error0: ******** ABORT ********\n" ) unless $cont;
@@ -223,7 +223,7 @@ new() is a constructor of Haineko::CLI::Daemon
     my $e = Haineko::CLI::Daemon->new(
             'verbose' => 2,         # Verbose level
             'logging' => {          # Syslog configuration
-                'enabled' => 1,
+                'disabled' => 0,
                 'facility' => 'local2',
             },
             'pidfile' => '/tmp/pid',# process id file

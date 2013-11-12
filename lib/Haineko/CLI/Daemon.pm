@@ -20,7 +20,7 @@ sub default {
         'port'    => 2794,
         'config'  => '',
         'server'  => 'Standalone',
-        'logging' => { 'enabled' => 0, 'facility' => 'user', 'file' => '' },
+        'logging' => { 'disabled' => 1, 'facility' => 'user', 'file' => '' },
         'workers' => 2,
         'interval'=> 5,
     };
@@ -282,17 +282,17 @@ sub parseoptions {
 
     if( $p->{'log'} ) {
 
-        $self->{'logging'}->{'enabled'} = 1;
+        $self->{'logging'}->{'disabled'} = 0;
         $self->{'logging'}->{'file'} = $p->{'log'};
         $self->p( sprintf( "Access log file = %s", $p->{'log'} ) );
 
     } else {
 
         $self->{'logging'} = $conf->{'logging'} // $defs->{'logging'};
-        if( $self->{'logging'}->{'enabled'} ) {
+        if( not $self->{'logging'}->{'disabled'} ) {
             # syslog
-            $self->p( sprintf( "Syslog enabled = %d", $self->{'logging'}->{'enabled'} ), 2 );
-            $self->p( sprintf( "Syslog Facility = %s", $self->{'logging'}->{'facility'} ), 2 );
+            $self->p( sprintf( "Syslog disabled = %d", $self->{'logging'}->{'disabled'} ), 2 );
+            $self->p( sprintf( "Syslog facility = %s", $self->{'logging'}->{'facility'} ), 2 );
         }
     }
 
