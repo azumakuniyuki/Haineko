@@ -2,6 +2,7 @@ package Haineko::CLI::Daemon;
 use parent 'Haineko::CLI';
 use strict;
 use warnings;
+use Getopt::Long qw/:config posix_default no_ignore_case bundling auto_help/;
 
 sub options {
     return {
@@ -157,19 +158,30 @@ sub parseoptions {
     my $p = {};     # Parsed options
     my $q = undef;  # Path::Class::File
 
-    use Getopt::Long qw/:config posix_default no_ignore_case bundling auto_help/;
     Getopt::Long::GetOptions( $p,
         'app|a=s',      # Path to psgi file
         'auth|A',       # Require basic-authenticaion
         'conf|C=s',     # Configuration file
         'devel|d',      # Developement mode
         'debug',        # same as --devel
+        'help',         # --help
         'host|h=s',     # Hostname
         'port|p=i',     # Port
         'server|s=s',   # Server, -s option of plackup
         'workers|w=i',  # --max-workers of plackup
         'verbose|v+',   # Verbose
     );
+
+    if( $p->{'help'} ) {
+        # --help
+        require Haineko::CLI::Help;
+        my $o = Haineko::CLI::Help->new( 'command' => [ caller ]->[1] );
+        $o->add( __PACKAGE__->help('s'), 'subcommand' );
+        $o->add( __PACKAGE__->help('o'), 'option' );
+        $o->add( __PACKAGE__->help('e'), 'example' );
+        $o->mesg;
+        exit(0);
+    }
 
     if( defined $p->{'devel'} || defined $p->{'debug'} ) {
         # Turn on the development mode
@@ -282,11 +294,13 @@ sub help {
         '-A, --auth'            => 'Require Basic Authentication.',
         '-a, --app <psgi>'      => 'Path to a psgi file.',
         '-C, --conf <file>'     => 'Path to a configuration file.',
-        '-d, --devel,--debug'   => 'Runon developement mode.',
+        '-d, --devel,--debug'   => 'Run on developement mode.',
         '-h, --host <host>'     => 'Binds to a TCP interface. default: '.$d->{'host'},
         '-p, --port <port>'     => 'Binds to a TCP port. default: '.$d->{'port'},
         '-s, --server <handler>'=> 'Server implementation to run on for plackup -s. default: '.$d->{'server'},
         '-w, --workers <n>'     => 'The number of max workers for Handler(-s option). default: '.$d->{'workers'},
+        '-v, --verbose'         => 'Verbose mode.',
+        '--help'                => 'This screen',
     ];
     my $subcommand = [
         'start'     => 'Start haineko server',
@@ -295,7 +309,10 @@ sub help {
         'stop'      => 'Stop the server, send "TERM" signal',
         'status'    => 'Show the process id of running haineko server',
     ];
-    my $forexample = [];
+    my $forexample = [
+        'hainekoctl start -s Starlet -w 4',
+        'hainekoctl start -d -h 127.0.0.1 -p 2222 -C /tmp/neko.cf',
+    ];
 
     return $commoption if $argvs eq 'o' || $argvs eq 'option';
     return $subcommand if $argvs eq 's' || $argvs eq 'subcommand';
