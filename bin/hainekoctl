@@ -55,7 +55,7 @@ if( $subcommand ) {
         }
     } else {
         # Sub commands except daemon mode
-        if( $subcommand eq 'help' ) {
+        if( $subcommand eq 'help' || $subcommand eq '--help' ) {
             # ``help'' sub command
             require Haineko::CLI;
             require Haineko::CLI::Help;
@@ -72,21 +72,13 @@ if( $subcommand ) {
             help();
             exit(0);
 
+        } elsif( $subcommand eq 'version' ) {
+            # version
+            require Haineko::CLI;
+            Haineko::CLI->version;
+            exit(0);
 
-        } elsif( $subcommand eq '--help' ) {
-            # --help
-            help();
-
-        } elsif( $subcommand eq 'setup' ) {
-            # Initialize: Distribute files for Haineko to current directory 
-            # or specified directory.
-            require Haineko::CLI::Setup;
-            $methodargv = { 'command' => $commandset };
-            $hainekocmd = Haineko::CLI::Setup->new( %$methodargv );
-            $hainekocmd->parseoptions;
-            $hainekocmd->init;
-
-        } elsif( $subcommand eq 'pw' ) {
+        } elsif( $subcommand =~ m/(?:pw|passwd|password)/ ) {
             # Generate a new password for BASIC-Authentication
             require Haineko::CLI::Password;
             $methodargv = { 'command' => $commandset };
@@ -96,19 +88,26 @@ if( $subcommand ) {
             print "\n";
             exit(0);
 
-        } elsif( $subcommand eq 'make-setup-data' ) {
-            # Call Haineko::CLI::Setup->make
+        } elsif( $subcommand eq 'setup' || $subcommand eq 'make-setup-data' ) {
+            # Initialize: Distribute files for Haineko to current directory 
+            # or specified directory.
             require Haineko::CLI::Setup;
             $methodargv = { 'command' => $commandset };
             $hainekocmd = Haineko::CLI::Setup->new( %$methodargv );
             $hainekocmd->parseoptions;
-            $hainekocmd->make;
-            exit(0);
 
-        } elsif( $subcommand eq 'version' ) {
-            require Haineko::CLI;
-            Haineko::CLI->version;
-            exit(0);
+            if( $subcommand eq 'setup' ) {
+                $hainekocmd->init;
+
+            } else {
+                $hainekocmd->make;
+                exit(0);
+            }
+
+        } else {
+            # Unknown sub command
+            printf( STDERR "Unknown sub command: %s\n", $subcommand );
+            exit(1);
         }
     }
 } else {
