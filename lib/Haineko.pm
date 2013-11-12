@@ -49,7 +49,7 @@ a gray cat.
 
 =head1 SYNOPSYS
 
-    $ sbin/hainekod -a libexec/haineko.psgi
+    $ bin/hainekoctl start -a libexec/haineko.psgi
     $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
 
 =head1 EMAIL SUBMISSION
@@ -144,19 +144,19 @@ To send email via Haineko, POST email data as a JSON format like the following:
 
     The value of HAINEKO_CONF is the path to __haineko.cf__ file. If this variable is
     not defined, Haineko finds the file from HAINEKO_ROOT/etc directory. This variable
-    can be set with -C /path/to/haineko.cf at sbin/hainekod script.
+    can be set with -C /path/to/haineko.cf at bin/hainekoctl script.
 
 =head2 HAINEKO_AUTH
 
     Haineko requires Basic-Authentication at connecting Haineko server when HAINEK_AUTH
     environment variable is set. The value of HAINEKO_AUTH should be the path to the
     password file such as 'export HAINEKO_AUTH=/path/to/password'. This variable can be
-    set with -A option of sbin/hainekod script.
+    set with -A option of bin/hainekoctl script.
 
 =head2 HAINEKO_DEBUG
 
     Haineko runs on debug(development) mode when this variable is set. -d option of
-    sbin/hainekod turns on debug mode.
+    bin/hainekoctl turns on debug mode.
 
 =head1 REPOSITORY
 
