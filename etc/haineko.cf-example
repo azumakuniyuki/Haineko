@@ -10,13 +10,6 @@ smtpd:
     # EHLO hostname for connecting external SMTP server to send an email
     hostname: 'haineko.example.jp'
 
-    # NOT IMPLEMENTED YET
-    # Authentication flag on HTTP-API
-    #   0 = Authentication not required
-    #   1 = Haineko requires authentication
-    auth: 0
-    mech: [ 'plain', 'cram-md5', 'digest-md5' ]
-
     # Max message size(bytes), 0 is unlimited
     max_message_size: 4194304
 
