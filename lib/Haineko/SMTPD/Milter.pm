@@ -1,6 +1,7 @@
 package Haineko::SMTPD::Milter;
 use strict;
 use warnings;
+use Try::Tiny;
 use Module::Load;
 
 sub import {
@@ -13,9 +14,12 @@ sub import {
         # Load each module
         $e =~ s/\A/Haineko::SMTPD::Milter::/ unless $e =~ /\A[+]/;
         $e =~ s/\A[+]//;
-        eval { Module::Load::load( $e ); };
-        next if $@;
-        push @$llist, $e;
+        try { 
+            Module::Load::load( $e );
+            push @$llist, $e;
+        } catch {
+            next;
+        };
     }
 
     return $llist;
