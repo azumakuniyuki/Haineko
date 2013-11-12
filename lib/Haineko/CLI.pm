@@ -110,8 +110,10 @@ sub e {
     my $cont = shift || 0;
 
     $self->l( $mesg, 'e' ) if $self->{'logging'}->{'enabled'};
-    printf( STDERR " * error0: %s\n", $mesg ) if $self->stderr;
-    printf( STDERR " * error0: ******** ABORT ********\n" ) if $self->stderr;
+    if( $self->stderr ) {
+        printf( STDERR " * error0: %s\n", $mesg );
+        printf( STDERR " * error0: ******** ABORT ********\n" ) unless $cont;
+    }
     $cont ? return 1 : exit(1);
 }
 
