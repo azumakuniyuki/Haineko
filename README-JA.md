@@ -91,7 +91,7 @@ A. ソースコードのディレクトリで直接実行
 
     $ cd ./Haineko
     $ sudo cpanm --installdeps .
-    $ ./bin/hainekoctl --dest . setup
+    $ ./bin/hainekoctl setup --dest .
     $ vi ./etc/haineko.cf
 
     /etcディレクトリにある他のファイルも同様に編集
@@ -100,7 +100,7 @@ A. ソースコードのディレクトリで直接実行
 次のいずれかのコマンドで起動出来ます。
 
     $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
-    $ ./bin/hainekoctl --devel start
+    $ ./bin/hainekoctl start --devel
 
 B. /usr/local/hainekoにインストールする
 ---------------------------------------
@@ -123,7 +123,7 @@ B. /usr/local/hainekoにインストールする
 
     $ make && make test && sudo make install
 
-    $ /usr/local/haineko/bin/hainekoctl --dest /usr/local/haineko setup
+    $ /usr/local/haineko/bin/hainekoctl setup --dest /usr/local/haineko
     $ cd /usr/local/haineko
     $ vi ./etc/haineko.cf
 
@@ -134,7 +134,7 @@ B. /usr/local/hainekoにインストールする
 次のいずれかのコマンドで起動出来ます。
 
     $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
-    $ ./bin/hainekoctl --devel start
+    $ ./bin/hainekoctl start --devel
 
 C. /usr/localにインストールする
 -------------------------------
@@ -143,7 +143,7 @@ C. /usr/localにインストールする
     $ sudo cpanm .
     $ sudo cpanm -L/usr/local --installdeps .
 
-    $ /usr/local/bin/hainekoctl --dest /usr/local/etc setup
+    $ /usr/local/bin/hainekoctl setup --dest /usr/local/etc
     $ cd /usr/local
     $ vi ./etc/haineko.cf
 
@@ -152,7 +152,7 @@ C. /usr/localにインストールする
 次のいずれかのコマンドで起動出来ます。
 
     $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
-    $ ./bin/hainekoctl --devel start
+    $ ./bin/hainekoctl start --devel
 
 Hainekoサーバの起動
 -------------------
@@ -163,7 +163,7 @@ Hainekoサーバの起動
 
 ### ラッパースクリプト(hainekoctl)を使う
 
-    $ bin/hainekoctl --devel -a libexec/haineko.psgi start
+    $ bin/hainekoctl start --devel -a libexec/haineko.psgi
 
 下記のコマンドを実行するとhainekoctlで利用可能なオプションが表示されます。
 

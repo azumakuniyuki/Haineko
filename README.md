@@ -89,7 +89,7 @@ A. Run at the source directory
 
     $ cd ./Haineko
     $ sudo cpanm --installdeps .
-    $ ./bin/hainekoctl --dest . setup
+    $ ./bin/hainekoctl setup --dest .
     $ vi ./etc/haineko.cf
 
     And edit other files in etc/ directory if you needed.
@@ -98,7 +98,7 @@ A. Run at the source directory
 Run by the one of the followings:
 
     $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
-    $ ./bin/hainekoctl --devel start
+    $ ./bin/hainekoctl start --devel
 
 B. Build and install into /usr/local/haineko
 --------------------------------------------
@@ -121,7 +121,7 @@ OR
 
     $ make && make test && sudo make install
 
-    $ /usr/local/haineko/bin/hainekoctl --dest /usr/local/haineko setup
+    $ /usr/local/haineko/bin/hainekoctl setup --dest /usr/local/haineko
     $ cd /usr/local/haineko
     $ vi ./etc/haineko.cf
 
@@ -132,7 +132,7 @@ OR
 Run by the one of the followings:
 
     $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
-    $ ./bin/hainekoctl --devel start
+    $ ./bin/hainekoctl start --devel
 
 C. Build and install into /usr/local
 ------------------------------------
@@ -141,7 +141,7 @@ C. Build and install into /usr/local
     $ sudo cpanm .
     $ sudo cpanm -L/usr/local --installdeps .
 
-    $ /usr/local/bin/hainekoctl --dest /usr/local/etc setup
+    $ /usr/local/bin/hainekoctl setup --dest /usr/local/etc
     $ cd /usr/local
     $ vi ./etc/haineko.cf
 
@@ -150,7 +150,7 @@ C. Build and install into /usr/local
 Run by the one of the followings:
 
     $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
-    $ ./bin/hainekoctl --devel start
+    $ ./bin/hainekoctl start --devel
 
 Starting Haineko server
 -----------------------
@@ -161,7 +161,7 @@ Starting Haineko server
 
 ### Use wrapper script
 
-    $ bin/hainekoctl --devel -a libexec/haineko.psgi start
+    $ bin/hainekoctl start --devel -a libexec/haineko.psgi
 
 The following command shows other options of bin/hainekoctl:
 
