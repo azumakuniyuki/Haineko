@@ -16,8 +16,7 @@ use Archive::Tar;
 sub options {
     return {
         'exec' => ( 1 << 0 ),
-        'test' => ( 1 << 1 ),
-        'force'=> ( 1 << 2 ),
+        'force'=> ( 1 << 1 ),
     };
 }
 
@@ -219,13 +218,23 @@ sub parseoptions {
 
     use Getopt::Long qw/:config posix_default no_ignore_case bundling auto_help/;
     Getopt::Long::GetOptions( $p,
-        'devel|d',      # Developement mode
         'dest=s',       # Destination directory
         'force',        # Force overwrite
+        'help',         # --help
         'verbose|v+',   # Verbose
     );
 
-    $r |= $opts->{'test'} if defined $p->{'devel'}; # Turn on the development mode
+    if( $p->{'help'} ) {
+        # --help
+        require Haineko::CLI::Help;
+        my $o = Haineko::CLI::Help->new( 'command' => [ caller ]->[1] );
+        $o->add( __PACKAGE__->help('s'), 'subcommand' );
+        $o->add( __PACKAGE__->help('o'), 'option' );
+        $o->add( __PACKAGE__->help('e'), 'example' );
+        $o->mesg;
+        exit(0);
+    }
+
     $r |= $opts->{'force'} if $p->{'force'};        # Overwrite by force
 
     $self->v( $p->{'verbose'} );
@@ -241,9 +250,20 @@ sub help {
     my $class = shift;
     my $argvs = shift || q();
 
-    my $commoption = [ '--dest <dir>' => 'Destination directory for setup files.' ];
-    my $subcommand = [ 'setup' => 'Setup files for Haineko.' ];
-    my $forexample = [];
+    my $commoption = [ 
+        '--dest <dir>'  => 'Destination directory for setup files.',
+        '--force'       => 'Overwrite distribution files by force.',
+        '-v, --verbose' => 'Verbose mode.',
+        '--help'        => 'This screen',
+    ];
+    my $subcommand = [ 
+        'setup'             => 'Setup files for Haineko.',
+        'make-setup-files'  => 'For author: Update lib/Haineko/CLI/Setup/Data.pm',
+    ];
+    my $forexample = [
+        'hainekoctl setup # Copy files to current directory',
+        'hainekoctl setup --dest /usr/local/haineko/etc'
+    ];
 
     return $commoption if $argvs eq 'o' || $argvs eq 'option';
     return $subcommand if $argvs eq 's' || $argvs eq 'subcommand';
@@ -252,3 +272,77 @@ sub help {
 }
 
 1;
+__END__
+=encoding utf8
+
+=head1 NAME
+
+Haineko::CLI::Setup - Setup files for Haineko
+
+=head1 DESCRIPTION
+
+Haineko::CLI::Setup provide methods for setting up files for Haineko/hainekoctl
+script.
+
+=head1 SYNOPSYS
+
+    use Haineko::CLI::Setup;
+    my $s = Haineko::CLI::Setup->new();
+
+    $s->parseoptions;   # Parse command-line options
+    $d->make;           # Update Haineko::CLI::Setup::Data module
+    $d->init;           # Copy files for Haineko to current directory
+
+=head1 INSTANCE METHODS
+
+=head2 B<make()>
+
+make() method update the contents of Haineko/CLI/Setup/Data.pm for setting up
+files of Haineko. This method will be used by Haineko author only.
+
+    my $s = Haineko::CLI::Setup->new();
+    $s->parseoptions;
+    $s->make;
+
+=head2 B<init()>
+
+init() method copy files for Haineko to the current directory. The source of files
+are extracted from Haineko::CLI::Setup::Data::DATA section as a BASE64 encoded 
+test, and configuration files and psgi file are copied to the current directory
+or the directory specified with ``--dest'' option of hainekoctl script.
+
+=head2 B<parseoptions()>
+
+parseoptions() method parse options given at command line and returns the value
+of run-mode.
+
+=head2 B<help()>
+
+help() prints help message of Haineko::CLI::Setup for command line.
+
+=head1 SEE ALSO
+
+=over 2
+
+=item *
+L<Haineko::CLI> - Base class of Haineko::CLI::Setup
+
+=item *
+L<bin/haineoctl> - Script of Haineko::CLI::* implementation
+
+=back
+
+=head1 REPOSITORY
+
+https://github.com/azumakuniyuki/Haineko
+
+=head1 AUTHOR
+
+azumakuniyuki E<lt>perl.org [at] azumakuniyuki.orgE<gt>
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify it under 
+the same terms as Perl itself.
+
+=cut
