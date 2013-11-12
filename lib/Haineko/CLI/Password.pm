@@ -3,7 +3,6 @@ use parent 'Haineko::CLI';
 use strict;
 use warnings;
 use Try::Tiny;
-use Crypt::SaltedHash;
 
 sub options {
     return {
@@ -20,6 +19,12 @@ sub make {
     my $password01 = undef;
     my $password02 = undef;
     my $filehandle = undef;
+
+    try {
+        require Crypt::SaltedHash;
+    } catch {
+        $self->e( 'Cannot load "Crypt::SaltedHash"' );
+    };
 
     if( $self->r & $o->{'stdin'} ) {
         # Read a password from STDIN
@@ -60,11 +65,13 @@ sub make {
         $self->validate( $password01 );
     }
 
-    my $methodargv = { 'algorithm' => $self->{'params'}->{'algorithm'} };
-    my $saltedhash = Crypt::SaltedHash->new( %$methodargv );
+    my $methodargv = undef;
+    my $saltedhash = undef;
     my $passwdhash = undef;
     my $credential = undef;
 
+    $methodargv = { 'algorithm' => $self->{'params'}->{'algorithm'} };
+    $saltedhash = Crypt::SaltedHash->new( %$methodargv );
     $saltedhash->add( $password01 );
     $passwdhash = $saltedhash->generate;
 
