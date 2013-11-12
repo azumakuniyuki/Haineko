@@ -2,7 +2,6 @@ package Haineko::SMTPD::Milter::Nyaa;
 use strict;
 use warnings;
 use parent 'Haineko::SMTPD::Milter';
-use Acme::Nyaa;
 
 sub body {
     my $class = shift;
@@ -13,10 +12,15 @@ sub body {
     return 1 unless ref $argvs;
     return 1 unless ref $argvs eq 'SCALAR';
 
-    $nyaaa  = Acme::Nyaa->new;
-    $$argvs = $nyaaa->straycat( [ $$argvs ] );
-    utf8::decode $$argvs unless utf8::is_utf8 $$argvs;
-    return 1;
+    try {
+        use Acme::Nyaa;
+        $nyaaa  = Acme::Nyaa->new;
+        $$argvs = $nyaaa->straycat( [ $$argvs ] );
+        utf8::decode $$argvs unless utf8::is_utf8 $$argvs;
+        return 1;
+    } catch {
+        return 0;
+    }
 }
 
 1;
