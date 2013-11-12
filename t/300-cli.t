@@ -46,8 +46,8 @@ INSTANCE_METHODS: {
     like( $testobject->stderr, qr|\d| );
 
     isa_ok( $testobject->logging, 'HASH' );
-    is( $testobject->logging->{'enabled'}, 0 );
-    is( $testobject->logging->{'facility'}, 'user' );
+    is( $testobject->logging->{'disabled'}, 1 );
+    is( $testobject->logging->{'facility'}, 'local2' );
 
     ok( $testobject->command );
     ok( $testobject->readpf );
