@@ -121,7 +121,7 @@ for my $e ( @$emailfiles ) {
                 $s = $j->{ $k };
                 isa_ok( $s, 'HASH' );
                 isa_ok( $s->{'message'}, 'ARRAY' );
-                is( $s->{'dsn'}, '2.0.0', $p.sprintf( "%s->dsn = %s", $k, '2.0.0' ) );
+                like( $s->{'dsn'}, qr/\A2[.]\d[.]\d/, $p.sprintf( "%s->dsn = %s", $k, $s->{'dsn'} ) );
                 ok( $s->{'code'}, $p.sprintf( "%s->code = %d", $k, $s->{'code'} ) );
                 ok( $s->{'host'}, $p.sprintf( "%s->host = %s", $k, $s->{'host'} ) );
                 is( $s->{'error'}, 0, $p.sprintf( "%s->error = %d", $k, 0 ) );
