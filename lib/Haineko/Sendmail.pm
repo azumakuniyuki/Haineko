@@ -643,7 +643,9 @@ sub submit {
             $relayingto->{'host'}   //= '127.0.0.1';
             $relayingto->{'mailer'} //= 'ESMTP';
 
-            $credential = $autheninfo->{ $relayingto->{'auth'} } // {};
+            if( $relayingto->{'auth'} ) {
+                $credential = $autheninfo->{ $relayingto->{'auth'} } // {};
+            } 
             $relayingto->{'auth'} = q() unless keys %$credential;
 
             if( $relayingto->{'mailer'} eq 'ESMTP' ) {
