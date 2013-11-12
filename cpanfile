@@ -21,6 +21,7 @@ requires 'Net::SMTPS', '0.03';
 requires 'Net::CIDR::Lite', '0.21';
 requires 'Path::Class', '0.24';
 requires 'Plack', '1.0027';
+requires 'Plack::Middleware::Auth::Basic', '';
 requires 'Router::Simple', '0.14';
 requires 'Server::Starter', '0.15';
 requires 'Sys::Syslog', '0.33';
@@ -37,5 +38,4 @@ on test => sub {
 on develop => sub {
     requires 'Test::UsedModules', '0.03';
     requires 'IO::Socket::INET', '1.31';
-    requires 'Plack::Middleware::Auth::Basic', '';
 };
