@@ -27,9 +27,12 @@ if( $subcommand ) {
         require Haineko::CLI::Daemon;
         my $scriptroot = Path::Class::Dir->new( dirname $0 );
         my $serverroot = $scriptroot->parent->absolute();
+        my $procidfile = sprintf( "%s/run/haineko.pid", $serverroot );
+
+        $procidfile = '/tmp/haineko.pid' unless -w $serverroot.'/run';
         $methodargv = {
             'command' => $commandset,
-            'pidfile' => '/tmp/haineko.pid',
+            'pidfile' => $procidfile,
         };
         $hainekocmd = Haineko::CLI::Daemon->new( %$methodargv );
 
