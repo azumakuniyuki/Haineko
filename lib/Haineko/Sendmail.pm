@@ -680,6 +680,38 @@ sub submit {
                 $smtpmailer->sendmail();
                 $neko->response( $smtpmailer->response );
 
+            } elsif( $relayingto->{'mailer'} eq 'Haineko' ) {
+                # Use Haineko::SMTPD::Relay::Haineko
+                # Haineko -> other Haineko relay
+                $methodargv = {
+                    'ehlo'      => $serverconf->{'hostname'},
+                    'mail'      => $neko->addresser->address,
+                    'rcpt'      => $r->address,
+                    'head'      => $mailheader,
+                    'body'      => \$body,
+                    'attr'      => $attributes,
+                    'host'      => $relayingto->{'host'} // '127.0.0.1',
+                    'port'      => $relayingto->{'port'} // 2794,
+                    'retry'     => $relayingto->{'retry'} // 0,
+                    'sleep'     => $relayingto->{'sleep'} // 5,
+                    'timeout'   => $relayingto->{'timeout'} // 59,
+                    'starttls'  => $relayingto->{'starttls'},
+                };
+
+                Module::Load::load('Haineko::SMTPD::Relay::Haineko');
+                $smtpmailer = Haineko::SMTPD::Relay::Haineko->new( %$methodargv );
+
+                if( $relayingto->{'auth'} ) {
+                    # Load credentials for SMTP-AUTH
+                    $smtpmailer->auth( 1 );
+                    $smtpmailer->username( $credential->{'username'} );
+                    $smtpmailer->password( $credential->{'password'} );
+                }
+
+                $smtpmailer->sendmail();
+                $neko->response( $smtpmailer->response );
+
+
             } elsif( $relayingto->{'mailer'} eq 'Discard' ) {
                 # Discard mailer, email blackhole. It will discard all messages
                 Module::Load::load('Haineko::SMTPD::Relay::Discard');
