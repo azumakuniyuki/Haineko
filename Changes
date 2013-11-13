@@ -1,5 +1,8 @@
 Revision history for Haineko
 
+0.2.4   Wed, 13 Nov 2013 18:22:22 +0900 (JST)
+    - Fix bug: the first argument of shift() in Haineko::SMTPD::Relay::SendGrid.
+
 0.2.3   Wed, 13 Nov 2013 03:22:22 +0900 (JST)
     - Fix base64 encoded data in <DATA> section of Haineko::CLI::Setup::Data.
 
