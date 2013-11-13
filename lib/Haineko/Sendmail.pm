@@ -508,7 +508,13 @@ sub submit {
 
             my $f = $head->{ $e };
             my $g = ucfirst $e;
-            $f = Encode::encode( $headencode, $f ) if Haineko::SMTPD::RFC5321->is8bit( \$f );
+            my $v = [];
+
+            if( $g =~ m/[-]/ ) {
+                $v = [ split( '-', $g ) ];
+                $g = join( '-', map { ucfirst $_ } @$v );
+            }
+            $f =  Encode::encode( $headencode, $f ) if Haineko::SMTPD::RFC5321->is8bit( \$f );
 
             if( exists $mailheader->{ $g } ) {
 
