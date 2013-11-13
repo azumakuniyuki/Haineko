@@ -246,6 +246,20 @@ sub new {
     my $argvs = { @_ };
 
     $argvs->{'host'} //= '127.0.0.1';
+
+    while(1) {
+        last unless exists $argvs->{'message'};
+        last unless ref $argvs->{'message'} eq 'ARRAY';
+        last unless scalar @{ $argvs->{'message'} };
+
+        for my $r ( @{ $argvs->{'message'} } ) {
+            chomp $r;
+            $r =~ s|\r\n||g;
+            $r =~ s|\A *||;
+            $r =~ s| *\z||;
+        }
+        last;
+    }
     return bless $argvs, __PACKAGE__;
 }
 
