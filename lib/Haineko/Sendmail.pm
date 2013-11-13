@@ -349,7 +349,7 @@ sub submit {
 
                         next if grep { $e eq $_ } @$r;
 
-                        my $x = pop [ split( '@', $e ) ];
+                        my $x = [ split( '@', $e ) ]->[-1];
                         next if grep { $x eq $_ } @$d;
 
                         $notallowed = 1;
@@ -710,7 +710,6 @@ sub submit {
 
                 $smtpmailer->sendmail();
                 $neko->response( $smtpmailer->response );
-
 
             } elsif( $relayingto->{'mailer'} eq 'Discard' ) {
                 # Discard mailer, email blackhole. It will discard all messages
