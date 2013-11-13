@@ -52,7 +52,7 @@ sub sendmail {
 
     my $usedheader = [ 'Date', 'Subject', 'From' ];
     my $jsonheader = {};
-    my $identifier = shift( split( '@', $self->{'head'}->{'Message-Id'} ) );
+    my $identifier = [ split( '@', $self->{'head'}->{'Message-Id'} ) ]->[0];
 
     for my $e ( keys %{ $self->{'head'} } ) {
         # Prepare email headers except headers which begin with ``X-''
