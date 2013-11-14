@@ -68,9 +68,6 @@ INSTANCE_METHODS: {
     is $r->command, 'CONN', '->response->command => CONN';
 
     like $m, qr/Cannot connect SMTP Server/, '->response->message => '.$m;
-
-    use Data::Dumper;
-    warn Dumper $o->response;
 }
 
 done_testing;
