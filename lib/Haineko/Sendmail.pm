@@ -668,11 +668,11 @@ sub submit {
 
                 if( $relayingto->{'mailer'} eq 'ESMTP' ) {
                     # use well-known port for SMTP
-                    $methodargv->{'port'} //= 25;
+                    $methodargv->{'port'} = $relayingto->{'port'} // 25;
 
                 } elsif( $relayingto->{'mailer'} eq 'Haineko' ) {
                     # Haineko uses 2794 by default
-                    $methodargv->{'port'} //= 2794;
+                    $methodargv->{'port'} = $relayingto->{'port'} // 2794;
                 }
 
                 $relayclass = sprintf( "Haineko::SMTPD::Relay::%s", $relayingto->{'mailer'} );
