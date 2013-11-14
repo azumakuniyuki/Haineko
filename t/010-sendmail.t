@@ -14,9 +14,17 @@ my $contents = undef;
 my $esmtpres = undef;
 my $callback = undef;
 
+my $errorset = [
+    { 'path' => 'submit', 'status' => 405, 'code' => 421, 'message' => 'GET method not supported' },
+    { 'path' => 'nyaaaa', 'status' => 404, 'code' => 421, 'message' => 'Not found' },
+];
+my $errindex = 0;
+
 my $nekotest = sub {
     $callback = shift;
-    $request1 = HTTP::Request->new( 'GET' => 'http://127.0.0.1:2794/submit' );
+
+    my $v = $errorset->[ $errindex ]->{'path'};
+    $request1 = HTTP::Request->new( 'GET' => 'http://127.0.0.1:2794/'.$v );
     $response = $callback->( $request1 );
     $contents = JSON::Syck::Load( $response->content );
     $esmtpres = $contents->{'smtp.response'};
@@ -26,16 +34,19 @@ my $nekotest = sub {
     isa_ok $contents, 'HASH';
     isa_ok $esmtpres, 'HASH';
 
-    is $response->code, 405;
-    is $esmtpres->{'dsn'}, undef;
-    is $esmtpres->{'host'}, '127.0.0.1';
-    is $esmtpres->{'code'}, 421;
+    is $response->code, $errorset->[ $errindex ]->{'status'}, 'HTTP Status = '.$response->code;
+    is $esmtpres->{'dsn'}, undef, 'dsn = undef';
+    is $esmtpres->{'host'}, '127.0.0.1', 'host = 127.0.0.1';
+    is $esmtpres->{'code'}, $errorset->[ $errindex ]->{'code'}, 'SMTP code = '.$esmtpres->{'code'};
     is $esmtpres->{'error'}, 1;
     is $esmtpres->{'mailer'}, undef;
-    is $esmtpres->{'message'}->[0], 'GET method not supported';
+    is $esmtpres->{'message'}->[0], $errorset->[ $errindex ]->{'message'}, $esmtpres->{'message'}->[0];
     is $esmtpres->{'command'}, 'HTTP';
 };
-test_psgi $nekochan, $nekotest;
+for( my $i = 0; $i < scalar @$errorset; $i++ ) {
+    $errindex = $i;
+    test_psgi $nekochan, $nekotest;
+}
 
 my $hostname = qx|hostname|; chomp $hostname;
 my $jsondata = {
