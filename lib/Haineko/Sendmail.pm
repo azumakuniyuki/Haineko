@@ -722,8 +722,16 @@ sub submit {
                 }
 
                 $smtpmailer->sendmail();
-                $smtpmailer->getbounce();
-                $smtpmailer->response->dsn( '2.0.0' ) unless $smtpmailer->response->dsn;
+                if( not $smtpmailer->response->dsn ) {
+
+                    if( $smtpmailer->response->error ) {
+                        # Error but no D.S.N.
+                        $smtpmailer->response->dsn( '5.0.0' );
+                    } else {
+                        # Successfully sent but no D.S.N.
+                        $smtpmailer->response->dsn( '2.0.0' );
+                    }
+                }
                 $neko->response( $smtpmailer->response );
 
             } else {
