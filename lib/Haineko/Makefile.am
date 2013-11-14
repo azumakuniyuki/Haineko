@@ -4,7 +4,8 @@ SUBDIRS = HTTPD SMTPD CLI
 distdir = $(BUILDROOT)/dist/lib/Haineko
 instdir = @libdir@/Haineko
 pkgdatadir = @libdir@/Haineko
-pkgdata_DATA = Default.pm Log.pm HTTPD.pm JSON.pm Root.pm Sendmail.pm CLI.pm
+pkgdata_DATA = Default.pm Log.pm HTTPD.pm JSON.pm Root.pm Sendmail.pm CLI.pm \
+			   E.pm
 
 .PHONY: clean
 all-am:
