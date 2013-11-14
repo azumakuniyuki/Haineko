@@ -256,8 +256,6 @@ sub new {
     my $class = shift;
     my $argvs = { @_ };
 
-    $argvs->{'host'} //= '127.0.0.1';
-
     while(1) {
         last unless exists $argvs->{'message'};
         last unless ref $argvs->{'message'} eq 'ARRAY';
