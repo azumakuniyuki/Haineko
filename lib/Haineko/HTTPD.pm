@@ -123,34 +123,59 @@ sub rdr {
 sub err {
     my $self = shift;
     my $code = shift || 404;
-    my $mesg = shift || 'Not found';
+    my $mesg = shift;
 
-    $self->response->code( $code );
-    $self->response->content_type( 'text/plain' );
-    $self->response->content_length( length $mesg );
-    $self->response->body( $mesg );
-    return $self->response;
+    unless( $mesg ) {
+        # If the second argument is omitted, use "404 Not found" as a JSON.
+        require Haineko::SMTPD::Response;
+        $mesg = Haineko::SMTPD::Response->r( 'http', 'not-found' )->damn;
+    }
+
+    if( ref $mesg eq 'HASH' ) {
+        # Respond as a JSON
+        return $self->response->json( $code, { 'smtp.response' => $mesg } );
+
+    } else {
+        # Respond as a text
+        $self->response->code( $code );
+        $self->response->content_type( 'text/plain' );
+        $self->response->content_length( length $mesg );
+        $self->response->body( $mesg );
+        return $self->response;
+    }
 }
 
 sub r {
     my $self = shift;
     my $neko = $self->router->routematch( $self->req->env );
+
     return $self->err unless $neko;
 
-    my $ctrl = sprintf( "Haineko::%s", $neko->dest->{'controller'} );
-    my $subr = $neko->dest->{'action'};
-    my $e500 = 0;
+    my $controller = sprintf( "Haineko::%s", $neko->dest->{'controller'} );
+    my $ctrlaction = $neko->dest->{'action'};
+    my $exceptions = 0;
+    my $htcontents = undef;
+    my $nekosyslog = undef;
 
     try {
         require Module::Load;
-        Module::Load::load( $ctrl );
+        Module::Load::load( $controller );
 
     } catch {
-        $e500 = 1;
+        require Haineko::Log;
+        require Haineko::SMTPD::Response;
+
+        $htcontents = Haineko::SMTPD::Response->r( 'http', 'server-error' )->damn;
+        $nekosyslog = Haineko::Log->new( 'disabled' => 0 );
+
+        $htcontents->{'message'}->[1] = $_;
+        $nekosyslog->w( 'crit', $htcontents );
+        pop @{ $htcontents->{'message'} } unless $self->debug;
+        $exceptions = 1;
     };
 
-    return $ctrl->$subr( $self ) unless $e500;
-    return $self->err( 500, 'Internal Server Error' );
+    return $controller->$ctrlaction( $self ) unless $exceptions;
+    return $self->err( 500, { 'smtp.response' => $htcontents } );
 }
 
 1;
