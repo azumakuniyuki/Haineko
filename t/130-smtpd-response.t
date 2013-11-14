@@ -66,6 +66,8 @@ CLASS_METHODS: {
 
     isa_ok $o, $modulename, '->p';
     is $o->dsn, '5.0.0', '->dsn => '.$o->dsn;
+    is $o->host, undef, '->host => undef';
+    is $o->port, undef, '->port => under';
     is $o->code, 550, '->code => '.$o->code;
     is $o->error, 1, '->error => 1';
     is $o->command, 'RCPT', '->command => RCPT';
@@ -74,6 +76,8 @@ CLASS_METHODS: {
     $r = $o->damn;
     is ref $r, 'HASH', '->damn';
     is $r->{'dsn'}, '5.0.0', '->dsn => '.$r->{'dsn'};
+    is $r->{'host'}, undef, '->host = undef';
+    is $r->{'port'}, undef, '->port = undef';
     is $r->{'code'}, 550, '->code => '.$r->{'code'};
     is $r->{'error'}, 1, '->error => 1';
     is $r->{'command'}, 'RCPT', '->command => RCPT';

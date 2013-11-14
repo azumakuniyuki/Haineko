@@ -36,7 +36,8 @@ my $nekotest = sub {
 
     is $response->code, $errorset->[ $errindex ]->{'status'}, 'HTTP Status = '.$response->code;
     is $esmtpres->{'dsn'}, undef, 'dsn = undef';
-    is $esmtpres->{'host'}, '127.0.0.1', 'host = 127.0.0.1';
+    is $esmtpres->{'host'}, undef, 'host = undef';
+    is $esmtpres->{'port'}, undef, 'port = undef';
     is $esmtpres->{'code'}, $errorset->[ $errindex ]->{'code'}, 'SMTP code = '.$esmtpres->{'code'};
     is $esmtpres->{'error'}, 1;
     is $esmtpres->{'mailer'}, undef;
@@ -168,7 +169,8 @@ my $nekopost = sub {
         ok $response->is_error;
         is $response->header('Content-Type'), 'application/json';
         is $response->code, $d->{'status'}, sprintf( "[%s] HTTP Status = %s", $e, $d->{'status'} );
-        is $esmtpres->{'host'}, '127.0.0.1', sprintf( "[%s] host = 127.0.0.1", $e );
+        is $esmtpres->{'host'}, undef, sprintf( "[%s] host = undef", $e );
+        is $esmtpres->{'port'}, undef, sprintf( "[%s] port = undef", $e );
         is $esmtpres->{'error'}, 1, sprintf( "[%s] error = 1", $e );
 
         for my $r ( keys %$d ) {
