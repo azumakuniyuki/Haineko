@@ -42,6 +42,16 @@ my $Replies = {
             'code' => 421,
             'message' => [ 'Malformed JSON string' ],
         },
+        'not-found' => {
+            'dsn' => undef,
+            'code' => 421,
+            'message' => [ 'Not found' ],
+        },
+        'server-error' => {
+            'dsn' => undef,
+            'code' => 500,
+            'message' => [ 'Internal Server Error' ],
+        },
     },
     'ehlo' => {
         'invalid-domain' => {   # 501 5.0.0 Invalid domain name
