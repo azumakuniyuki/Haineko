@@ -8,7 +8,8 @@ my $rwaccessors = [
     'dsn',      # (String) Delivery Status Notifier
     'code',     # (Integer) SMTP reply code
     'host',     # (String) SMTP server name
-    'error',    # (Integer)
+    'port',     # (Integer) Port number of the server
+    'error',    # (Integer) 0 = OK, 1 = NG
     'mailer',   # (String) Mailer name
     'command',  # (String) SMTP Command
     'message',  # (ArrayRef) Reply messages
@@ -301,6 +302,8 @@ sub p {
     my $nekor = { 
         'dsn'     => undef,
         'code'    => $argvs->{'code'} // undef,
+        'host'    => $argvs->{'host'} // undef,
+        'port'    => $argvs->{'port'} // undef,
         'error'   => 0,
         'mailer'  => $argvs->{'mailer'} // undef,
         'message' => [],
