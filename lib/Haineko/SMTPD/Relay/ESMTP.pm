@@ -161,6 +161,7 @@ sub sendmail {
         $smtpparams = { 
             'code'    => $netsmtpobj->code,
             'host'    => $self->{'host'},
+            'port'    => $self->{'port'},
             'mailer'  => 'ESMTP',
             'message' => [ $netsmtpobj->message ],
             'command' => $thecommand,
