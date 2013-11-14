@@ -650,8 +650,8 @@ sub submit {
             } 
             $relayingto->{'auth'} = q() unless keys %$credential;
 
-            if( $relayingto->{'mailer'} eq 'ESMTP' ) {
-                # Use Haineko::SMTPD::Relay::ESMTP
+            if( $relayingto->{'mailer'} =~ m/\A(?:ESMTP|Haineko)\z/ ) {
+                # Use Haineko::SMTPD::Relay::ESMTP or Haineko::SMTPD::Relay::Haineko
                 $methodargv = {
                     'ehlo'      => $serverconf->{'hostname'},
                     'mail'      => $neko->addresser->address,
@@ -660,46 +660,24 @@ sub submit {
                     'body'      => \$body,
                     'attr'      => $attributes,
                     'host'      => $relayingto->{'host'} // '127.0.0.1',
-                    'port'      => $relayingto->{'port'} // 25,
                     'retry'     => $relayingto->{'retry'} // 0,
                     'sleep'     => $relayingto->{'sleep'} // 5,
                     'timeout'   => $relayingto->{'timeout'} // 59,
                     'starttls'  => $relayingto->{'starttls'},
                 };
 
-                Module::Load::load('Haineko::SMTPD::Relay::ESMTP');
-                $smtpmailer = Haineko::SMTPD::Relay::ESMTP->new( %$methodargv );
+                if( $relayingto->{'mailer'} eq 'ESMTP' ) {
+                    # use well-known port for SMTP
+                    $methodargv->{'port'} //= 25;
 
-                if( $relayingto->{'auth'} ) {
-                    # Load credentials for SMTP-AUTH
-                    $smtpmailer->auth( 1 );
-                    $smtpmailer->username( $credential->{'username'} );
-                    $smtpmailer->password( $credential->{'password'} );
+                } elsif( $relayingto->{'mailer'} eq 'Haineko' ) {
+                    # Haineko uses 2794 by default
+                    $methodargv->{'port'} //= 2794;
                 }
 
-                $smtpmailer->sendmail();
-                $neko->response( $smtpmailer->response );
-
-            } elsif( $relayingto->{'mailer'} eq 'Haineko' ) {
-                # Use Haineko::SMTPD::Relay::Haineko
-                # Haineko -> other Haineko relay
-                $methodargv = {
-                    'ehlo'      => $serverconf->{'hostname'},
-                    'mail'      => $neko->addresser->address,
-                    'rcpt'      => $r->address,
-                    'head'      => $mailheader,
-                    'body'      => \$body,
-                    'attr'      => $attributes,
-                    'host'      => $relayingto->{'host'} // '127.0.0.1',
-                    'port'      => $relayingto->{'port'} // 2794,
-                    'retry'     => $relayingto->{'retry'} // 0,
-                    'sleep'     => $relayingto->{'sleep'} // 5,
-                    'timeout'   => $relayingto->{'timeout'} // 59,
-                    'starttls'  => $relayingto->{'starttls'},
-                };
-
-                Module::Load::load('Haineko::SMTPD::Relay::Haineko');
-                $smtpmailer = Haineko::SMTPD::Relay::Haineko->new( %$methodargv );
+                $relayclass = sprintf( "Haineko::SMTPD::Relay::%s", $relayingto->{'mailer'} );
+                Module::Load::load( $relayclass );
+                $smtpmailer = $relayclass->new( %$methodargv );
 
                 if( $relayingto->{'auth'} ) {
                     # Load credentials for SMTP-AUTH
@@ -719,7 +697,7 @@ sub submit {
                 $neko->response( $smtpmailer->response );
 
             } elsif( length $relayingto->{'mailer'} ) {
-                # Use Haineko::SMTPD::Relay::* except ESMTP and Discard
+                # Use Haineko::SMTPD::Relay::* except ESMTP, Haineko and Discard
                 $mailheader->{'To'} = $r->address;
                 $methodargv = {
                     'ehlo'    => $serverconf->{'hostname'},
