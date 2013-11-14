@@ -3,6 +3,7 @@ use parent 'Haineko::SMTPD::Relay';
 use strict;
 use warnings;
 use Furl;
+use Try::Tiny;
 use Time::Piece;
 use Haineko::JSON;
 use Haineko::SMTPD::Response;
@@ -131,11 +132,10 @@ sub sendmail {
             'command' => 'POST',
         };
 
-        eval { $htcontents = Haineko::JSON->loadjson( $htresponse->body ) };
-
-        while(1) {
-            last if $@;
-            my $mesg = [];
+        try { 
+            # Mandrill respond contents as a JSON
+            $htcontents = Haineko::JSON->loadjson( $htresponse->body );
+            my $v = [];
 
             if( ref $htcontents eq 'HASH' ) {
                 # Example Error Response JSON
@@ -149,7 +149,7 @@ sub sendmail {
                     # Parse error response
                     next unless exists $htcontents->{ $e };
                     next unless defined $htcontents->{ $e };
-                    push @$mesg, sprintf( "%s: s", $e, $htcontents->{ $e } );
+                    push @$v, sprintf( "%s: s", $e, $htcontents->{ $e } );
                 }
                 $self->{'queueid'} = q();
 
@@ -168,14 +168,20 @@ sub sendmail {
                     for my $e ( '_id', 'status', 'reject_reason' ) {
                         next unless exists $r->{ $e };
                         next unless defined $r->{ $e };
-                        push @$mesg, sprintf( "%s: %s", $e, $r->{ $e } );
+                        push @$v, sprintf( "%s: %s", $e, $r->{ $e } );
                         $self->{'queueid'} ||= $r->{ $e } if $e eq '_id';
                     }
                 }
             } 
-            push @{ $nekoparams->{'message'} }, @$mesg;
-            last;
-        }
+            push @{ $nekoparams->{'message'} }, @$v;
+        
+        } catch {
+            # It was not JSON
+            require Haineko::E;
+            $nekoparams->{'error'} = 1;
+            $nekoparams->{'message'} = [ Haineko::E->new( $htresponse->body )->text ];
+            push @{ $nekoparams->{'message'} }, Haineko::E->new( $_ )->text;
+        };
         $self->response( Haineko::SMTPD::Response->new( %$nekoparams ) );
     }
 

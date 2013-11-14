@@ -3,6 +3,7 @@ use parent 'Haineko::SMTPD::Relay';
 use strict;
 use warnings;
 use Furl;
+use Try::Tiny;
 use Time::Piece;
 use Haineko::JSON;
 use Haineko::SMTPD::Response;
@@ -109,17 +110,22 @@ sub sendmail {
             'command' => 'POST',
         };
 
-        eval { $htcontents = Haineko::JSON->loadjson( $htresponse->body ) };
+        try {
+            # SendGrid respond contents as a JSON
+            $htcontents = Haineko::JSON->loadjson( $htresponse->body );
 
-        while(1) {
-            last if $@;
-            last unless ref $htcontents eq 'HASH';
-            last unless exists $htcontents->{'message'};
-            last unless $htcontents->{'message'} eq 'error';
+            if( $htcontents->{'message'} eq 'error' ) {
+                push @{ $nekoparams->{'message'} }, @{ $htcontents->{'errors'} };
+            }
 
-            push @{ $nekoparams->{'message'} }, @{ $htcontents->{'errors'} };
-            last;
-        }
+        } catch {
+            # It was not JSON
+            require Haineko::E;
+            $nekoparams->{'error'} = 1;
+            $nekoparams->{'message'} = [ Haineko::E->new( $htresponse->body )->text ];
+            push @{ $nekoparams->{'message'} }, Haineko::E->new( $_ )->text;
+        };
+
         $self->response( Haineko::SMTPD::Response->new( %$nekoparams ) );
     }
 
@@ -127,6 +133,7 @@ sub sendmail {
 }
 
 sub getbounce {
+    # as of 15 Nov., this method is not called.
     my $self = shift;
 
     return 0 if( ! $self->{'username'} || ! $self->{'password'} );
@@ -177,23 +184,22 @@ sub getbounce {
         my $htcontents = undef;
         my $nekoparams = undef;
 
-        eval { $htcontents = Haineko::JSON->loadjson( $htresponse->body ) };
-
-        while(1) {
-            last if $@;
-            last unless ref $htcontents eq 'ARRAY';
-            last unless scalar @$htcontents;
-
-            my $r = shift @$htcontents;
-            last unless ref $r eq 'HASH';
-
+        try { 
+            # SendGrid respond contents as a JSON
+            $htcontents = Haineko::JSON->loadjson( $htresponse->body );
             $nekoparams = { 
-                'message' => [ $r->{'reason'} ],
+                'message' => [ $htcontents->[0]->{'reason'} ],
                 'command' => 'POST',
             };
-            $self->response( Haineko::SMTPD::Response->p( %$nekoparams ) );
-            last;
-        }
+
+        } catch {
+            # It was not JSON
+            require Haineko::E;
+            $nekoparams->{'error'} = 1;
+            $nekoparams->{'message'} = [ Haineko::E->new( $htresponse->body )->text ];
+            push @{ $nekoparams->{'message'} }, Haineko::E->new( $_ )->text;
+        };
+        $self->response( Haineko::SMTPD::Response->p( %$nekoparams ) );
     }
     return $httpstatus;
 }

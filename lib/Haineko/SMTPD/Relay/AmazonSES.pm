@@ -3,6 +3,7 @@ use parent 'Haineko::SMTPD::Relay';
 use strict;
 use warnings;
 use Furl;
+use Try::Tiny;
 use Encode;
 use Email::MIME;
 use MIME::Base64;
@@ -148,6 +149,7 @@ sub sendmail {
     if( defined $htresponse ) {
         # Check response from API
         my $htcontents = undef;
+        my $htmimetype = $htresponse->content_type || q();
         my $nekoparams = { 
             'code'    => $htresponse->code,
             'host'    => SES_ENDPOINT,
@@ -157,22 +159,34 @@ sub sendmail {
             'command' => 'POST',
         };
 
-        if( $htresponse->content_type eq 'text/xml' ) {
-            require XML::Simple;
-            eval { $htcontents = XML::Simple::XMLin( $htresponse->content ) };
-        }
+        if( $htmimetype eq 'text/xml' ) {
+            # text/xml
+            try { 
+                # Amazon SES respond contents as a XML
+                require XML::Simple;
+                $htcontents = XML::Simple::XMLin( $htresponse->content );
 
-        while(1) {
-            last if $@;
-            last unless ref $htcontents eq 'HASH';
-            last unless exists $htcontents->{'Error'};
+                for my $e ( keys %{ $htcontents->{'Error'} } ) {
+                    # Get error messages
+                    my $v = $htcontents->{'Error'}->{ $e };
+                    push @{ $nekoparams->{'message'} }, sprintf( "%s=%s", $e, $v );
+                }
 
-            for my $e ( keys %{ $htcontents->{'Error'} } ) {
+            } catch {
+                # It was not JSON
+                require Haineko::E;
+                my $v = $htresponse->body || q();
 
-                my $v = $htcontents->{'Error'}->{ $e };
-                push @{ $nekoparams->{'message'} }, sprintf( "%s=%s", $e, $v );
-            }
-            last;
+                $nekoparams->{'error'} = 1;
+                $nekoparams->{'message'} = [ Haineko::E->new( $v )->text ] if $v;
+                push @{ $nekoparams->{'message'} }, Haineko::E->new( $_ )->text;
+            };
+
+        } else {
+
+            require Haineko::E;
+            $nekoparams->{'error'} = 1;
+            $nekoparams->{'message'} = [ Haineko::E->new( $htresponse->message )->text ];
         }
         $self->response( Haineko::SMTPD::Response->new( %$nekoparams ) );
     }
