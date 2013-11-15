@@ -7,6 +7,7 @@ requires 'Email::MIME', '1.910';
 requires 'Furl', '2.17';
 requires 'IO::Socket::SSL', '1.94';
 requires 'JSON::Syck', '1.18';
+requires 'Net::DNS', '0.68';
 requires 'Net::SMTPS', '0.03';
 requires 'Net::CIDR::Lite', '0.21';
 requires 'Path::Class', '0.24';

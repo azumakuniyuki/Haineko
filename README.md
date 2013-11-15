@@ -59,6 +59,7 @@ Haineko relies on:
 * __JSON::Syck__
 * MIME::Base64 (core module from v5.7.3)
 * Module::Load (core module from v5.9.4)
+* __Net::DNS__
 * Net::SMTP (core module from v5.7.3)
 * __Net::SMTPS__
 * __Net::CIDR::Lite__
