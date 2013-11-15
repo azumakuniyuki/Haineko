@@ -60,12 +60,17 @@ sub resolve {
 
         for my $e ( $rrqueryset->answer ) {
             # $rrqueryset is a Net::DNS::Packet object
-            my $t = $e->ttl;
-            my $m = $methodlist->{ $type };
-            my $r = { 'rr'  => $e->$m, 'ttl' => $t, 'exp' => time + $t, 'p' => 0 };
+            my $ttlsec = $e->ttl;
+            my $method = $methodlist->{ $type };
+            my $record = { 
+                'rr'  => $e->$method, 
+                'ttl' => $ttlsec,
+                'exp' => time + $ttlsec,
+                'p'   => 0,
+            };
 
-            $r->{'p'} = $e->preference if $type eq 'mx';
-            push @$resolvedrr, $r;
+            $record->{'p'} = $e->preference if $type eq 'mx';
+            push @$resolvedrr, $record;
         }
 
     } catch {
