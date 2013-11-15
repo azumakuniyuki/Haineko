@@ -14,7 +14,6 @@ my $errormesgs = [];
 eval { require Haineko::Nyaa; }; push @$errormesgs, $@;
 eval { keys %$errormesgs; }; push @$errormesgs, $@;
 eval { die('Hard'); }; push @$errormesgs, $@;
-eval { shift %INC }; push @$errormesgs, $@;
 eval { my $x = 0; my $y = 1 / $x; }; push @$errormesgs, $@;
 
 for my $r ( @$errormesgs ) {
