@@ -14,8 +14,6 @@ my $domainlist = [
     'cubicroot.jp',
     'bouncehammer.jp',
     'azumakuniyuki.org',
-    'example.com',
-    'example.net',
     'example.org',
 ];
 my $hainekodns = undef;
@@ -24,17 +22,17 @@ my $resolvedrr = {};
 $hainekodns = $modulename->new(); is( $hainekodns, undef );
 
 for my $e ( @$domainlist ) {
-    my $r = {};
+    # Lookup each domain
     $hainekodns = $modulename->new( $e );
     isa_ok( $hainekodns, $modulename );
 
     for my $v ( 'txt', 'mx', 'ns', 'a' ) {
 
-        my $m = $v;
+        my $method = $v;
         $hainekodns->resolve( $v );
         $resolvedrr->{ $e }->{ $v } = [];
 
-        for my $w ( @{ $hainekodns->$m } ) {
+        for my $w ( @{ $hainekodns->$method } ) {
             next unless $w;
             ok( $w->{'rr'}, sprintf( "(%s/%s) RR = %s", $e, uc $v, $w->{'rr'} ) );
             ok( $w->{'ttl'}, sprintf( "(%s/%s) TTL = %d", $e, uc $v, $w->{'ttl'} ) );
@@ -44,8 +42,8 @@ for my $e ( @$domainlist ) {
             push @{ $resolvedrr->{ $e }->{ $v } }, $w->{'rr'};
         }
 
-        $m = $v.'rr';
-        for my $w ( @{ $hainekodns->$m } ) {
+        $method = $v.'rr';
+        for my $w ( @{ $hainekodns->$method } ) {
             next unless $w;
             ok( $w, sprintf( "(%s/%s) = %s", $e, uc $v, $w ) );
             next if $v eq 'txt';
