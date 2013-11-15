@@ -86,6 +86,7 @@ Haineko::E provide methods for converting an error message of perl such as
 
 new() is a constructor of Haineko::E
 
+    use Haineko::E;
     eval { die 'Hard' };
     my $e = Haineko::E->new( $@ );
 
@@ -99,6 +100,7 @@ new() is a constructor of Haineko::E
 
 message() returns whole error message as a text (scalar value).
 
+    use Haineko::E;
     eval { die 'Hard 2' };
     my $e = Haineko::E->new( $@ );
 
@@ -108,6 +110,7 @@ message() returns whole error message as a text (scalar value).
 
 text() returns error message part only.
 
+    use Haineko::E;
     eval { die 'Hard 3' };
     my $e = Haineko::E->new( $@ );
 
