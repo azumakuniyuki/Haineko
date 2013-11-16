@@ -16,7 +16,7 @@ sub submit {
     my $serverconf = $httpd->{'conf'}->{'smtpd'};
     my $responsecn = 'Haineko::SMTPD::Response';    # Response class name
     my $responsejk = 'smtp.response';               # Response json key name
-    my $exceptions = 0;
+    my $exceptions = 0;                             # Flag, be set in try {...} catch { ... }
 
     # Create a queue id (session id)
     my $queueident = Haineko::SMTPD::Session->make_queueid;
@@ -504,7 +504,7 @@ sub submit {
             next unless grep { $e eq $_ } @$headerlist;
             next unless defined $head->{ $e };
 
-            my $fiedlvalue = $head->{ $e };
+            my $fieldvalue = $head->{ $e };
             my $headername = ucfirst $e;
 
             if( $headername =~ m/[-]/ ) {
@@ -527,11 +527,11 @@ sub submit {
 
                 } else {
                     # The first header
-                    $mailheader->{ $g } = [ $mailheader->{ $g }, $f ];
+                    $mailheader->{ $headername } = [ $mailheader->{ $headername }, $fieldvalue ];
                 }
 
             } else {
-                $mailheader->{ $g } = $f;
+                $mailheader->{ $headername } = $fieldvalue;
             }
         }
     } # End of MIME_ENCODING
