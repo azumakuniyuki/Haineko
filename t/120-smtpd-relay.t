@@ -23,7 +23,7 @@ my $methodargv = {
 my $testobject = $modulename->new();
 my $properties = [ qw/
     time mail rcpt head body host port attr 
-    mxrr auth timeout username password
+    auth timeout username password
 / ];
 
 isa_ok $testobject, $modulename;
@@ -44,7 +44,6 @@ is $o->port, $methodargv->{'port'}, '->port => '.$o->port;
 is $o->body, $methodargv->{'body'}, '->body => '.$o->body;
 
 is ref $o->attr, 'HASH';
-is $o->mxrr, undef, '->mxrr => undef';
 is $o->auth, undef, '->auth => undef';
 is $o->timeout, undef, '->timeout => undef';
 is $o->username, undef, '->username => undef';

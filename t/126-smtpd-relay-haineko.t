@@ -31,7 +31,7 @@ can_ok $testobject, @$objmethods;
 
 INSTANCE_METHODS: {
 
-    for my $e ( qw/mail rcpt head body host port attr mxrr auth username password/ ) {
+    for my $e ( qw/mail rcpt head body host port attr auth username password/ ) {
         is $testobject->$e, undef, '->'.$e.' => undef';
     }
 
@@ -49,7 +49,6 @@ INSTANCE_METHODS: {
     is $o->body, $methodargv->{'body'}, '->body => '.$o->body;
 
     is ref $o->attr, 'HASH';
-    is $o->mxrr, undef, '->mxrr => undef';
     is $o->auth, undef, '->auth => undef';
     is $o->timeout, 2, '->timeout => 2';
     is $o->username, undef, '->username => undef';
