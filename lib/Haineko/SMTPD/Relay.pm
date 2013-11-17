@@ -12,7 +12,6 @@ my $rwaccessors = [
     'attr',     # (HashRef) Email::MIME attributes
     'host',     # (String) Relay server hostname
     'port',     # (String) Relay server port
-    'mxrr',     # (String) MX recorod of the recipient domain
     'auth',     # (Integer) Rerquire SMTP-AUTH or not
     'retry',    # (Integer) Retry count when an SMTP server returns 4XX.
     'sleep',    # (Integer) Sleep for specified seconds until the next retrying
