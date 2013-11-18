@@ -327,14 +327,17 @@ sub submit {
 
             if( ref $accessconf eq 'HASH' ) {
                 # etc/recipients file has loaded successfully
-                if( $remoteaddr eq '127.0.0.1' && $remoteaddr eq $httpd->host ) {
-                    # Allow relaying when the value of REMOTE_ADDR is equal to 
-                    # the value value SERVER_NAME and the value is 127.0.0.1
-                    $accessconf->{'open-relay'} = 1;
+                if( 0 ) {
+                    # DISABLED FOR DUE TO SECURITY REASON.
+                    if( $remoteaddr eq '127.0.0.1' && $remoteaddr eq $httpd->host ) {
+                        # Allow relaying when the value of REMOTE_ADDR is equal to 
+                        # the value value SERVER_NAME and the value is 127.0.0.1
+                        $accessconf->{'open-relay'} = 1;
 
-                } elsif( $remoteuser ) {
-                    # Turn on open-relay if REMOTE_USER environment variable exists.
-                    $accessconf->{'open-relay'} = 1;
+                    } elsif( $remoteuser ) {
+                        # Turn on open-relay if REMOTE_USER environment variable exists.
+                        $accessconf->{'open-relay'} = 1;
+                    }
                 }
 
                 if( not $accessconf->{'open-relay'} ) {
