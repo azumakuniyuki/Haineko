@@ -74,11 +74,11 @@ for my $e ( @$emailfiles ) {
         } else {
             ok( length $r );
             # {
-            #   "smtp.remoteport": 63216,
-            #   "smtp.addresser": "localpart@example.jp",
-            #   "smtp.remoteaddr": "127.0.0.1",
-            #   "smtp.queueid": "r92DiQB039703GHu",
-            #   "smtp.response": {
+            #   "remoteport": 63216,
+            #   "addresser": "localpart@example.jp",
+            #   "remoteaddr": "127.0.0.1",
+            #   "queueid": "r92DiQB039703GHu",
+            #   "response": {
             #     "code": 200,
             #     "host": "sendgrid.com",
             #     "command": "POST",
@@ -89,14 +89,14 @@ for my $e ( @$emailfiles ) {
             #     "dsn": null,
             #     "mailer": "SendGrid"
             #   },
-            #   "smtp.useragent": null,
-            #   "smtp.stage": 0,
-            #   "smtp.timestamp": {
+            #   "useragent": null,
+            #   "stage": 0,
+            #   "timestamp": {
             #     "datetime": "Wed Oct  2 13:44:26 2013",
             #     "unixtime": "1380689066"
             #   },
-            #   "smtp.referer": null,
-            #   "smtp.recipient": [
+            #   "referer": null,
+            #   "recipient": [
             #     "localpart@example.org"
             #   ]
             # }
@@ -109,15 +109,15 @@ for my $e ( @$emailfiles ) {
                 $j = Haineko::JSON->loadjson( $r );
                 isa_ok( $j, 'HASH' );
 
-                is( $j->{'smtp.stage'}, 0, $p.'smtp.stage = 0' );
-                ok( $j->{'smtp.queueid'}, $p.'smtp.queueid = '.$j->{'smtp.queueid'} );
-                is( $j->{'smtp.referer'}, undef, $p.'smtp.referer = undef' );
-                is( $j->{'smtp.useragent'}, undef, $p.'smtp.useragent = undef' );
-                is( $j->{'smtp.addresser'}, $x->{'mail'}, $p.'smtp.addresser = '.$x->{'mail'} );
-                is( $j->{'smtp.remoteaddr'}, '127.0.0.1', $p.'smtp.remoteaddr = 127.0.0.1' );
-                ok( $j->{'smtp.remoteport'}, $p.'smtp.remoteport = '.$j->{'smtp.remoteport'} );
+                is( $j->{'stage'}, 0, $p.'stage = 0' );
+                ok( $j->{'queueid'}, $p.'queueid = '.$j->{'queueid'} );
+                is( $j->{'referer'}, undef, $p.'referer = undef' );
+                is( $j->{'useragent'}, undef, $p.'useragent = undef' );
+                is( $j->{'addresser'}, $x->{'mail'}, $p.'addresser = '.$x->{'mail'} );
+                is( $j->{'remoteaddr'}, '127.0.0.1', $p.'remoteaddr = 127.0.0.1' );
+                ok( $j->{'remoteport'}, $p.'remoteport = '.$j->{'remoteport'} );
 
-                $k = 'smtp.response';
+                $k = 'response';
                 $s = $j->{ $k };
                 isa_ok( $s, 'HASH' );
                 isa_ok( $s->{'message'}, 'ARRAY' );
@@ -130,13 +130,13 @@ for my $e ( @$emailfiles ) {
                 ok( $s->{'message'}->[0], $p.sprintf( "%s->message->[0] = %s", $k, $s->{'message'}->[0] ) );
 
 
-                $k = 'smtp.timestamp';
+                $k = 'timestamp';
                 $s = $j->{ $k };
                 isa_ok( $s, 'HASH' );
                 ok( $s->{'datetime'}, $p.sprintf( "%s->datetime = %s", $k, $s->{'datetime'} ) );
                 ok( $s->{'unixtime'}, $p.sprintf( "%s->unixtime = %d", $k, $s->{'unixtime'} ) );
                 
-                $k = 'smtp.recipient';
+                $k = 'recipient';
                 $s = $j->{ $k };
                 isa_ok( $s, 'ARRAY' );
                 for my $w ( @$s ) {
