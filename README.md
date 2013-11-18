@@ -243,7 +243,7 @@ SAMPLE CODE IN EACH LANGUAGE
 ----------------------------
 
 Sample codes in each language are available in eg/ directory: Perl, Python Ruby,
-PHP and shell script.
+PHP, Java script(jQuery) and shell script.
 
 SPECIAL NOTES FOR OpenBSD
 -------------------------
