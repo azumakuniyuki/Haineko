@@ -1,5 +1,15 @@
 Revision history for Haineko
 
+0.2.5   Mon, 18 Nov 2013 20:22:22 +0900 (JST)
+    - Haineko::SMTPD::Relay::Haineko for relaying from Haineko to other Haineko.
+    - Haineko::SMTPD::Relay::MX is a class for deliverying an email to the host
+      listed in MX resource records or A resource records.
+    - Haineko::E is a class for converting Perl error message to an object.
+    - eg/sendmail.html is a sample for sending email using jQuery and JSON.
+    - Haineko responds an error as a JSON even if the status code is 4xx or 5xx.
+    - Fix bug: pop [] does not work on Perl 5.12 or older/Haineko::Sendmail#349.
+    - Remove string 'smtp.' from key name of each value in the server response.
+
 0.2.4   Wed, 13 Nov 2013 18:22:22 +0900 (JST)
     - Fix bug: the first argument of shift() in Haineko::SMTPD::Relay::SendGrid.
 
