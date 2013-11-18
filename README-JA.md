@@ -3,8 +3,9 @@
     | |_| |/ _` | | '_ \ / _ \ |/ / _ \ 
     |  _  | (_| | | | | |  __/   < (_) |
     |_| |_|\__,_|_|_| |_|\___|_|\_\___/ 
+    HTTP   API  into     ESMTP
                                     
-HTTP API into ESMTP
+English version of README is [README.md](https://github.com/azumakuniyuki/Haineko/blob/master/README.md)
 
 Hainekoとは何か?
 =================
