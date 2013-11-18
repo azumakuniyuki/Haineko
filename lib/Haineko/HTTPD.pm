@@ -133,7 +133,7 @@ sub err {
 
     if( ref $mesg eq 'HASH' ) {
         # Respond as a JSON
-        return $self->response->json( $code, { 'smtp.response' => $mesg } );
+        return $self->response->json( $code, { 'response' => $mesg } );
 
     } else {
         # Respond as a text
@@ -175,7 +175,7 @@ sub r {
     };
 
     return $controller->$ctrlaction( $self ) unless $exceptions;
-    return $self->err( 500, { 'smtp.response' => $htcontents } );
+    return $self->err( 500, { 'response' => $htcontents } );
 }
 
 1;

@@ -15,7 +15,7 @@ sub submit {
 
     my $serverconf = $httpd->{'conf'}->{'smtpd'};
     my $responsecn = 'Haineko::SMTPD::Response';    # Response class name
-    my $responsejk = 'smtp.response';               # Response json key name
+    my $responsejk = 'response';                    # Response json key name
     my $exceptions = 0;                             # Flag, be set in try {...} catch { ... }
 
     # Create a queue id (session id)

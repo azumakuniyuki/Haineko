@@ -100,7 +100,7 @@ sub sendmail {
             try {
                 $htcontents = Haineko::JSON->loadjson( $htresponse->body ) || {};
 
-                my $v = $htcontents->{'smtp.response'} || {};
+                my $v = $htcontents->{'response'} || {};
                 $nekoparams->{'dsn'} ||= $v->{'dsn'};
                 push @{ $nekoparams->{'message'} }, $v->{'message'}->[-1];
 

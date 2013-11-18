@@ -27,7 +27,7 @@ my $nekotest = sub {
     $request1 = HTTP::Request->new( 'GET' => 'http://127.0.0.1:2794/'.$v );
     $response = $callback->( $request1 );
     $contents = JSON::Syck::Load( $response->content );
-    $esmtpres = $contents->{'smtp.response'};
+    $esmtpres = $contents->{'response'};
 
     isa_ok $request1, 'HTTP::Request';
     isa_ok $response, 'HTTP::Response';
@@ -159,7 +159,7 @@ my $nekopost = sub {
         $request1->content( $j );
         $response = $callback->( $request1 );
         $contents = JSON::Syck::Load( $response->content );
-        $esmtpres = $contents->{'smtp.response'};
+        $esmtpres = $contents->{'response'};
 
         isa_ok $request1, 'HTTP::Request';
         isa_ok $response, 'HTTP::Response';

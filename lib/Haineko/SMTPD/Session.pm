@@ -61,32 +61,32 @@ sub load {
     my $nekor = undef;
 
     return undef unless ref $argvs eq 'HASH';
-    return undef unless $argvs->{'smtp.queueid'};
+    return undef unless $argvs->{'queueid'};
 
     for my $e ( @$rwaccessors, @$roaccessors ) {
 
-        next unless defined $argvs->{ 'smtp.'.$e };
+        next unless defined $argvs->{ $e };
         next if $e =~ m/(?:response|addresser|recipient)/;
-        $esmtp->{ $e } = $argvs->{ 'smtp.'.$e };
+        $esmtp->{ $e } = $argvs->{ $e };
     }
 
     while(1) {
         my $c = 'Haineko::SMTPD::Address';
         my $r = [];
-        my $t = $argvs->{'smtp.recipient'} || [];
+        my $t = $argvs->{'recipient'} || [];
 
         map { push @$r, $c->new( 'address' => $_ ) } @$t;
         $esmtp->{'recipient'} = $r;
 
-        last unless defined $argvs->{'smtp.addresser'};
-        $esmtp->{'addresser'} = $c->new( 'address' => $argvs->{'smtp.addresser'} );
+        last unless defined $argvs->{'addresser'};
+        $esmtp->{'addresser'} = $c->new( 'address' => $argvs->{'addresser'} );
 
         last;
     }
 
     for my $e ( @$rhead ) {
-        next unless defined $argvs->{ 'smtp.'.$e };
-        $nekor->{ $e } = $argvs->{ 'smtp.'.$e };
+        next unless defined $argvs->{ $e };
+        $nekor->{ $e } = $argvs->{ $e };
     }
 
     $nekor->{'message'}  = [];
@@ -200,7 +200,7 @@ sub damn {
     for my $e ( @$rwaccessors, @$roaccessors ) {
 
         next if $e =~ m/(?:response|addresser|recipient|started)/;
-        $smtp->{ 'smtp.'.$e } = $self->{ $e };
+        $smtp->{ $e } = $self->{ $e };
     }
 
     while(1) {
@@ -208,7 +208,7 @@ sub damn {
         last unless ref $self->{'addresser'};
         last unless ref $self->{'addresser'} eq 'Haineko::SMTPD::Address';
 
-        $smtp->{'smtp.addresser'} = $self->{'addresser'}->address;
+        $smtp->{'addresser'} = $self->{'addresser'}->address;
         last;
     }
 
@@ -219,7 +219,7 @@ sub damn {
         for my $e ( @{ $self->{'recipient'} } ) {
 
             next unless ref $e eq 'Haineko::SMTPD::Address';
-            push @{ $smtp->{'smtp.recipient'} }, $e->address;
+            push @{ $smtp->{'recipient'} }, $e->address;
         }
         last;
     }
@@ -228,11 +228,11 @@ sub damn {
         last unless defined $self->{'response'};
         last unless ref $self->{'response'} eq 'Haineko::SMTPD::Response';
 
-        $smtp->{'smtp.response'} = $self->{'response'}->damn;
+        $smtp->{'response'} = $self->{'response'}->damn;
         last;
     }
 
-    $smtp->{'smtp.timestamp'} = {
+    $smtp->{'timestamp'} = {
         'datetime' => $self->started->cdate,
         'unixtime' => $self->started->epoch,
     };
@@ -289,8 +289,8 @@ new() is a constructor of Haineko::SMTPD::Session
 load() is also a constructor of Haineko::SMTPD::Session. 
 
     my $v = {
-        'smtp.queueid' => 'r64CvGQ21769QslMmPPuD2jC',
-        'smtp.addresser' => 'kijitora@example.jp',
+        'queueid' => 'r64CvGQ21769QslMmPPuD2jC',
+        'addresser' => 'kijitora@example.jp',
     };
     my $e = Haineko::SMTPD::Session->load( %$v );
 
@@ -325,24 +325,24 @@ damn() returns instance data as a hash reference
 
     warn Data::Dumper::Dumper $e;
     $VAR1 = {
-          'smtp.referer' => undef,
-          'smtp.queueid' => 'r64IQ9X22396oA0bjQZIU7rn',
-          'smtp.addresser' => 'kijitora@example.jp',
-          'smtp.response' => {
+          'referer' => undef,
+          'queueid' => 'r64IQ9X22396oA0bjQZIU7rn',
+          'addresser' => 'kijitora@example.jp',
+          'response' => {
                 'dsn' => undef,
                 'error' => undef,
                 'message' => undef,
                 'command' => undef,
                 'code' => undef
           },
-          'smtp.remoteaddr' => '127.0.0.1',
-          'smtp.useragent' => 'CLI',
-          'smtp.timestamp' => {
+          'remoteaddr' => '127.0.0.1',
+          'useragent' => 'CLI',
+          'timestamp' => {
                 'unixtime' => 1372929969,
                 'datetime' => "Wed Jul 17 12:00:27 2013"
           },
-          'smtp.stage' => 4,
-          'smtp.remoteport' => 1024
+          'stage' => 4,
+          'remoteport' => 1024
         };
 
 =head1 REPOSITORY
