@@ -93,7 +93,7 @@ sub start {
         my $contextnya = $class->new( 'request' => $requestnya );
 
         local *Haineko::HTTPD::context = sub { $contextnya };
-        $htresponse = $class->startup( $contextnya, $requestnya );
+        $htresponse = $class->startup( $contextnya );
 
         return $htresponse->finalize;
     };
