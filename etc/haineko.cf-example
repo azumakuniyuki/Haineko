@@ -44,8 +44,8 @@ smtpd:
     # For Example:
     #   libs: [ '/path/to/perl/lib', '/another/lib/perl5/for/my/milter' ]
     #   mail: [ 'CheckFrom' ]
-    #   rcpt: [ 'AlwaysBcc', '@Check::DDNS' ]
-    #   body: [ '+Make::Me::A::Cat', '@My::Encrypt' ]
+    #   rcpt: [ 'AlwaysBcc', '+Check::DDNS' ]
+    #   body: [ '+Make::Me::A::Cat', '+My::Encrypt' ]
     #
     #   ``CheckFrom'' is called as Haineko::SMTPD::Milter::CheckFrom->mail();
     #   ``AlwaysBcc' is called as Haineko::SMTPD::Milter::AlwaysBcc->rcpt();
