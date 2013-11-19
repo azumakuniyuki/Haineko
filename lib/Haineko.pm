@@ -10,11 +10,9 @@ our $SYSNAME = 'Haineko';
 sub startup {
     my $class = shift;
     my $httpd = shift;  # (Haineko::HTTPD);
-    my $nekor = shift;  # (Haineko::HTTPD::Request)
 
     my $nekorouter = $httpd->router;
     my $serverconf = $httpd->conf;
-    my $tableconfs = undef;
     my $servername = $ENV{'HOSTNAME'} || $ENV{'SERVER_NAME'} || qx(hostname) || q();
     chomp $servername;
 
