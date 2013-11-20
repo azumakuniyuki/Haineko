@@ -19,6 +19,7 @@ sub startup {
     $serverconf->{'smtpd'}->{'system'} = $SYSNAME;
     $serverconf->{'smtpd'}->{'version'} = $VERSION;
     $serverconf->{'smtpd'}->{'hostname'} ||= $servername;
+    $serverconf->{'smtpd'}->{'servername'} = $servername;
 
     $nekorouter->connect( '/', { 'controller' => 'Root', 'action' => 'index' } );
     $nekorouter->connect( '/neko', { 'controller' => 'Root', 'action' => 'neko' } );
