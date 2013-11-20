@@ -8,6 +8,8 @@
 # SMTPd configuration
 smtpd:
     # EHLO hostname for connecting external SMTP server to send an email
+    # If this value is not defined or is empty value, the value of hostname(1)
+    # will be used instead.
     hostname: 'haineko.example.jp'
 
     # Max message size(bytes), 0 is unlimited
