@@ -8,7 +8,7 @@ my $modulename = 'Haineko::CLI';
 my $pkgmethods = [ 'new', 'version', 'witch' ];
 my $objmethods = [ 
     'stdin', 'stdout', 'stderr', 'r', 'v', 'e', 'p',
-    'makepf', 'readpf', 'removepf',
+    'makepf', 'readpf', 'removepf', 'makerf', 'removerf',
 ];
 my $testobject = $modulename->new( 
     'pidfile' => '/tmp/haineko-make-test-'.$$.'.pid',
@@ -30,6 +30,12 @@ INSTANCE_METHODS: {
     ok( -f $testobject->pidfile );
     ok( -s $testobject->pidfile );
     like( $testobject->pidfile, qr|\A/tmp/haineko-make-test-\d+[.]pid\z| );
+
+    $testobject->makerf( [ 1, 2, 3 ] );
+    ok( -e $testobject->runfile );
+    ok( -f $testobject->runfile );
+    ok( -s $testobject->runfile );
+    like( $testobject->runfile, qr|\A/tmp/haineko-make-test-\d+[.]sh\z| );
 
     is( $testobject->v, 2 );
     is( $testobject->v(4), 4 );
@@ -54,6 +60,9 @@ INSTANCE_METHODS: {
 
     $testobject->removepf;
     ok( ! -e $testobject->pidfile );
+
+    $testobject->removerf;
+    ok( ! -e $testobject->runfile );
 }
 
 done_testing;
