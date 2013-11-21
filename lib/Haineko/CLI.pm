@@ -150,6 +150,12 @@ sub makerf {
     return 0 unless ref $argv;
     return 0 unless ref $argv eq 'ARRAY';
     return 0 unless scalar @$argv;
+
+    if( $self->{'pidfile'} && ! $self->{'runfile'} ) {
+        # Generate file name of ``runfile''
+        $self->{'runfile'} =  $self->{'pidfile'};
+        $self->{'runfile'} =~ s|[.]pid|.sh|;
+    }
     return 0 unless $self->{'runfile'};
 
     $self->removeaf if -e $self->{'runfile'};
