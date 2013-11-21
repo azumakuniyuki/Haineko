@@ -43,7 +43,6 @@ if( $subcommand ) {
                 exit(0);
             };
 
-            $hainekocmd->makepf;
             $hainekocmd->parseoptions;
             $hainekocmd->run;
 
