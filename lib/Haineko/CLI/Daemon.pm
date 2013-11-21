@@ -38,7 +38,6 @@ sub run {
     my $runnerprog = undef;
     my $watchingon = [];
     my $plackuparg = [];
-    my $serverargv = {};
     my $commandarg = q();
 
     $ENV{'PLACKENV'}     = $p->{'env'};
@@ -105,10 +104,8 @@ sub run {
             }
         }
 
-        $serverargv->{'port'} = [ $p->{'port'} ];
-        $serverargv->{'interval'} = $p->{'interval'};
-        $serverargv->{'pid_file'} = $self->{'pidfile'};
-        $serverargv->{'status_file'} = '/tmp/haineko.status';
+        # Status file is saved in the same directory of pid file.
+        my $s = $self->{'pidfile'}; $s =~ s|[.]pid|.status|;
 
         unshift @$plackuparg, __PACKAGE__->witch('plackup');
         push @$plackuparg, '--daemonize';
@@ -117,7 +114,7 @@ sub run {
         $commandarg .= __PACKAGE__->witch('start_server');
         $commandarg .= ' --port='.$p->{'port'};
         $commandarg .= ' --pid-file='.$self->{'pidfile'};
-        $commandarg .= ' --status-file=/tmp/haineko.status';
+        $commandarg .= ' --status-file='.$s;
         $commandarg .= ' -- ';
 
         if( $self->makerf( $plackuparg ) ) {
