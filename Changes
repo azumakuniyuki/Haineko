@@ -1,5 +1,12 @@
 Revision history for Haineko
 
+0.2.6   Thu, 21 Nov 2013 19:22:22 +0900 (JST)
+    - New email header: ``X-Haineko-Loop'' is for detecting loop during Haineko
+      servers. Haineko does not receive an email message that had already passed 
+      Haineko running on the same server.
+    - New option "-x, --maxreqs" for sample script bin/hainekoctl.
+    - Fixed: Remove two unused variables from Haineko->startup sub routine.
+
 0.2.5   Mon, 18 Nov 2013 20:22:22 +0900 (JST)
     - Haineko::SMTPD::Relay::Haineko for relaying from Haineko to other Haineko.
     - Haineko::SMTPD::Relay::MX is a class for deliverying an email to the host
