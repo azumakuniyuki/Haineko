@@ -5,10 +5,12 @@ use warnings;
 
 sub index {
     # GET /
+    use Haineko;
     my $class = shift;
     my $httpd = shift;
+    my $neko1 = { 'name' => $httpd->name, 'version' => $Haineko::VERSION };
 
-    return $httpd->res->text( 200, $httpd->name );
+    return $httpd->res->json( 200, $neko1 );
 }
 
 sub info {

@@ -21,7 +21,15 @@ my $nekotest = sub {
         $response = $callback->( $request1 );
 
         is $response->code, 200, $e;
-        is $response->content, $pathlist->{ $e }, $e;
+        if( $e eq '/' ) {
+            require Haineko::JSON;
+            my $j = Haineko::JSON->loadjson( $response->content );
+            isa_ok $j, 'HASH';
+            is $j->{'name'}, $pathlist->{ $e };
+            ok $j->{'version'}, $j->{'version'};
+        } else {
+            is $response->content, $pathlist->{ $e }, $e;
+        }
     }
 };
 
