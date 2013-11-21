@@ -6,6 +6,8 @@ use v5.10;
 BEGIN { 
     use FindBin;
     unshift @INC, "$FindBin::Bin/../lib";
+    my $v = qx(hostname); chomp $v;
+    $ENV{'HOSTNAME'} //= $v;
 }
 
 use Haineko;
