@@ -46,6 +46,8 @@ sub run {
     $ENV{'HAINEKO_CONF'} = $p->{'config'};
     $ENV{'HAINEKO_AUTH'} = $p->{'root'}.'/etc/password';
 
+    push @$watchingon, './lib' if -d './lib';
+    push @$watchingon, './etc' if -d './etc';
     push @$watchingon, $p->{'root'}.'/etc';
     push @$watchingon, $p->{'root'}.'/lib';
     push @$plackuparg, '-R', join( ',', @$watchingon );
