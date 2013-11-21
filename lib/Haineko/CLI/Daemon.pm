@@ -61,10 +61,10 @@ sub run {
         push @$plackuparg, '-w', $p->{'workers'};
     }
 
-        if( length $self->{'logging'}->{'file'} ) {
-            # --access-log /path/to/logfile
-            push @$plackuparg, '--access-log', $self->{'logging'}->{'file'};
-        }
+    if( length $self->{'logging'}->{'file'} ) {
+        # --access-log /path/to/logfile
+        push @$plackuparg, '--access-log', $self->{'logging'}->{'file'};
+    }
 
 
     if( $r & $o->{'test'} ) {
