@@ -87,6 +87,7 @@ sub run {
             }
         }
 
+        $self->makepf;
         $runnerprog->parse_options( @$plackuparg );
         $runnerprog->run;
         $self->p( 'Start Haineko server', 0 );
@@ -118,7 +119,16 @@ sub run {
         $commandarg .= ' --pid-file='.$self->{'pidfile'};
         $commandarg .= ' --status-file=/tmp/haineko.status';
         $commandarg .= ' -- ';
-        $commandarg .= join( ' ', @$plackuparg );
+
+        if( $self->makerf( $plackuparg ) ) {
+            # command line for starting plackup is saved in run/haineko.sh, and
+            # the file is the argument of start_server.
+            $commandarg .= $self->{'runfile'};
+
+        } else {
+            # command line for starting plackup is the argument of start_server.
+            $commandarg .= join( ' ', @$plackuparg );
+        }
         $commandarg .= ' > /dev/null &';
 
         $self->p( 'Start Haineko server', 0 );
@@ -147,7 +157,13 @@ sub ctrl {
 
         $self->e( sprintf( "Cannot read %s", $self->pidfile ) ) unless $p;
         $s = kill( $sigs->{ $argv }, $p );
-        $self->removepf if $argv eq 'stop';
+
+        if( $argv eq 'stop' ) {
+            $self->{'runfile'} =  $self->{'pidfile'};
+            $self->{'runfile'} =~ s|[.]pid|.sh|;
+            $self->removepf;
+            $self->removerf;
+        }
         $self->p( ucfirst $argv.' Haineko server', 0 );
         return $s;
     }
