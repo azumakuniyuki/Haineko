@@ -9,6 +9,7 @@ use Time::Piece;
 use Class::Accessor::Lite;
 
 my $rwaccessors = [
+    'runfile',  # (String) plackup commands in production environment
     'logging',  # (Ref->Hash) syslog configuration
     'verbose',  # (Integer) Verbose level
     'runmode',  # (Integer) Run mode of the command
@@ -34,6 +35,7 @@ sub new {
 
     $param = {
         'started' => Time::Piece->new,
+        'runfile' => $argvs->{'runfile'} || q(),
         'pidfile' => $argvs->{'pidfile'} || q(),
         'verbose' => $argvs->{'verbose'} || 0,
         'command' => $argvs->{'command'} || [ caller ]->[1],
@@ -137,6 +139,34 @@ sub p {
 
     return 1;
 
+}
+
+sub makerf {
+    my $self = shift;
+    my $argv = shift;
+    my $file = undef;
+    my $text = '';
+
+    return 0 unless ref $argv;
+    return 0 unless ref $argv eq 'ARRAY';
+    return 0 unless scalar @$argv;
+    return 0 unless $self->{'runfile'};
+
+    $self->removeaf if -e $self->{'runfile'};
+    $file = IO::File->new( $self->{'runfile'}, 'w' ) || return 0;
+    $text = sprintf( "%s\nexec %s\n", '#!/bin/sh', join( ' ', @$argv ) );
+
+    flock( $file, LOCK_EX ) ? $file->print( $text ) : return 0;
+    flock( $file, LOCK_UN ) ? $file->close : return 0;
+    chmod( 0755, $self->{'runfile'} );
+    return 1;
+}
+
+sub removerf { 
+    my $self = shift; 
+    return 0 unless -f $self->{'runfile'};
+    unlink $self->{'runfile'};
+    return 1;
 }
 
 sub makepf {
