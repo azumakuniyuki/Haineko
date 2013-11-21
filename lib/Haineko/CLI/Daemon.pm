@@ -22,6 +22,7 @@ sub default {
         'server'  => 'Standalone',
         'logging' => { 'disabled' => 1, 'facility' => 'user', 'file' => '' },
         'workers' => 2,
+        'maxreqs' => 100,
         'interval'=> 5,
     };
 }
@@ -57,7 +58,24 @@ sub run {
 
 
     if( $p->{'server'} eq 'Starlet' ) {
-        push @$plackuparg, '-w', $p->{'workers'};
+        # −−max−workers=#
+        #   number of worker processes (default: 10)
+        push @$plackuparg, '--max-workers', $p->{'workers'};
+
+        # −−max−reqs−per−child=#
+        #   max. number of requests to be handled before a worker process exits
+        #   (default: 100)
+        push @$plackuparg, '--max-reqs-per-child', $p->{'maxreqs'};
+
+    } elsif( $p->{'server'} eq 'Starman' ) {
+        # −−workers
+        #   Specifies the number of worker pool. Defaults to 5.
+        push @$plackuparg, '--workers', $p->{'workers'};
+
+        # −−max−requests
+        #   Number of the requests to process per one worker process. Defaults
+        #   to 1000.
+        push @$plackuparg, '--max-requests', $p->{'maxreqs'};
     }
 
     if( length $self->{'logging'}->{'file'} ) {
@@ -190,6 +208,7 @@ sub parseoptions {
         'port|p=i',     # Port
         'server|s=s',   # Server, -s option of plackup
         'workers|w=i',  # --max-workers of plackup
+        'maxreqs|x=i',  # --max-requests
         'verbose|v+',   # Verbose
     );
 
@@ -330,6 +349,7 @@ sub help {
         '-p, --port <port>'     => 'Binds to a TCP port. default: '.$d->{'port'},
         '-s, --server <handler>'=> 'Server implementation to run on for plackup -s. default: '.$d->{'server'},
         '-w, --workers <n>'     => 'The number of max workers for Handler(-s option). default: '.$d->{'workers'},
+        '-x, --maxreqs <n>'     => 'The number of max requests per child. default: '.$d->{'maxreqs'},
         '-v, --verbose'         => 'Verbose mode.',
         '--help'                => 'This screen',
     ];
@@ -341,7 +361,7 @@ sub help {
         'status'    => 'Show the process id of running haineko server',
     ];
     my $forexample = [
-        'hainekoctl start -s Starlet -w 4',
+        'hainekoctl start -s Starlet -w 4 -x 1000',
         'hainekoctl start -d -h 127.0.0.1 -p 2222 -C /tmp/neko.cf',
     ];
 
