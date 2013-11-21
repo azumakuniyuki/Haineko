@@ -168,6 +168,33 @@ sub submit {
     };
     return $httpd->res->json( 400, { $responsejk => $esmtpreply } ) if $exceptions;
 
+    DETECT_LOOP_DURING_HAINEKO_SERVERS: {
+        # Check ``X-Haineko-Loop'' header
+        my $v = $head->{'x-haineko-loop'} || [];
+        if( ref $v eq 'ARRAY' ) {
+            # The value of X-Haineko-Loop is an array reference
+            if( scalar @$v ) {
+                # ``X-Haineko-Loop'' exists in received JSON 
+                # "header": { ..., "x-haineko-loop": [] }, 
+                if( grep { $serverconf->{'servername'} eq $_ } @$v ) {
+                    # DETECTED LOOP:
+                    # The message has already passed this Haineko
+                    $esmtpreply = $responsecn->r( 'conn', 'detect-loop' )->damn;
+                    $nekosyslog->w( 'err', $esmtpreply );
+
+                    return $httpd->res->json( 400, { $responsejk => $esmtpreply } );
+                }
+            } else {
+                # The header is empty or other data structure.
+                push @{ $head->{'x-haineko-loop'} }, $serverconf->{'servername'};
+            }
+        } else {
+            # The value of the header is not an array reference, set this hostname
+            # into X-Haineko-Loop # header
+            $head->{'x-haineko-loop'} = [ $serverconf->{'servername'} ];
+        }
+    }
+
     EHLO: {
         #  _____ _   _ _     ___  
         # | ____| | | | |   / _ \ 
@@ -316,7 +343,7 @@ sub submit {
 
             if( not defined $accessconf ) {
                 # If the file does not exist or failed to load, only $serverconf->{'hostname'} 
-                # or *@{ $ENV{'HOSTNAME'} } or $ENV{'SERVER_NAME'} or `hostname` allowed
+                # or $ENV{'HOSTNAME'} or $ENV{'SERVER_NAME'} or `hostname` allowed
                 # as a # domain part of the recipient address.
                 $accessconf //= { 
                     'open-relay' => 0,
@@ -456,6 +483,7 @@ sub submit {
         'X-Mailer'          => sprintf( "%s", $neko->useragent // q() ),
         'X-SMTP-Engine'     => sprintf( "%s %s", $serverconf->{'system'}, $serverconf->{'version'} ),
         'X-HTTP-Referer'    => sprintf( "%s", $neko->referer // q() ),
+        'X-Haineko-Loop'    => sprintf( "%s", join( ',', @{ $head->{'x-haineko-loop'} } ) ),
         'X-Originating-IP'  => $remoteaddr,
     };
     my $received00 = sprintf( "from %s ([%s]) by %s with HTTP id %s; %s", 
