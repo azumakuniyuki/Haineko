@@ -90,11 +90,6 @@ sub run {
         $runnerprog = Plack::Runner->new;
         $ENV{'HAINEKO_DEBUG'} = 1;
 
-        if( -f $p->{'config'}.'-debug' && -r _ && -e _ ) {
-            # Use etc/haineko.cf-debug if it exists
-            $p->{'config'} .= '-debug';
-        }
-
         if( $r & $o->{'auth'} ) {
             # Require Basic-Authentication when connected to Haineko server
             if( -f $p->{'root'}.'/etc/password-debug' && -r _ && -e _ ) {
@@ -244,9 +239,17 @@ sub parseoptions {
         }
 
     } else {
+        # No configuration file specified at -C option
         for my $g ( @$dirs ) {
             # Find haineko.cf
             my $f = sprintf( "%s/etc/haineko.cf", $g );
+            my $v = $r & $opts->{'test'} ? $f.'-debug' : q();
+
+            if( $v && -f $v && -s _ && -r _ ) {
+                # etc/haineko.cf-debug exists;
+                $conf->{'config'} = $v;
+                last;
+            }
             next unless -f $f;
             next unless -s $f;
             next unless -r $f;
