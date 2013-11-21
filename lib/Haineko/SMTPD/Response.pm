@@ -31,6 +31,11 @@ my $Replies = {
             'code' => 421,
             'message' => [ 'Cannot connect SMTP Server' ],
         },
+        'detect-loop' => {
+            'dsn' => undef,
+            'code' => 421,
+            'message' => [ 'Detected message loop' ],
+        },
     },
     'http' => {
         'method-not-supported' => {
