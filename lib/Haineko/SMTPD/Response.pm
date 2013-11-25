@@ -9,6 +9,7 @@ my $rwaccessors = [
     'code',     # (Integer) SMTP reply code
     'host',     # (String) SMTP server name
     'port',     # (Integer) Port number of the server
+    'rcpt',     # (String) Recipient address
     'error',    # (Integer) 0 = OK, 1 = NG
     'mailer',   # (String) Mailer name
     'command',  # (String) SMTP Command
@@ -307,6 +308,7 @@ sub p {
         'code'    => $argvs->{'code'} // undef,
         'host'    => $argvs->{'host'} // undef,
         'port'    => $argvs->{'port'} // undef,
+        'rcpt'    => $argvs->{'rcpt'} // undef,
         'error'   => 0,
         'mailer'  => $argvs->{'mailer'} // undef,
         'message' => [],
@@ -438,13 +440,13 @@ damn() returns instance data as a hash reference
     print Data::Dumper::Dumper $e->damn;
     $VAR1 = {
         'dsn' => '5.7.1',
-                'error' => 1,
-                'host' => '127.0.0.1',
-                'code' => '551',
-                'message' => [
-                                '551 5.7.1 Refused'
-                             ],
-                'command' => 'DATA'
+        'error' => 1,
+        'host' => '127.0.0.1',
+        'code' => '551',
+        'message' => [
+            '551 5.7.1 Refused'
+        ],
+        'command' => 'DATA'
     }
 
 =head1 REPOSITORY
