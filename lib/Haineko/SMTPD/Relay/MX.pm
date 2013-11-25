@@ -151,6 +151,7 @@ sub sendmail {
             'code'    => $netsmtpobj->code,
             'host'    => $self->{'host'},
             'port'    => $self->{'port'},
+            'rcpt'    => $self->{'rcpt'},
             'mailer'  => 'MX',
             'message' => [ $netsmtpobj->message ],
             'command' => $thecommand,
@@ -160,6 +161,7 @@ sub sendmail {
 
     } else {
         $self->response( Haineko::SMTPD::Response->r( 'conn', 'cannot-connect' ) );
+        map { $self->response->{ $_ } = $self->{ $_ } } ( qw|host port rcpt| );
     }
     return $smtpstatus;
 }
@@ -202,6 +204,9 @@ using SMTP protocol.
              'dsn' => '2.1.0',
              'error' => 0,
              'code' => '250',
+             'host' => 'mx1.example.org',
+             'port' => 25,
+             'rcpt' => 'neko@example.org',
              'message' => [
                     '2.0.0 OK Authenticated',
                     '2.1.0 <kijitora@example.jp>... Sender ok'
