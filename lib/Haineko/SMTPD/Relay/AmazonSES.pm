@@ -42,6 +42,9 @@ sub sendmail {
     if( ! $self->{'username'} || ! $self->{'password'} ) {
         # Access Key ID(username) or Secret Key(password) is empty
         my $r = {
+            'host'    => SES_ENDPOINT,
+            'port'    => 443,
+            'rcpt'    => $self->{'rcpt'},
             'code'    => 400,
             'error'   => 1,
             'mailer'  => 'AmazonSES',
@@ -153,6 +156,8 @@ sub sendmail {
         my $nekoparams = { 
             'code'    => $htresponse->code,
             'host'    => SES_ENDPOINT,
+            'port'    => 443,
+            'rcpt'    => $self->{'rcpt'},
             'error'   => $htresponse->is_success ? 0 : 1,
             'mailer'  => 'AmazonSES',
             'message' => [ $htresponse->message ],
@@ -188,6 +193,8 @@ sub sendmail {
             $nekoparams->{'error'} = 1;
             $nekoparams->{'message'} = [ Haineko::E->new( $htresponse->message )->text ];
         }
+    use Data::Dumper;
+    warn Dumper $nekoparams;
         $self->response( Haineko::SMTPD::Response->new( %$nekoparams ) );
     }
 
