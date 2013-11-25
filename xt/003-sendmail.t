@@ -15,6 +15,7 @@ my $htrequests = [];
 my $emailfiles = [
     'tmp/make-author-test-1.json',
     'tmp/make-author-test-2.json',
+    'tmp/make-author-test-3.json',
 ];
 my $methodargv = { 
     'PeerAddr' => $servername, 
@@ -119,16 +120,17 @@ for my $e ( @$emailfiles ) {
 
                 $k = 'response';
                 $s = $j->{ $k };
-                isa_ok( $s, 'HASH' );
-                isa_ok( $s->{'message'}, 'ARRAY' );
-                like( $s->{'dsn'}, qr/\A2[.]\d[.]\d/, $p.sprintf( "%s->dsn = %s", $k, $s->{'dsn'} ) );
-                ok( $s->{'code'}, $p.sprintf( "%s->code = %d", $k, $s->{'code'} ) );
-                ok( $s->{'host'}, $p.sprintf( "%s->host = %s", $k, $s->{'host'} ) );
-                is( $s->{'error'}, 0, $p.sprintf( "%s->error = %d", $k, 0 ) );
-                ok( $s->{'mailer'}, $p.sprintf( "%s->mailer = %s", $k, ( $s->{'mailer'} || undef ) ) );
-                ok( $s->{'command'}, $p.sprintf( "%s->command = %s", $k, $s->{'command'} ) );
-                ok( $s->{'message'}->[0], $p.sprintf( "%s->message->[0] = %s", $k, $s->{'message'}->[0] ) );
-
+                isa_ok( $s, 'ARRAY' );
+                for my $e ( @$s ) {
+                    isa_ok( $e->{'message'}, 'ARRAY' );
+                    like( $e->{'dsn'}, qr/\A2[.]\d[.]\d/, $p.sprintf( "%s->dsn = %s", $k, $e->{'dsn'} ) );
+                    ok( $e->{'code'}, $p.sprintf( "%s->code = %d", $k, $e->{'code'} ) );
+                    ok( $e->{'host'}, $p.sprintf( "%s->host = %s", $k, $e->{'host'} ) );
+                    is( $e->{'error'}, 0, $p.sprintf( "%s->error = %d", $k, 0 ) );
+                    ok( $e->{'mailer'}, $p.sprintf( "%s->mailer = %s", $k, ( $e->{'mailer'} || undef ) ) );
+                    ok( $e->{'command'}, $p.sprintf( "%s->command = %s", $k, $e->{'command'} ) );
+                    ok( $e->{'message'}->[0], $p.sprintf( "%s->message->[0] = %s", $k, $e->{'message'}->[0] ) );
+                }
 
                 $k = 'timestamp';
                 $s = $j->{ $k };
