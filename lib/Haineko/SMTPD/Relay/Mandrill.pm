@@ -11,7 +11,7 @@ use Email::MIME;
 use Encode;
 use Class::Accessor::Lite;
 
-use constant 'MANDRILL_ENDPOINT' => 'mandrillapp.com/api';
+use constant 'MANDRILL_ENDPOINT' => 'mandrillapp.com';
 use constant 'MANDRILL_APIVERSION' => '1.0';
 
 my $rwaccessors = [
@@ -37,6 +37,9 @@ sub sendmail {
         # API-KEY(password) is empty
         my $r = {
             'code'    => 400,
+            'host'    => MANDRILL_ENDPOINT,
+            'port'    => 443,
+            'rcpt'    => $self->{'rcpt'},
             'error'   => 1,
             'mailer'  => 'Mandrill',
             'message' => [ 'Empty API-KEY' ],
@@ -50,7 +53,7 @@ sub sendmail {
     # * You can consider any non-200 HTTP response code an error 
     #   - the returned data will contain more detailed information
     # * All methods are accessed via: https://mandrillapp.com/api/1.0/SOME-METHOD.OUTPUT_FORMAT
-    my $mandrillep = sprintf( "https://%s/%s/messages/send-raw.json", MANDRILL_ENDPOINT, MANDRILL_APIVERSION );
+    my $mandrillep = sprintf( "https://%s/api/%s/messages/send-raw.json", MANDRILL_ENDPOINT, MANDRILL_APIVERSION );
     my $timestamp1 = Time::Piece->new;
     my $headerlist = [];
     my $emencoding = uc( $self->{'attr'}->{'charset'} || 'UTF-8' );
@@ -125,7 +128,9 @@ sub sendmail {
         my $htcontents = undef;
         my $nekoparams = { 
             'code'    => $htresponse->code,
-            'host'    => 'mandrillapp.com',
+            'host'    => MANDRILL_ENDPOINT,
+            'port'    => 443,
+            'rcpt'    => $self->{'rcpt'},
             'error'   => $htresponse->is_success ? 0 : 1,
             'mailer'  => 'Mandrill',
             'message' => [ $htresponse->message ],
@@ -193,7 +198,7 @@ sub getbounce {
 
     return 0 unless $self->{'password'};
 
-    my $mandrillep = sprintf( "https://%s/%s/messages/search.json", MANDRILL_ENDPOINT, MANDRILL_APIVERSION );
+    my $mandrillep = sprintf( "https://%s/api/%s/messages/search.json", MANDRILL_ENDPOINT, MANDRILL_APIVERSION );
     my $parameters = {
         'key'       => $self->{'password'},
         'query'     => $self->{'rcpt'},
@@ -300,6 +305,9 @@ Send an email to a recipient via Mandrill using Web API.
              'dsn' => undef,
              'error' => 0,
              'code' => '200',
+             'host' => 'mandrillapp.com',
+             'port' => 443,
+             'rcpt' => 'neko@example.org',
              'message' => [ 'OK' ],
              'command' => 'POST'
             }, 'Haineko::SMTPD::Response' );
