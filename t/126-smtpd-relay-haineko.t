@@ -63,6 +63,9 @@ INSTANCE_METHODS: {
 
     is $r->dsn, undef, '->response->dsn => undef';
     is $r->code, 421, '->response->code => 421';
+    is $r->host, $methodargv->{'host'}, '->response->host => '.$r->host;
+    is $r->port, $methodargv->{'port'}, '->response->port => '.$r->port;
+    is $r->rcpt, $methodargv->{'rcpt'}, '->response->port => '.$r->rcpt;
     is $r->error, 1, '->response->error=> 1';
     is $r->command, 'CONN', '->response->command => CONN';
 
