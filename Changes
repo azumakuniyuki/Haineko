@@ -1,9 +1,14 @@
 Revision history for Haineko
 
+0.2.7   Mon, 25 Nov 2013 22:22:22 +0900 (JST)
+    - Haineko now respond the data of "response" in JSON as an array. It hold
+      multiple responses in "response" hash. issue #3.
+    - / returns JSON: issue #4.
+
 0.2.6   Thu, 21 Nov 2013 19:22:22 +0900 (JST)
     - New email header: ``X-Haineko-Loop'' is for detecting loop during Haineko
       servers. Haineko does not receive an email message that had already passed 
-      Haineko running on the same server.
+      Haineko running on the same server: issue #1.
     - New option "-x, --maxreqs" for sample script bin/hainekoctl.
     - Fixed: Remove two unused variables from Haineko->startup sub routine.
 
