@@ -133,7 +133,17 @@ sub err {
 
     if( ref $mesg eq 'HASH' ) {
         # Respond as a JSON
-        return $self->response->json( $code, { 'response' => [ $mesg ] } );
+        require Haineko::SMTPD::Session;
+        my $addr = [ split( ',', $self->req->header('X-Forwarded-For') || q() ) ];
+        my $sess = Haineko::SMTPD::Session->new( 
+                        'referer'    => $self->req->referer // undef,
+                        'response'   => [ $mesg ],
+                        'remoteaddr' => pop @$addr || $self->req->address // undef,
+                        'remoteport' => $self->req->env->{'REMOTE_ADDR'} // undef,
+                        'useragent'  => $self->req->user_agent // undef,
+                   )->damn;
+        $sess->{'queueid'} = undef;
+        return $self->response->json( $code, $sess );
 
     } else {
         # Respond as a text
