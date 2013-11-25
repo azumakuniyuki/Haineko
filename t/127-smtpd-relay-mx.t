@@ -57,6 +57,9 @@ INSTANCE_METHODS: {
 
     is $r->dsn, undef, '->response->dsn => undef';
     is $r->code, 421, '->response->code => 421';
+    is $r->host, undef, '->response->host => undef';
+    is $r->port, 25, '->response->port => 25';
+    is $r->rcpt, $methodargv->{'rcpt'}, '->response->rcpt => '.$r->rcpt;
     is $r->error, 1, '->response->error=> 1';
     is $r->command, 'CONN', '->response->command => CONN';
     like $m, qr/Cannot connect SMTP Server/, '->response->message => '.$m;
