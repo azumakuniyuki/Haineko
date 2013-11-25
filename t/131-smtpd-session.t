@@ -7,7 +7,7 @@ use Test::More;
 
 my $modulename = 'Haineko::SMTPD::Session';
 my $pkgmethods = [ 'new', 'make_queueid', 'done' ];
-my $objmethods = [ 'ehlo', 'auth', 'mail', 'rcpt', 'rset', 'quit', 'damn' ];
+my $objmethods = [ 'ehlo', 'auth', 'mail', 'rcpt', 'data', 'rset', 'quit', 'damn' ];
 my $testobject = $modulename->new();
 
 isa_ok $testobject, $modulename;
@@ -73,6 +73,7 @@ METHODS: {
         $o->auth(1); is $o->stage, 3, '->stage => '.$o->stage;
         $o->mail(1); is $o->stage, 7, '->stage => '.$o->stage;
         $o->rcpt(1); is $o->stage, 15, '->stage => '.$o->stage;
+        $o->data(1); is $o->stage, 31, '->stage => '.$o->stage;
         $o->rset(1); is $o->stage, 1, '->stage => '.$o->stage;
         $o->quit(1); is $o->stage, 0, '->stage => '.$o->stage;
     }
