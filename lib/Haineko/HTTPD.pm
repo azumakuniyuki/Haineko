@@ -133,7 +133,7 @@ sub err {
 
     if( ref $mesg eq 'HASH' ) {
         # Respond as a JSON
-        return $self->response->json( $code, { 'response' => $mesg } );
+        return $self->response->json( $code, { 'response' => [ $mesg ] } );
 
     } else {
         # Respond as a text
