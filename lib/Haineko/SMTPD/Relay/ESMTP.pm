@@ -162,6 +162,7 @@ sub sendmail {
             'code'    => $netsmtpobj->code,
             'host'    => $self->{'host'},
             'port'    => $self->{'port'},
+            'rcpt'    => $self->{'rcpt'},
             'mailer'  => 'ESMTP',
             'message' => [ $netsmtpobj->message ],
             'command' => $thecommand,
@@ -216,6 +217,7 @@ Send an email to external server using SMTP protocol.
              'dsn' => '2.1.0',
              'error' => 0,
              'code' => '250',
+             'rcpt' => 'neko@example.org',
              'message' => [
                     '2.0.0 OK Authenticated',
                     '2.1.0 <kijitora@example.jp>... Sender ok'
