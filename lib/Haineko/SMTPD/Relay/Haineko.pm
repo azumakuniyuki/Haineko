@@ -85,6 +85,8 @@ sub sendmail {
         my $nekoparams = { 
             'code'    => $htresponse->code,
             'host'    => $self->{'host'},
+            'port'    => $self->{'port'},
+            'rcpt'    => $self->{'rcpt'},
             'error'   => $htresponse->is_success ? 0 : 1,
             'mailer'  => 'Haineko',
             'message' => [],
@@ -112,6 +114,7 @@ sub sendmail {
         }
     } else {
         $self->response( Haineko::SMTPD::Response->r( 'conn', 'cannot-connect' ) );
+        map { $self->response->{ $_ } = $self->{ $_ } } ( qw|host port rcpt| );
     }
 
     return $smtpstatus;
@@ -159,6 +162,8 @@ Send an email from Haineko to other Haineko server using HTTP.
              'error' => 0,
              'code' => '200',
              'host' => '192.0.2.1',
+             'port' => 2794,
+             'rcpt' => 'neko@example.org',
              'message' => [
                     '2.1.0 <kijitora@example.jp>... Sender ok'
                       ],
