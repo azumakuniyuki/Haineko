@@ -172,6 +172,7 @@ sub sendmail {
 
     } else {
         $self->response( Haineko::SMTPD::Response->r( 'conn', 'cannot-connect' ) );
+        map { $self->response->{ $_ } = $self->{ $_ } } ( qw|host port rcpt| );
     }
     return $smtpstatus;
 }
@@ -218,6 +219,8 @@ Send an email to external server using SMTP protocol.
              'error' => 0,
              'code' => '250',
              'rcpt' => 'neko@example.org',
+             'host' => '192.0.2.1',
+             'port' => 587,
              'message' => [
                     '2.0.0 OK Authenticated',
                     '2.1.0 <kijitora@example.jp>... Sender ok'
