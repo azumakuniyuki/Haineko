@@ -1,4 +1,5 @@
 package Haineko::SMTPD::Session;
+use feature ':5.10';
 use strict;
 use warnings;
 use Class::Accessor::Lite;
@@ -30,7 +31,7 @@ sub new {
     my $argvs = { @_ };
     my $nekor = $argvs->{'response'} || undef;
     my $nekos = {
-        'stage'    => 0,
+        'stage'    => $argvs->{'stage'} // 0,
         'started'  => Time::Piece->new,
         'queueid'  => $argvs->{'queueid'}  || __PACKAGE__->make_queueid,
     };
@@ -154,6 +155,14 @@ sub rcpt {
     my $rcpt = __PACKAGE__->done('rcpt');
     $self->{'stage'} |= $rcpt if $argv;
     return $self->{'stage'} & $rcpt ? 1 : 0;
+}
+
+sub data {
+    my $self = shift;
+    my $argv = shift || 0;
+    my $data = __PACKAGE__->done('data');
+    $self->{'stage'} |= $data if $argv;
+    return $self->{'stage'} & $data ? 1 : 0;
 }
 
 sub rset {
