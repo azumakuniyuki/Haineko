@@ -14,9 +14,10 @@ sub submit {
     my $httpd = shift;  # (Haineko::HTTPD)
 
     my $serverconf = $httpd->{'conf'}->{'smtpd'};
-    my $responsecn = 'Haineko::SMTPD::Response';    # Response class name
-    my $responsejk = 'response';                    # Response json key name
-    my $exceptions = 0;                             # Flag, be set in try {...} catch { ... }
+    my $responsecn = 'Haineko::SMTPD::Response';
+    my $responsejk = 'response';    # Response json key name
+    my $exceptions = 0;             # Flag, be set in try {...} catch { ... }
+    my $tmpsession = undef;         # (Haineko::SMTPD::Session) Temporary session object
 
     # Create a queue id (session id)
     my $queueident = Haineko::SMTPD::Session->make_queueid;
@@ -39,18 +40,28 @@ sub submit {
         'remoteport' => $remoteport,
     };
     my $nekosyslog = Haineko::Log->new( %$syslogargv );
-    my $esmtpreply = undef;
+    my $esresponse = undef;
 
     my $milterlibs = [];
     my $mfresponse = undef;
 
+    # Create a new SMTP Session
+    $tmpsession = Haineko::SMTPD::Session->new( 
+                    'queueid'    => $queueident,
+                    'referer'    => $httpd->req->referer // q(),
+                    'useragent'  => $useragent1,
+                    'remoteaddr' => $remoteaddr,
+                    'remoteport' => $remoteport );
+
+
     if( $httpd->debug == 0 && $httpd->req->method eq 'GET' ) {
         # GET method is not permitted in production mode.
         # Use ``POST'' method instead.
-        $esmtpreply = $responsecn->r( 'http', 'method-not-supported' )->damn;
-        $nekosyslog->w( 'err', $esmtpreply );
+        $esresponse = $responsecn->r( 'http', 'method-not-supported' );
+        $tmpsession->add_response( $esresponse );
+        $nekosyslog->w( 'err', $esresponse->damn );
 
-        return $httpd->res->json( 405, { $responsejk => $esmtpreply } );
+        return $httpd->res->json( 405, $tmpsession->damn );
     }
 
     CONN: {
@@ -90,18 +101,20 @@ sub submit {
             # Only permitted host can send an email.
             if( not defined $ip4network ) {
                 # Code in this block might not be used...
-                $esmtpreply = $responsecn->r( 'auth', 'no-checkrelay' )->damn;
-                $nekosyslog->w( 'err', $esmtpreply );
+                $esresponse = $responsecn->r( 'auth', 'no-checkrelay' );
+                $tmpsession->add_response( $esresponse );
+                $nekosyslog->w( 'err', $esresponse->damn );
 
-                return $httpd->res->json( 403, { $responsejk => $esmtpreply } );
+                return $httpd->res->json( 403, $tmpsession->damn );
 
             } elsif( not $ip4network->find( $remoteaddr ) ) {
                 # The remote address or the remote network is not listed in 
                 # etc/relayhosts.
-                $esmtpreply = $responsecn->r( 'auth', 'access-denied' )->damn;
-                $nekosyslog->w( 'err', $esmtpreply );
+                $esresponse = $responsecn->r( 'auth', 'access-denied' );
+                $tmpsession->add_response( $esresponse );
+                $nekosyslog->w( 'err', $esresponse->damn );
 
-                return $httpd->res->json( 403, { $responsejk => $esmtpreply } );
+                return $httpd->res->json( 403, $tmpsession->damn );
             }
         }
 
@@ -119,17 +132,19 @@ sub submit {
             last XXFI_CONNECT unless $mfresponse->error;
 
             # Reject connection
-            $esmtpreply = $mfresponse->damn;
-            $nekosyslog->w( 'err', $esmtpreply );
+            $esresponse = $mfresponse;
+            $tmpsession->add_response( $esresponse );
+            $nekosyslog->w( 'err', $esresponse->damn );
 
-            return $httpd->res->json( 400, { $responsejk => $esmtpreply } );
+            return $httpd->res->json( 400, $tmpsession->damn );
 
         } # End of ``XXFI_CONNECT''
     } # End of ``CONN''
 
     my $headerlist = [ 'from', 'reply-to', 'subject' ];
     my $emencoding = q();
-    my $recipients = [];
+    my $recipients = [];    # Recipient addresses specified in JSON
+    my $cannotsend = [];    # Invalid recipient addresses checked by the following codes
 
     my ( $ehlo, $mail, $rcpt, $head, $body, $json ) = undef;
     my ( $auth, $mech ) = undef;
@@ -162,11 +177,12 @@ sub submit {
     } catch {
         # Failed to load the email body or email headers
         $exceptions = 1;
-        $esmtpreply = $responsecn->r( 'http', 'malformed-json' );
-        $esmtpreply = $esmtpreply->mesg( $_ ) if $httpd->debug;
-        $nekosyslog->w( 'err', $esmtpreply->damn );
+        $esresponse = $responsecn->r( 'http', 'malformed-json' );
+        $esresponse = $esresponse->mesg( $_ ) if $httpd->debug;
+        $tmpsession->add_response( $esresponse );
+        $nekosyslog->w( 'err', $esresponse->damn );
     };
-    return $httpd->res->json( 400, { $responsejk => $esmtpreply } ) if $exceptions;
+    return $httpd->res->json( 400, $tmpsession->damn ) if $exceptions;
 
     DETECT_LOOP_DURING_HAINEKO_SERVERS: {
         # Check ``X-Haineko-Loop'' header
@@ -179,10 +195,11 @@ sub submit {
                 if( grep { $serverconf->{'servername'} eq $_ } @$v ) {
                     # DETECTED LOOP:
                     # The message has already passed this Haineko
-                    $esmtpreply = $responsecn->r( 'conn', 'detect-loop' )->damn;
-                    $nekosyslog->w( 'err', $esmtpreply );
+                    $esresponse = $responsecn->r( 'conn', 'detect-loop' );
+                    $tmpsession->add_response( $esresponse );
+                    $nekosyslog->w( 'err', $esresponse->damn );
 
-                    return $httpd->res->json( 400, { $responsejk => $esmtpreply } );
+                    return $httpd->res->json( 400, $tmpsession->damn );
                 }
             } else {
                 # The header is empty or other data structure.
@@ -208,17 +225,19 @@ sub submit {
 
         if( not length $ehlo ) {
             # The value is empty: { "ehlo": '', ... }
-            $esmtpreply = $responsecn->r( 'ehlo', 'require-domain' )->damn;
-            $nekosyslog->w( 'err', $esmtpreply );
+            $esresponse = $responsecn->r( 'ehlo', 'require-domain' );
+            $tmpsession->add_response( $esresponse );
+            $nekosyslog->w( 'err', $esresponse->damn );
 
-            return $httpd->res->json( 400, { $responsejk => $esmtpreply } );
+            return $httpd->res->json( 400, $tmpsession->damn );
 
         } elsif( not Haineko::SMTPD::RFC5321->check_ehlo( $ehlo ) ) {
             # The value is invalid: { "ehlo": 1, ... }
-            $esmtpreply = $responsecn->r( 'ehlo', 'invalid-domain' )->damn;
-            $nekosyslog->w( 'err', $esmtpreply );
+            $esresponse = $responsecn->r( 'ehlo', 'invalid-domain' );
+            $tmpsession->add_response( $esresponse );
+            $nekosyslog->w( 'err', $esresponse->damn );
 
-            return $httpd->res->json( 400, { $responsejk => $esmtpreply } );
+            return $httpd->res->json( 400, $tmpsession->damn );
         }
 
         XXFI_HELO: {
@@ -233,10 +252,11 @@ sub submit {
 
             if( defined $mfresponse && $mfresponse->error ){
                 # The value of EHLO is rejected
-                $esmtpreply = $mfresponse->damn;
-                $nekosyslog->w( 'err', $esmtpreply );
+                $esresponse = $mfresponse->damn;
+                $tmpsession->add_response( $mfresponse );
+                $nekosyslog->w( 'err', $esresponse );
 
-                return $httpd->res->json( 400, { $responsejk => $esmtpreply } );
+                return $httpd->res->json( 400, $tmpsession->damn );
             }
         } # End of ``XXFI_HELO''
     } # End of ``EHLO''
@@ -251,24 +271,27 @@ sub submit {
         # Check the envelope sender address
         if( not length $mail ) {
             # The address is empty: { "mail": '', ... }
-            $esmtpreply = $responsecn->r( 'mail', 'syntax-error' )->damn;
-            $nekosyslog->w( 'err', $esmtpreply );
+            $esresponse = $responsecn->r( 'mail', 'syntax-error' );
+            $tmpsession->add_response( $esresponse );
+            $nekosyslog->w( 'err', $esresponse->damn );
 
-            return $httpd->res->json( 400, { $responsejk => $esmtpreply } );
+            return $httpd->res->json( 400, $tmpsession->damn );
 
         } elsif( not Haineko::SMTPD::RFC5322->is_emailaddress( $mail ) ) {
             # The address is not valid: { "mail": 'neko', ... }
-            $esmtpreply = $responsecn->r( 'mail', 'domain-required' )->damn;
-            $nekosyslog->w( 'err', $esmtpreply );
+            $esresponse = $responsecn->r( 'mail', 'domain-required' );
+            $tmpsession->add_response( $esresponse );
+            $nekosyslog->w( 'err', $esresponse->damn );
 
-            return $httpd->res->json( 400, { $responsejk => $esmtpreply } );
+            return $httpd->res->json( 400, $tmpsession->damn );
 
         } elsif( Haineko::SMTPD::RFC5321->is8bit( \$mail ) ) {
             # The address includes multi-byte character
-            $esmtpreply = $responsecn->r( 'mail', 'non-ascii' )->damn;
-            $nekosyslog->w( 'err', $esmtpreply );
+            $esresponse = $responsecn->r( 'mail', 'non-ascii' );
+            $tmpsession->add_response( $esresponse );
+            $nekosyslog->w( 'err', $esresponse->damn );
 
-            return $httpd->res->json( 400, { $responsejk => $esmtpreply } );
+            return $httpd->res->json( 400, $tmpsession->damn );
         }
 
         XXFI_ENVFROM: {
@@ -282,10 +305,11 @@ sub submit {
 
             if( defined $mfresponse && $mfresponse->error ){
                 # The envelope sender address rejected
-                $esmtpreply = $mfresponse->damn;
-                $nekosyslog->w( 'err', $esmtpreply );
+                $esresponse = $mfresponse->damn;
+                $tmpsession->add_response( $mfresponse );
+                $nekosyslog->w( 'err', $esresponse );
 
-                return $httpd->res->json( 400, { $responsejk => $esmtpreply } );
+                return $httpd->res->json( 400, $tmpsession->damn );
             }
         } # End of ``XXFI_ENVFROM''
     } # End of ``MAIL_FROM''
@@ -298,16 +322,29 @@ sub submit {
         # |_| \_\\____|_|    |_|     |_| \___/ 
         #                                      
         # Check envelope recipient addresses
-        my $isnotemail = 0;
-        my $notallowed = 0;
         my $accessconf = undef;
+        my $xrecipient = $serverconf->{'max_rcpts_per_message'} // 0;
 
         if( not scalar @$recipients ) {
             # No envelope recipient address: { "rcpt": [], ... }
-            $esmtpreply = $responsecn->r( 'rcpt', 'address-required' )->damn;
-            $nekosyslog->w( 'err', $esmtpreply );
+            $esresponse = $responsecn->r( 'rcpt', 'address-required' );
+            $tmpsession->add_response( $esresponse );
+            $nekosyslog->w( 'err', $esresponse->damn );
 
-            return $httpd->res->json( 400, { $responsejk => $esmtpreply } );
+            return $httpd->res->json( 400, $tmpsession->damn );
+        }
+
+        if( $xrecipient && $xrecipient > 0 ) {
+
+            if( scalar @$recipients > $xrecipient ) {
+                # The number of recipients exceeded ``max_rcpts_per_message'' 
+                # value defined in etc/haineko.cf
+                $esresponse = $responsecn->r( 'rcpt', 'too-many-recipients' );
+                $tmpsession->add_response( $esresponse );
+                $nekosyslog->w( 'err', $esresponse->damn );
+
+                return $httpd->res->json( 403, $tmpsession->damn );
+            }
         }
 
         VALID_EMAIL_ADDRESS_OR_NOT: {
@@ -316,17 +353,23 @@ sub submit {
             # a JSON with HTTP status code 400.
             for my $e ( @$recipients ) { 
                 # Check the all envelope recipient addresses
-                next if Haineko::SMTPD::RFC5322->is_emailaddress( $e );
-                $isnotemail = 1;
-                last;
-            }
+                if( Haineko::SMTPD::RFC5322->is_emailaddress( $e ) ) {
 
-            if( $isnotemail ) {
-                # 1 or more invalid email address exists
-                $esmtpreply = $responsecn->r( 'rcpt', 'is-not-emailaddress' )->damn;
-                $nekosyslog->w( 'err', $esmtpreply );
+                    # The address includes multi-byte character or not
+                    next unless Haineko::SMTPD::RFC5321->is8bit( \$e );
 
-                return $httpd->res->json( 400, { $responsejk => $esmtpreply } );
+                    # The address includes multi-byte character
+                    $esresponse = $responsecn->r( 'mail', 'non-ascii' );
+
+                } else {
+                    # The address is not valid email address
+                    $esresponse = $responsecn->r( 'rcpt', 'is-not-emailaddress' );
+                }
+
+                $esresponse->rcpt( $e );
+                $nekosyslog->w( 'err', $esresponse->damn );
+                $tmpsession->add_response( $esresponse );
+                push @$cannotsend, $e;
             }
         }
 
@@ -375,43 +418,25 @@ sub submit {
 
                     for my $e ( @$recipients ) {
 
+                        # The address is defined in etc/recipients
                         next if grep { $e eq $_ } @$r;
 
+                        # The domain part of the address is defined in etc/recipients
                         my $x = [ split( '@', $e ) ]->[-1];
                         next if grep { $x eq $_ } @$d;
 
-                        $notallowed = 1;
+                        # Neither the address nor the domain part of the address are
+                        # not allowed at etc/recipients file.
+                        $esresponse = $responsecn->r( 'rcpt', 'rejected' );
+                        $esresponse->rcpt( $e );
+                        $tmpsession->add_response( $esresponse );
+                        $nekosyslog->w( 'err', $esresponse->damn );
+
+                        push @$cannotsend, $e;
                     }
                 }
             }
-
-            if( $notallowed ) {
-                # 1 or more envelope recipient address exists
-                $esmtpreply = $responsecn->r( 'rcpt', 'rejected' )->damn;
-                $nekosyslog->w( 'err', $esmtpreply );
-
-                return $httpd->res->json( 403, { $responsejk => $esmtpreply } );
-            }
-        }
-
-        if( defined $serverconf->{'max_rcpts_per_message'} 
-                    && $serverconf->{'max_rcpts_per_message'} > 0 ){
-
-            if( scalar @$recipients > $serverconf->{'max_rcpts_per_message'} ) {
-                # The number of recipients exceeded ``max_rcpts_per_message'' value
-                $esmtpreply = $responsecn->r( 'rcpt', 'too-many-recipients' )->damn;
-                $nekosyslog->w( 'err', $esmtpreply );
-
-                return $httpd->res->json( 403, { $responsejk => $esmtpreply } );
-
-            } elsif( grep { Haineko::SMTPD::RFC5321->is8bit( \$_ ) } @$recipients ) {
-                # The address includes multi-byte character
-                $esmtpreply = $responsecn->r( 'mail', 'non-ascii' )->damn;
-                $nekosyslog->w( 'err', $esmtpreply );
-
-                return $httpd->res->json( 400, { $responsejk => $esmtpreply } );
-            }
-        }
+        } # End of ``ALLOWED_RECIPIENT'' block
 
         XXFI_ENVRCPT: {
             # Act like xxfi_envrcpt() function
@@ -419,18 +444,47 @@ sub submit {
             for my $e ( @{ Haineko::SMTPD::Milter->import( $milterlibs ) } ) {
                 # Check the envelope recipient address with rcpt() method of each milter
                 #
-                $mfresponse = $responsecn->new( 'code' => 553, 'dsn' => '5.7.1', 'command' => 'RCPT' );
-                last if not $e->rcpt( $mfresponse, $recipients );
-            }
+                for my $r ( @$recipients ) {
+                    my $v = { 'code' => 553, 'dsn' => '5.7.1', 'command' => 'RCPT' };
+                    $mfresponse = $responsecn->new( %$v );
 
-            if( defined $mfresponse && $mfresponse->error ){
-                # 1 or more envelope recipient address rejected
-                $esmtpreply = $mfresponse->damn;
-                $nekosyslog->w( 'err', $esmtpreply );
+                    next if $e->rcpt( $mfresponse, $r );
+                    if( defined $mfresponse && $mfresponse->error ) {
+                        # 1 or more envelope recipient address rejected
+                        $esresponse = $mfresponse->damn;
+                        $mfresponse->rcpt( $r );
+                        $tmpsession->add_response( $mfresponse );
+                        $nekosyslog->w( 'err', $esresponse->damn );
 
-                return $httpd->res->json( 400, { $responsejk => $esmtpreply } );
+                        push @$cannotsend, $r;
+                    }
+                }
             }
         } # End of ``XXFI_ENVRCPT''
+
+        CHECK_RCPT: {
+            # Check recipient addresses. If there is no recipient address 
+            # Haineko can send. The following code returns error.
+            if( scalar @$cannotsend ) {
+                # Cannot send to one or more recipient address
+                my $v = [];
+
+                for my $e ( @$recipients ) {
+                    # Verify each recipient address with addresses in @$cannotsend
+                    next if grep { $e eq $_ } @$cannotsend;
+                    push @$v, $e;
+                }
+
+                if( scalar @$v ) {
+                    # Update recipient addresses without invalid addresses
+                    $recipients = $v;
+
+                } else {
+                    # There is no valid recipient address.
+                    return $httpd->res->json( 400, $tmpsession->damn );
+                }
+            }
+        }
     } # End of ``RCPT_TO''
 
     DATA: {
@@ -443,32 +497,29 @@ sub submit {
         # Check email body and subject header
         if( not length $body ) {
             # Empty message is not allowed on Haineko
-            $esmtpreply = $responsecn->r( 'data', 'empty-body' )->damn;
-            $nekosyslog->w( 'err', $esmtpreply );
+            $esresponse = $responsecn->r( 'data', 'empty-body' );
+            $tmpsession->add_response( $esresponse );
+            $nekosyslog->w( 'err', $esresponse->damn );
 
-            return $httpd->res->json( 400, { $responsejk => $esmtpreply } );
+            return $httpd->res->json( 400, $tmpsession->damn );
 
         } elsif( not length $head->{'subject'} ) {
             # Empty subject is not allowed on Haineko
-            $esmtpreply = $responsecn->r( 'data', 'empty-subject' )->damn;
-            $nekosyslog->w( 'err', $esmtpreply );
+            $esresponse = $responsecn->r( 'data', 'empty-subject' );
+            $tmpsession->add_response( $esresponse );
+            $nekosyslog->w( 'err', $esresponse->damn );
 
-            return $httpd->res->json( 400, { $responsejk => $esmtpreply } );
+            return $httpd->res->json( 400, $tmpsession->damn );
         }
     } # End of ``DATA''
 
 
-    # Create a new SMTP Session
-    my $methodargv = { 
-        'queueid'    => $queueident,
-        'referer'    => $httpd->req->referer // q(),
-        'addresser'  => $mail,
-        'recipient'  => $recipients,
-        'useragent'  => $useragent1,
-        'remoteaddr' => $remoteaddr,
-        'remoteport' => $remoteport,
-    };
-    my $neko = Haineko::SMTPD::Session->new( %$methodargv );
+    # Create Haineko::SMTPD::Session object from temporary session object
+    my $submission = Haineko::SMTPD::Session->new(
+                        'addresser' => $mail,
+                        'recipient' => $recipients,
+                        %{ $tmpsession->damn },
+                     );
 
     my $timestamp1 = localtime Time::Piece->new;
     my $attributes = { 'content_type' => 'text/plain' };
@@ -476,18 +527,18 @@ sub submit {
         'Date'       => sprintf( "%s", $timestamp1->strftime ),
         'Received'   => $head->{'received'} || [],
         'Message-Id' => sprintf( "%s.%d.%d.%03d@%s", 
-                            $neko->queueid, $$, $neko->started->epoch,
+                            $submission->queueid, $$, $submission->started->epoch,
                             int(rand(100)), $serverconf->{'hostname'}
                         ),
         'MIME-Version'      => '1.0',
-        'X-Mailer'          => sprintf( "%s", $neko->useragent // q() ),
+        'X-Mailer'          => sprintf( "%s", $submission->useragent // q() ),
         'X-SMTP-Engine'     => sprintf( "%s %s", $serverconf->{'system'}, $serverconf->{'version'} ),
-        'X-HTTP-Referer'    => sprintf( "%s", $neko->referer // q() ),
+        'X-HTTP-Referer'    => sprintf( "%s", $submission->referer // q() ),
         'X-Haineko-Loop'    => sprintf( "%s", join( ',', @{ $head->{'x-haineko-loop'} } ) ),
         'X-Originating-IP'  => $remoteaddr,
     };
     my $received00 = sprintf( "from %s ([%s]) by %s with HTTP id %s; %s", 
-                        $ehlo, $remoteaddr, $serverconf->{'hostname'}, $neko->queueid, 
+                        $ehlo, $remoteaddr, $serverconf->{'hostname'}, $submission->queueid, 
                         $timestamp1->strftime );
     push @{ $mailheader->{'Received'} }, $received00;
 
@@ -570,7 +621,7 @@ sub submit {
     SENDER_HEADER: {
         # Add ``Sender:'' header
         my $fromheader = Haineko::SMTPD::Address->canonify( $head->{'from'} );
-        my $envelopemf = $neko->addresser->address;
+        my $envelopemf = $submission->addresser->address;
         $mailheader->{'Sender'} = $envelopemf if $fromheader eq $envelopemf;
     }
 
@@ -585,10 +636,11 @@ sub submit {
 
         if( defined $mfresponse && $mfresponse->error ){
             # 1 or more email header rejected
-            $esmtpreply = $mfresponse->damn;
-            $nekosyslog->w( 'err', $esmtpreply );
+            $esresponse = $mfresponse->damn;
+            $nekosyslog->w( 'err', $esresponse );
+            $submission->add_response( $mfresponse );
 
-            return $httpd->res->json( 400, { $responsejk => $esmtpreply } );
+            return $httpd->res->json( 400, $submission->damn );
         }
     } # End of ``XXFI_HEADER''
 
@@ -603,10 +655,11 @@ sub submit {
 
         if( defined $mfresponse && $mfresponse->error ){
             # The email body rejected
-            $esmtpreply = $mfresponse->damn;
-            $nekosyslog->w( 'err', $esmtpreply );
+            $esresponse = $mfresponse->damn;
+            $submission->add_response( $mfresponse );
+            $nekosyslog->w( 'err', $esresponse );
 
-            return $httpd->res->json( 400, { $responsejk => $esmtpreply } );
+            return $httpd->res->json( 400, $submission->damn );
         }
     } # End of ``XXFI_BODY''
 
@@ -639,10 +692,10 @@ sub submit {
 
             # If the value of ``disabled'' is 1, the mailer configuration will
             # not be used.
-            next unless exists $mailerconf->{'mail'}->{ $neko->addresser->host };
-            next if $mailerconf->{'mail'}->{ $neko->addresser->host }->{'disabled'};
+            next unless exists $mailerconf->{'mail'}->{ $submission->addresser->host };
+            next if $mailerconf->{'mail'}->{ $submission->addresser->host }->{'disabled'};
 
-            $sendershub = $mailerconf->{'mail'}->{ $neko->addresser->host };
+            $sendershub = $mailerconf->{'mail'}->{ $submission->addresser->host };
         }
 
         # ``default:'' section was not defined in etc/mailertable. Use system
@@ -677,8 +730,12 @@ sub submit {
         my $relayingto = undef;
         my $credential = undef;
         my $relayclass = q();
+        my $methodargv = {};
 
         ONE_TO_ONE: for my $e ( @$recipients ) {
+            # Skip if the recipient address is in @$cannotsend
+            next if grep { $e eq $_ } @$cannotsend;
+
             # Create email address objects from each envelope recipient address
             my $r = Haineko::SMTPD::Address->new( 'address' => $e );
 
@@ -705,7 +762,7 @@ sub submit {
                 #   ::Haineko = Relay an message to Haineko running on other host
                 $methodargv = {
                     'ehlo'      => $serverconf->{'hostname'},
-                    'mail'      => $neko->addresser->address,
+                    'mail'      => $submission->addresser->address,
                     'rcpt'      => $r->address,
                     'head'      => $mailheader,
                     'body'      => \$body,
@@ -742,21 +799,21 @@ sub submit {
                 }
 
                 $smtpmailer->sendmail();
-                $neko->response( $smtpmailer->response );
+                $submission->add_response( $smtpmailer->response );
 
             } elsif( $relayingto->{'mailer'} eq 'Discard' ) {
                 # Discard mailer, email blackhole. It will discard all messages
                 Module::Load::load('Haineko::SMTPD::Relay::Discard');
                 $smtpmailer = Haineko::SMTPD::Relay::Discard->new;
                 $smtpmailer->sendmail();
-                $neko->response( $smtpmailer->response );
+                $submission->add_response( $smtpmailer->response );
 
             } elsif( length $relayingto->{'mailer'} ) {
                 # Use Haineko::SMTPD::Relay::* except ESMTP, Haineko and Discard
                 $mailheader->{'To'} = $r->address;
                 $methodargv = {
                     'ehlo'    => $serverconf->{'hostname'},
-                    'mail'    => $neko->addresser->address,
+                    'mail'    => $submission->addresser->address,
                     'rcpt'    => $r->address,
                     'head'    => $mailheader,
                     'body'    => \$body,
@@ -787,7 +844,8 @@ sub submit {
                         $smtpmailer->response->dsn( '2.0.0' );
                     }
                 }
-                $neko->response( $smtpmailer->response );
+
+                $submission->add_response( $smtpmailer->response );
 
             } else {
                 ;
@@ -797,8 +855,8 @@ sub submit {
 
     } # End of SENDMAIL
 
-    $nekosyslog->w( 'notice', $neko->damn );
-    return $httpd->res->json( 200, $neko->damn );
+    $nekosyslog->w( 'notice', $submission->damn );
+    return $httpd->res->json( 200, $submission->damn );
 }
 
 1;
