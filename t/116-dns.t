@@ -26,7 +26,7 @@ for my $e ( @$domainlist ) {
     $hainekodns = $modulename->new( $e );
     isa_ok( $hainekodns, $modulename );
 
-    for my $v ( 'txt', 'mx', 'ns', 'a' ) {
+    for my $v ( 'TXT', 'MX', 'NS', 'A' ) {
 
         my $method = $v;
         $hainekodns->resolve( $v );
@@ -42,7 +42,7 @@ for my $e ( @$domainlist ) {
             push @{ $resolvedrr->{ $e }->{ $v } }, $w->{'rr'};
         }
 
-        $method = $v.'rr';
+        $method = lc $v.'rr';
         for my $w ( @{ $hainekodns->$method } ) {
             next unless $w;
             ok( $w, sprintf( "(%s/%s) = %s", $e, uc $v, $w ) );

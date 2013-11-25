@@ -7,10 +7,10 @@ use Try::Tiny;
 use Class::Accessor::Lite;
 
 my $rwaccessors = [
-    'a',        # (ArrayRef) A
-    'mx',       # (ArrayRef) MX
-    'ns',       # (ArrayRef) NS
-    'txt',      # (ArrayRef) TXT
+    'A',        # (ArrayRef) A
+    'MX',       # (ArrayRef) MX
+    'NS',       # (ArrayRef) NS
+    'TXT',      # (ArrayRef) TXT
 ];
 my $roaccessors = [
     'name',     # (String) domain name
@@ -19,7 +19,7 @@ my $woaccessors = [];
 Class::Accessor::Lite->mk_accessors( @$rwaccessors );
 Class::Accessor::Lite->mk_ro_accessors( @$roaccessors );
 
-my $DNSRR = [ 'a', 'mx', 'ns', 'txt' ];
+my $DNSRR = [ 'A', 'MX', 'NS', 'TXT' ];
 
 sub new {
     my $class = shift;
@@ -40,17 +40,17 @@ sub flush {
 
 sub resolve {
     my $self = shift;
-    my $type = shift || 'a';
+    my $type = shift || 'A';
     my $name = $self->{'name'};
 
     my $rrresolver = undef;
     my $rrqueryset = undef;
     my $resolvedrr = undef;
     my $methodlist = {
-        'a'    => 'address',
-        'mx'   => 'exchange',
-        'ns'   => 'nsdname',
-        'txt'  => 'txtdata',
+        'A'    => 'address',
+        'MX'   => 'exchange',
+        'NS'   => 'nsdname',
+        'TXT'  => 'txtdata',
     };
 
     try {
@@ -69,7 +69,7 @@ sub resolve {
                 'p'   => 0,
             };
 
-            $record->{'p'} = $e->preference if $type eq 'mx';
+            $record->{'p'} = $e->preference if $type eq 'MX';
             push @$resolvedrr, $record;
         }
 
@@ -78,9 +78,9 @@ sub resolve {
         $resolvedrr = [];
     };
 
-    if( $type eq 'mx' ) {
+    if( $type eq 'MX' ) {
         # Sort by preference
-        $self->{'mx'} = [ sort { $a->{'p'} <=> $b->{'p'} } @$resolvedrr ];
+        $self->{'MX'} = [ sort { $a->{'p'} <=> $b->{'p'} } @$resolvedrr ];
 
     } else {
         $self->{ $type } = $resolvedrr;
@@ -91,7 +91,7 @@ sub resolve {
 
 sub rr {
     my $self = shift;
-    my $type = shift || 'a'; $type = 'a' unless grep { $type eq $_ } @$DNSRR;
+    my $type = shift || 'A'; $type = 'A' unless grep { $type eq $_ } @$DNSRR;
     my $dnsr = undef;
 
     my $pick = sub {
@@ -114,22 +114,22 @@ sub rr {
 
 sub arr {
     my $self = shift;
-    return $self->rr('a');
+    return $self->rr('A');
 }
 
 sub mxrr {
     my $self = shift;
-    return $self->rr('mx');
+    return $self->rr('MX');
 }
 
 sub nsrr {
     my $self = shift;
-    return $self->rr('ns');
+    return $self->rr('NS');
 }
 
 sub txtrr {
     my $self = shift;
-    return $self->rr('txt');
+    return $self->rr('TXT');
 }
 
 1;
@@ -157,7 +157,7 @@ new() is a constructor of Haineko::DNS
 
     warn Data::Dumper::Dumper $e;
     $VAR1 = bless( {
-                 'ns' => [
+                 'NS' => [
                            {
                              'exp' => 1384606375,
                              'p' => 0,
@@ -171,8 +171,8 @@ new() is a constructor of Haineko::DNS
                              'rr' => 'b.iana-servers.net'
                            }
                          ],
-                 'mx' => [],
-                 'a' => [
+                 'MX' => [],
+                 'A' => [
                           {
                             'exp' => 1384572613,
                             'p' => 0,
@@ -181,7 +181,7 @@ new() is a constructor of Haineko::DNS
                           }
                         ],
                  'name' => 'example.org',
-                 'txt' => [
+                 'TXT' => [
                             {
                               'exp' => 1384533778,
                               'p' => 0,
@@ -217,31 +217,31 @@ rr() returns the list of resource records as an array reference
 
     use Haineko::DNS;
     my $e = Haineko::DNS->new('gmail.com');
-    my $v = $e->rr('mx');
+    my $v = $e->rr('MX');
 
     print for @$v;  # gmail-smtp-in.l.google.com,alt1.gmail-smtp-in.l.google.com,
                     # alt2.gmail-smtp-in.l.google.com,alt3.gmail-smtp-in.l.google.com,
                     # alt4.gmail-smtp-in.l.google.com
 
     $e = Haineko::DNS->new('perl.org');
-    $v = $e->rr('a');
+    $v = $e->rr('A');
     print for @$v;  # 207.171.7.53, 207.171.7.43
 
 =head2 B<arr()>
 
-arr() is an alias for rr('a');
+arr() is an alias for rr('A');
 
 =head2 B<mxrr()>
 
-mxrr() is an alias for rr('mx');
+mxrr() is an alias for rr('MX');
 
 =head2 B<nsrr()>
 
-nsrr() is an alias for rr('ns');
+nsrr() is an alias for rr('NS');
 
 =head2 B<txtrr()>
 
-txtrr() is an alias for rr('txt');
+txtrr() is an alias for rr('TXT');
 
 =head1 REPOSITORY
 
