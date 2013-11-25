@@ -6,7 +6,7 @@ use Haineko::SMTPD::Response;
 use Test::More;
 
 my $modulename = 'Haineko::SMTPD::Session';
-my $pkgmethods = [ 'new', 'load', 'make_queueid', 'done' ];
+my $pkgmethods = [ 'new', 'make_queueid', 'done' ];
 my $objmethods = [ 'ehlo', 'auth', 'mail', 'rcpt', 'rset', 'quit', 'r', 'damn' ];
 my $testobject = $modulename->new();
 
