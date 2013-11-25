@@ -96,6 +96,7 @@ sub sendmail {
         if( $htresponse->body =~ m/Cannot connect to\s/ ) {
             # Cannot connect to 192.0.2.1:2794: timeout at 
             $self->response( Haineko::SMTPD::Response->r( 'conn', 'cannot-connect' ) );
+            map { $self->response->{ $_ } = $self->{ $_ } } ( qw|host port rcpt| );
 
         } else {
             # Received as a JSON ?
