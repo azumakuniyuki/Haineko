@@ -59,7 +59,10 @@ INSTANCE_METHODS: {
 
     is $r->dsn, undef, '->response->dsn => undef';
     is $r->code, 400, '->response->code => 400';
-    is $r->error, 1, '->response->error=> 1';
+    is $r->error, 1, '->response->error => 1';
+    is $r->host, 'email.us-east-1.amazonaws.com', '->response->host => email.us-east-1.amazonaws.com';
+    is $r->port, 443, '->response->port => 443';
+    is $r->rcpt, $methodargv->{'rcpt'}, '->response->rcpt => '.$methodargv->{'rcpt'};
     is $r->command, 'POST', '->response->command => POST';
     like $m, qr/Empty Access Key ID or Secret Key/, '->response->message => '.$m;
 }
