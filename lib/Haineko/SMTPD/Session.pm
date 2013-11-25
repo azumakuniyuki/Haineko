@@ -168,19 +168,6 @@ sub quit {
     return 1;
 }
 
-sub r {
-    my $self = shift;
-    my $smtp = shift || return 0;   # (String) SMTP Command
-    my $type = shift || return 0;   # (String) Error type
-    my $logs = shift || [];         # (Ref->Array) Log message
-    my $head = [ qw/dsn code error message command/ ];
-    my $mesg = Haineko::SMTPD::Response->r( $smtp, $type, $logs );
-
-    return 0 unless defined $mesg;
-    $self->{'response'} = $mesg;
-    return 1;
-}
-
 sub damn {
     my $self = shift;
     my $smtp = {};
