@@ -32,17 +32,21 @@ my $nekotest = sub {
     isa_ok $request1, 'HTTP::Request';
     isa_ok $response, 'HTTP::Response';
     isa_ok $contents, 'HASH';
-    isa_ok $esmtpres, 'HASH';
+    isa_ok $esmtpres, 'ARRAY';
 
     is $response->code, $errorset->[ $errindex ]->{'status'}, 'HTTP Status = '.$response->code;
-    is $esmtpres->{'dsn'}, undef, 'dsn = undef';
-    is $esmtpres->{'host'}, undef, 'host = undef';
-    is $esmtpres->{'port'}, undef, 'port = undef';
-    is $esmtpres->{'code'}, $errorset->[ $errindex ]->{'code'}, 'SMTP code = '.$esmtpres->{'code'};
-    is $esmtpres->{'error'}, 1;
-    is $esmtpres->{'mailer'}, undef;
-    is $esmtpres->{'message'}->[0], $errorset->[ $errindex ]->{'message'}, $esmtpres->{'message'}->[0];
-    is $esmtpres->{'command'}, 'HTTP';
+
+    for my $e ( @$esmtpres ) {
+        isa_ok $e, 'HASH';
+        is $e->{'dsn'}, undef, 'dsn = undef';
+        is $e->{'host'}, undef, 'host = undef';
+        is $e->{'port'}, undef, 'port = undef';
+        is $e->{'code'}, $errorset->[ $errindex ]->{'code'}, 'SMTP code = '.$e->{'code'};
+        is $e->{'error'}, 1;
+        is $e->{'mailer'}, undef;
+        is $e->{'message'}->[0], $errorset->[ $errindex ]->{'message'}, $e->{'message'}->[0];
+        is $e->{'command'}, 'HTTP';
+    }
 };
 for( my $i = 0; $i < scalar @$errorset; $i++ ) {
     $errindex = $i;
@@ -164,44 +168,51 @@ my $nekopost = sub {
         isa_ok $request1, 'HTTP::Request';
         isa_ok $response, 'HTTP::Response';
         isa_ok $contents, 'HASH';
-        isa_ok $esmtpres, 'HASH';
+        isa_ok $esmtpres, 'ARRAY';
 
         ok $response->is_error;
         is $response->header('Content-Type'), 'application/json';
         is $response->code, $d->{'status'}, sprintf( "[%s] HTTP Status = %s", $e, $d->{'status'} );
-        is $esmtpres->{'host'}, undef, sprintf( "[%s] host = undef", $e );
-        is $esmtpres->{'port'}, undef, sprintf( "[%s] port = undef", $e );
-        is $esmtpres->{'error'}, 1, sprintf( "[%s] error = 1", $e );
 
-        for my $r ( keys %$d ) {
-            next if $r =~ m/(?:status|json|data|message)/;
-            is $esmtpres->{ $r }, $d->{ $r }, sprintf( "[%s] SMTP %s = %s", $e, $r, ( $d->{ $r } || q() ) );
+        for my $v ( qw|remoteport remoteaddr queueid| ) {
+            ok $contents->{ $v }, sprintf( "[%s] %s = %s", $e, $v, $contents->{ $v } );
         }
+        isa_ok $contents->{'timestamp'}, 'HASH';
+        ok $contents->{'timestamp'}->{'unixtime'};
+        ok $contents->{'timestamp'}->{'datetime'};
 
-        is $esmtpres->{'message'}->[0], $d->{'message'}, sprintf( "[%s] SMTP message = %s", $e, $d->{'message'} );
-        is substr( $esmtpres->{'code'}, 0, 1 ), substr( $esmtpres->{'dsn'}, 0, 1 ) if $esmtpres->{'dsn'};
+        for my $p ( @$esmtpres ) {
+            isa_ok $p, 'HASH';
+            ok $p->{'rcpt'}, sprintf( "[%s] rcpt = %s", $e, $p->{'rcpt'} ) if defined $p->{'rcpt'};
+            is $p->{'host'}, undef, sprintf( "[%s] host = undef", $e );
+            is $p->{'port'}, undef, sprintf( "[%s] port = undef", $e );
+            is $p->{'error'}, 1, sprintf( "[%s] error = 1", $e );
+
+            if( scalar @$esmtpres > 1 ) {
+
+                for my $r ( keys %$d ) {
+                    next if $r =~ m/(?:status|json|data|message)/;
+                    ok $p->{ $r }, sprintf( "[%s] SMTP %s = %s", $e, $r, ( $p->{ $r } || q() ) );
+                }
+
+                for my $v ( @{ $p->{'message'} } ) {
+                    ok $v, sprintf( "[%s] SMTP message = %s", $e, $v );
+                }
+                ok( $p->{'code'} );
+
+            } else {
+
+                for my $r ( keys %$d ) {
+                    next if $r =~ m/(?:status|json|data|message)/;
+                    is $p->{ $r }, $d->{ $r }, sprintf( "[%s] SMTP %s = %s", $e, $r, ( $d->{ $r } || q() ) );
+                }
+
+                is $p->{'message'}->[0], $d->{'message'}, sprintf( "[%s] SMTP message = %s", $e, $d->{'message'} );
+                is substr( $p->{'code'}, 0, 1 ), substr( $p->{'dsn'}, 0, 1 ) if $p->{'dsn'};
+            }
+        }
     }
 };
 test_psgi $nekochan, $nekopost;
 done_testing();
 __END__
-
-
-
-
-
-
-
-
-my $t = Test::Mojo->new('Haineko');
-my $c = { 'Content-Type' => 'application/json' };
-my $r = undef;  # Response
-my $p = {};     # JSON as a Hash reference
-my $j = q();    # JSON as a String
-my $h = qx(hostname); chomp $h;
-
-
-
-
-done_testing();
-
