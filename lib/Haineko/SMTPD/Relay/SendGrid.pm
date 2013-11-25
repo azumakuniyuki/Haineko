@@ -9,7 +9,7 @@ use Haineko::JSON;
 use Haineko::SMTPD::Response;
 use Encode;
 
-use constant 'SENDGRID_ENDPOINT' => 'sendgrid.com/api';
+use constant 'SENDGRID_ENDPOINT' => 'sendgrid.com';
 use constant 'SENDGRID_APIVERSION' => '';
 
 sub new {
@@ -29,6 +29,9 @@ sub sendmail {
         # API-USER(username) or API-KEY(password) is empty
         my $r = {
             'code'    => 400,
+            'host'    => SENDGRID_ENDPOINT,
+            'port'    => 443,
+            'rcpt'    => $self->{'rcpt'},
             'error'   => 1,
             'mailer'  => 'SendGrid',
             'message' => [ 'Empty API-USER or API-KEY' ],
@@ -38,7 +41,7 @@ sub sendmail {
         return 0
     }
 
-    my $sendgridep = sprintf( "https://%s/mail.send.json", SENDGRID_ENDPOINT );
+    my $sendgridep = sprintf( "https://%s/api/mail.send.json", SENDGRID_ENDPOINT );
     my $parameters = {
         'to'        => $self->{'rcpt'},
         'from'      => $self->{'mail'},
@@ -103,7 +106,9 @@ sub sendmail {
         my $htcontents = undef;
         my $nekoparams = { 
             'code'    => $htresponse->code,
-            'host'    => 'sendgrid.com',
+            'host'    => SENDGRID_ENDPOINT,
+            'port'    => 443,
+            'rcpt'    => $self->{'rcpt'},
             'error'   => $htresponse->is_success ? 0 : 1,
             'mailer'  => 'SendGrid',
             'message' => [ $htresponse->message ],
@@ -138,7 +143,7 @@ sub getbounce {
 
     return 0 if( ! $self->{'username'} || ! $self->{'password'} );
 
-    my $sendgridep = sprintf( "https://%s/bounces.get.json", SENDGRID_ENDPOINT );
+    my $sendgridep = sprintf( "https://%s/api/bounces.get.json", SENDGRID_ENDPOINT );
     my $timepiece1 = gmtime;
     my $yesterday1 = Time::Piece->new( $timepiece1->epoch - 86400 );
     my $parameters = {
@@ -243,6 +248,9 @@ Send an email to a recipient via SendGrid using Web API.
              'dsn' => undef,
              'error' => 0,
              'code' => '200',
+             'host' => 'sendgrid.com',
+             'port' => 443,
+             'rcpt' => 'neko@example.org',
              'message' => [ 'OK' ],
              'command' => 'POST'
             }, 'Haineko::SMTPD::Response' );
