@@ -2,6 +2,7 @@ use lib qw|./lib ./blib/lib|;
 use strict;
 use warnings;
 use Haineko::SMTPD::Session;
+use Haineko::SMTPD::Response;
 use Test::More;
 
 my $modulename = 'Haineko::SMTPD::Session';
@@ -15,10 +16,11 @@ can_ok $testobject, @$objmethods;
 
 METHODS: {
     my $x = { 
-        'useragent' => 'CLI', 
+        'useragent'  => 'CLI', 
         'remoteaddr' => '127.0.0.1',
-        'addresser' => 'kijitora@example.jp',
-        'recipient' => [ 'mi-chan@example.org' ],
+        'addresser'  => 'kijitora@example.jp',
+        'recipient'  => [ 'mi-chan@example.org' ],
+        'response'   => Haineko::SMTPD::Response->new,
     };
     my $y = undef;
     my $z = undef;
@@ -29,8 +31,11 @@ METHODS: {
         isa_ok $o->started, 'Time::Piece', '->started => Time::Piece';
         ok $o->started->epoch, '->started->epoch => '.$o->started->epoch;
         is $o->stage, 0, '->stage => 0';
-        isa_ok $o->response, 'Haineko::SMTPD::Response', '->response => Haineko::SMTPD::Response';
-        is $o->response->dsn, undef, '->response->dsn => undef';
+        isa_ok $o->response, 'ARRAY', '->response => ARRAY';
+        for my $e ( @{ $o->response } ) {
+            isa_ok $e, 'Haineko::SMTPD::Response', '->response->[n] => Haineko::SMTPD::Response';
+            is $e->dsn, undef, '->response->[n]->dsn => undef';
+        }
 
         isa_ok $o->addresser, 'Haineko::SMTPD::Address', '->addresser => Haineko::SMTPD::Address';
         is $o->addresser->user, 'kijitora', '->addresser->user => kijitora';
