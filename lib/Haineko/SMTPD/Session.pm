@@ -75,49 +75,6 @@ sub new {
     return bless $nekos, __PACKAGE__;
 }
 
-sub load {
-    my $class = shift;
-    my $argvs = shift || return undef;  # (Ref->Hash) Session data
-    my $esmtp = {};
-    my $rhead = [ qw/dsn code error message command/ ];
-    my $nekor = undef;
-
-    return undef unless ref $argvs eq 'HASH';
-    return undef unless $argvs->{'queueid'};
-
-    for my $e ( @$rwaccessors, @$roaccessors ) {
-
-        next unless defined $argvs->{ $e };
-        next if $e =~ m/(?:response|addresser|recipient)/;
-        $esmtp->{ $e } = $argvs->{ $e };
-    }
-
-    while(1) {
-        my $c = 'Haineko::SMTPD::Address';
-        my $r = [];
-        my $t = $argvs->{'recipient'} || [];
-
-        map { push @$r, $c->new( 'address' => $_ ) } @$t;
-        $esmtp->{'recipient'} = $r;
-
-        last unless defined $argvs->{'addresser'};
-        $esmtp->{'addresser'} = $c->new( 'address' => $argvs->{'addresser'} );
-
-        last;
-    }
-
-    for my $e ( @$rhead ) {
-        next unless defined $argvs->{ $e };
-        $nekor->{ $e } = $argvs->{ $e };
-    }
-
-    $nekor->{'message'}  = [];
-    $esmtp->{'message'}  = [];
-    $esmtp->{'response'} = [ Haineko::SMTPD::Response->new( %$nekor ) ];
-
-    return bless $esmtp, __PACKAGE__;
-}
-
 sub make_queueid {
     my $class = shift;
     my $size1 = 16;
