@@ -63,7 +63,10 @@ INSTANCE_METHODS: {
 
     is $r->dsn, undef, '->response->dsn => undef';
     is $r->code, 400, '->response->code => 400';
-    is $r->error, 1, '->response->error=> 1';
+    is $r->error, 1, '->response->error => 1';
+    is $r->host, 'mandrillapp.com', '->response->host => '.$r->host;
+    is $r->port, 443, '->response->port => 443';
+    is $r->rcpt, $methodargv->{'rcpt'}, '->response->rcpt => '.$r->rcpt;
     is $r->command, 'POST', '->response->command => POST';
     like $m, qr/Empty API-KEY/, '->response->message => '.$m;
 }
