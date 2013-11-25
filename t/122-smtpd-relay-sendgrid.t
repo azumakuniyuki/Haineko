@@ -60,7 +60,10 @@ INSTANCE_METHODS: {
 
     is $r->dsn, undef, '->response->dsn => undef';
     is $r->code, 400, '->response->code => 400';
-    is $r->error, 1, '->response->error=> 1';
+    is $r->host, 'sendgrid.com', '->response->host => '.$r->host;
+    is $r->port, 443, '->response->port => '.$r->port;
+    is $r->rcpt, $methodargv->{'rcpt'}, '->response->rcpt => '.$r->rcpt;
+    is $r->error, 1, '->response->error => 1';
     is $r->command, 'POST', '->response->command => POST';
     like $m, qr/Empty API-USER or API-KEY/, '->response->message => '.$m;
 }
