@@ -183,7 +183,7 @@ sub damn {
 
     for my $e ( @$rwaccessors, @$roaccessors ) {
 
-        next if $e =~ m/(?:response|addresser|recipient|started)/;
+        next if $e =~ m/(?:response|addresser|recipient|started|stage)/;
         $smtp->{ $e } = $self->{ $e };
     }
 
