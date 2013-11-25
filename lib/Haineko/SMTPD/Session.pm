@@ -9,7 +9,7 @@ use Time::Piece;
 my $rwaccessors = [
     'stage',        # (Integer)
     'started',      # (Time::Piece) When it connected
-    'response',     # (Haineko::SMTPD::Response) SMTP Reponse
+    'response',     # (Ref->Array->Haineko::SMTPD::Response) SMTP Reponse
     'addresser',    # (Haineko::SMTPD::Address) Envelope sender
     'recipient',    # (Ref->Arrey->Haineko::SMTPD::Address) Envelope recipients
 ];
@@ -28,12 +28,34 @@ Class::Accessor::Lite->mk_ro_accessors( @$roaccessors );
 sub new {
     my $class = shift;
     my $argvs = { @_ };
+    my $nekor = $argvs->{'response'} || undef;
     my $nekos = {
         'stage'    => 0,
         'started'  => Time::Piece->new,
         'queueid'  => $argvs->{'queueid'}  || __PACKAGE__->make_queueid,
-        'response' => $argvs->{'response'} || Haineko::SMTPD::Response->new,
     };
+
+    if( $nekor ) {
+        if( ref $nekor eq 'Haineko::SMTPD::Response' ) {
+            # Response in the argument is an object
+            $nekos->{'response'} = [ $nekor ];
+
+        } elsif( ref $nekor eq 'ARRAY' ) {
+            # Response in the argument is an array reference
+            $nekos->{'response'} = [];
+            for my $e ( @$nekor ) {
+                # Check each item:
+                #   Haineko::SMTPD::Response object or HASH reference
+                if( ref $e eq 'Haineko::SMTPD::Response' ) {
+                    push @{ $nekos->{'response'} }, $e;
+
+                } elsif( ref $e eq 'HASH' ) {
+                    # Create Haineko::SMTPD::Response object from the HASH reference
+                    push @{ $nekos->{'response'} }, Haineko::SMTPD::Response->new( %$e );
+                }
+            }
+        }
+    }
     map { $nekos->{ $_ } ||= $argvs->{ $_ } || undef } @$roaccessors;
 
     while(1) {
@@ -43,7 +65,7 @@ sub new {
         my $t = $argvs->{'recipient'} || [];
 
         map { push @$r, $c->new( 'address' => $_ ) } @$t;
-        $nekos->{'recipient'} = $r;
+        $nekos->{'recipient'} = $r if scalar @$r;
 
         last unless defined $argvs->{'addresser'};
         $nekos->{'addresser'} = $c->new( 'address' => $argvs->{'addresser'} );
@@ -91,7 +113,7 @@ sub load {
 
     $nekor->{'message'}  = [];
     $esmtp->{'message'}  = [];
-    $esmtp->{'response'} = Haineko::SMTPD::Response->new( %$nekor );
+    $esmtp->{'response'} = [ Haineko::SMTPD::Response->new( %$nekor ) ];
 
     return bless $esmtp, __PACKAGE__;
 }
@@ -134,6 +156,15 @@ sub done {
         'quit' => ( 1 << 5 ),
     };
     return $value->{ $argvs } || 0;
+}
+
+sub add_response {
+    my $self = shift;
+    my $argv = shift || return $self;
+
+    return $self unless ref $argv eq 'Haineko::SMTPD::Response';
+    push @{ $self->{'response'} }, $argv;
+    return $self;
 }
 
 sub ehlo { 
@@ -216,6 +247,7 @@ sub damn {
         last unless defined $self->{'recipient'};
         last unless ref $self->{'recipient'} eq 'ARRAY';
 
+        $smtp->{'recipient'} = [];
         for my $e ( @{ $self->{'recipient'} } ) {
 
             next unless ref $e eq 'Haineko::SMTPD::Address';
@@ -226,9 +258,16 @@ sub damn {
 
     while(1) {
         last unless defined $self->{'response'};
-        last unless ref $self->{'response'} eq 'Haineko::SMTPD::Response';
+        last unless ref $self->{'response'} eq 'ARRAY';
 
-        $smtp->{'response'} = $self->{'response'}->damn;
+        $smtp->{'response'} = [];
+        for my $e ( @{ $self->{'response'} } ) {
+            next unless ref $e eq 'Haineko::SMTPD::Response';
+            push @{ $smtp->{'response'} }, $e->damn;
+        }
+
+        last if scalar @{ $smtp->{'response'} };
+        $smtp->{'response'} = [ Haineko::SMTPD::Response->new ];
         last;
     }
 
