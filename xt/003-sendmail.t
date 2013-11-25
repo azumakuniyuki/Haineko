@@ -79,19 +79,22 @@ for my $e ( @$emailfiles ) {
             #   "addresser": "localpart@example.jp",
             #   "remoteaddr": "127.0.0.1",
             #   "queueid": "r92DiQB039703GHu",
-            #   "response": {
-            #     "code": 200,
-            #     "host": "sendgrid.com",
-            #     "command": "POST",
-            #     "message": [
-            #       "OK"
-            #     ],
-            #     "error": 0,
-            #     "dsn": null,
-            #     "mailer": "SendGrid"
-            #   },
+            #   "response": [
+            #     {
+            #       "code": 200,
+            #       "host": "sendgrid.com",
+            #       "port": 443,
+            #       "rcpt": "recipient address"
+            #       "command": "POST",
+            #       "message": [
+            #         "OK"
+            #       ],
+            #       "error": 0,
+            #       "dsn": "2.0.0",
+            #       "mailer": "SendGrid"
+            #     },
+            #   ],
             #   "useragent": null,
-            #   "stage": 0,
             #   "timestamp": {
             #     "datetime": "Wed Oct  2 13:44:26 2013",
             #     "unixtime": "1380689066"
@@ -110,7 +113,6 @@ for my $e ( @$emailfiles ) {
                 $j = Haineko::JSON->loadjson( $r );
                 isa_ok( $j, 'HASH' );
 
-                is( $j->{'stage'}, 0, $p.'stage = 0' );
                 ok( $j->{'queueid'}, $p.'queueid = '.$j->{'queueid'} );
                 is( $j->{'referer'}, undef, $p.'referer = undef' );
                 is( $j->{'useragent'}, undef, $p.'useragent = undef' );
