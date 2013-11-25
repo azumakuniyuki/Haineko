@@ -7,7 +7,7 @@ use Test::More;
 
 my $modulename = 'Haineko::SMTPD::Session';
 my $pkgmethods = [ 'new', 'make_queueid', 'done' ];
-my $objmethods = [ 'ehlo', 'auth', 'mail', 'rcpt', 'rset', 'quit', 'r', 'damn' ];
+my $objmethods = [ 'ehlo', 'auth', 'mail', 'rcpt', 'rset', 'quit', 'damn' ];
 my $testobject = $modulename->new();
 
 isa_ok $testobject, $modulename;
@@ -75,15 +75,6 @@ METHODS: {
         $o->rcpt(1); is $o->stage, 15, '->stage => '.$o->stage;
         $o->rset(1); is $o->stage, 1, '->stage => '.$o->stage;
         $o->quit(1); is $o->stage, 0, '->stage => '.$o->stage;
-    }
-
-    RESPONSE: {
-        $o->r( 'mail', 'syntax-error' );
-        isa_ok $o->response, 'Haineko::SMTPD::Response';
-        is $o->response->command, 'MAIL', '->response->command => mail';
-        is $o->response->dsn, '5.5.2', '->response->dsn => 5.5.2';
-        is $o->response->code, 501, '->response->code => 501';
-        like $o->response->message->[0], qr/Syntax error/, '->response->message => '.$o->response->message->[0];
     }
 }
 
