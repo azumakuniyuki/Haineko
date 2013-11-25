@@ -143,7 +143,7 @@ ehlo() method is for checking a hostname passed as an argument of EHLO.
 
 =head3 Arguments
 
-=head4 B<HainekoSMTPD::::Response> object
+=head4 B<Haineko::SMTPD::Response> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
@@ -174,10 +174,9 @@ Value defined in "mail" field in HTTP-POSTed JSON data, which should be the
 valid email address.
 
 
-=head2 B<rcpt( I<Haineko::SMTPD::Response>, I< [ ENVELOPE_RECIPIENTS ] > )>
+=head2 B<rcpt( I<Haineko::SMTPD::Response>, I<ENVELOPE_RECIPIENT> )>
 
-rcpt() method is for checking envelope recipient addresses. Envelope recipient
-addresses are passwd as an array reference.
+rcpt() method is for checking envelope recipient address.
 
 =head3 Arguments
 
