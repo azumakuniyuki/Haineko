@@ -259,6 +259,7 @@ sub submit {
                 return $httpd->res->json( 400, $tmpsession->damn );
             }
         } # End of ``XXFI_HELO''
+        $tmpsession->ehlo(1);
     } # End of ``EHLO''
 
     MAIL_FROM: {
@@ -312,6 +313,7 @@ sub submit {
                 return $httpd->res->json( 400, $tmpsession->damn );
             }
         } # End of ``XXFI_ENVFROM''
+        $tmpsession->mail(1);
     } # End of ``MAIL_FROM''
 
     RCPT_TO: {
@@ -485,6 +487,7 @@ sub submit {
                 }
             }
         }
+        $tmpsession->rcpt(1);
     } # End of ``RCPT_TO''
 
     DATA: {
@@ -511,6 +514,7 @@ sub submit {
 
             return $httpd->res->json( 400, $tmpsession->damn );
         }
+        $tmpsession->data(1);
     } # End of ``DATA''
 
 
