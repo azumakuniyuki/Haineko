@@ -1,4 +1,6 @@
 /dist
+/eg/org
+/eg/*.class
 /etc/*-debug
 /log
 /nytprof.out
