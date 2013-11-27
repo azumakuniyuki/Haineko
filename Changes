@@ -1,5 +1,10 @@
 Revision history for Haineko
 
+0.2.8   Wed, 27 Nov 2013 20:22:22 +0900 (JST)
+    - Haineko does not contain the value of "stage" property in JSON response.
+    - HTTP error response is returned as a JSON without "queueid".
+    - New sample code: eg/sendmail.java.
+
 0.2.7   Mon, 25 Nov 2013 22:22:22 +0900 (JST)
     - Haineko now respond the data of "response" in JSON as an array. It hold
       multiple responses in "response" hash. issue #3.
