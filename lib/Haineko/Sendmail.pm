@@ -781,6 +781,7 @@ sub submit {
                 if( $relayingto->{'mailer'} eq 'ESMTP' ) {
                     # use well-known port for SMTP
                     $methodargv->{'port'} = $relayingto->{'port'} // 25;
+                    $methodargv->{'debug'} = $relayingto->{'debug'} // 0;
 
                 } elsif( $relayingto->{'mailer'} eq 'Haineko' ) {
                     # Haineko uses 2794 by default
@@ -789,6 +790,7 @@ sub submit {
                 } elsif( $relayingto->{'mailer'} eq 'MX' ) {
                     # Mail Exchanger is waiting on *:25
                     $methodargv->{'port'} = 25;
+                    $methodargv->{'debug'} = $relayingto->{'debug'} // 0;
                 }
 
                 $relayclass = sprintf( "Haineko::SMTPD::Relay::%s", $relayingto->{'mailer'} );
