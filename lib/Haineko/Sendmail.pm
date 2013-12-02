@@ -145,17 +145,13 @@ sub submit {
     my $emencoding = q();
     my $recipients = [];    # Recipient addresses specified in JSON
     my $cannotsend = [];    # Invalid recipient addresses checked by the following codes
-
     my ( $ehlo, $mail, $rcpt, $head, $body, $json ) = undef;
-    my ( $auth, $mech ) = undef;
 
     try { 
         # Load email data as a JSON
         $exceptions = 0;
         $json   = Haineko::JSON->loadjson( $httpd->req->content );
         $ehlo //= $json->{'ehlo'} // $json->{'helo'} // q();
-        $auth //= $json->{'auth'} // q();
-        $mech //= $json->{'mech'} // q();
         $mail //= $json->{'mail'} // $json->{'send'} // $json->{'from'} // q();
         $rcpt //= $json->{'rcpt'} // $json->{'recv'} // $json->{'to'} // [];
         $body //= $json->{'body'} // q();
