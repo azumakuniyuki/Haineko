@@ -1,5 +1,11 @@
 Revision history for Haineko
 
+0.2.9   Mon,  2 Dec 2013 12:22:22 +0900 (JST)
+    - Fixed an issue that "debug" property defined in mailertable is not used at 
+      child class of Haineko::SMTPD::Relay which are using Net::SMTP.
+    - Fixed an issue that "QUIT" command is not sent when SMTP transaction has
+      succeeded at Haineko::SMTPD::Relay::* which are using Net::SMTP.
+
 0.2.8   Wed, 27 Nov 2013 20:22:22 +0900 (JST)
     - Haineko does not contain the value of "stage" property in JSON response.
     - HTTP error response is returned as a JSON without "queueid".
