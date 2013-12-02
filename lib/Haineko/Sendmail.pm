@@ -156,8 +156,8 @@ sub submit {
         $ehlo //= $json->{'ehlo'} // $json->{'helo'} // q();
         $auth //= $json->{'auth'} // q();
         $mech //= $json->{'mech'} // q();
-        $mail //= $json->{'mail'} // $json->{'from'} // q();
-        $rcpt //= $json->{'rcpt'} // $json->{'to'} // [];
+        $mail //= $json->{'mail'} // $json->{'send'} // $json->{'from'} // q();
+        $rcpt //= $json->{'rcpt'} // $json->{'recv'} // $json->{'to'} // [];
         $body //= $json->{'body'} // q();
         $head //= {};
 
