@@ -143,6 +143,7 @@ sub sendmail {
         }
 
         $thecommand = 'QUIT';
+        $netsmtpobj->quit;
         $smtpstatus = 1;
         return 1;
     };
