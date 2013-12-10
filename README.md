@@ -57,6 +57,7 @@ Haineko relies on:
 * IO::File (core module from v5.3.7)
 * __IO::Socket::SSL__
 * IO::Zlib (core module from v5.9.3)
+* __IPC::Shareable__
 * __JSON::Syck__
 * MIME::Base64 (core module from v5.7.3)
 * Module::Load (core module from v5.9.4)
@@ -64,6 +65,7 @@ Haineko relies on:
 * Net::SMTP (core module from v5.7.3)
 * __Net::SMTPS__
 * __Net::CIDR::Lite__
+* __Parallel::ForkManager__
 * __Path::Class__
 * __Plack__
 * __Router::Simple__
