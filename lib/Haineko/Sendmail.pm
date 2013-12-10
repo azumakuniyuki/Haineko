@@ -726,15 +726,34 @@ sub submit {
         # |____/|_____|_| \_|____/|_|  |_/_/   \_\___|_____|
         #                                                   
         require Module::Load;
+
         my $smtpmailer = undef;
         my $relayingto = undef;
         my $credential = undef;
         my $relayclass = q();
         my $methodargv = {};
+        my $workerproc = scalar @$recipients;
+        my $forkmanagr = undef;
+        my $interprocc = undef;
+        my $shareddata = [];
+
+        if( $workerproc > 1 ) {
+            Module::Load::load('Parallel::ForkManager');
+            Module::Load::load('IPC::Shareable');
+
+            $workerproc = 8 if $workerproc > 8;
+            $forkmanagr = Parallel::ForkManager->new( $workerproc );
+            $interprocc = tie @$shareddata, 'IPC::Shareable', undef, { 'destroy' => 1 };
+        }
 
         ONE_TO_ONE: for my $e ( @$recipients ) {
             # Skip if the recipient address is in @$cannotsend
             next if grep { $e eq $_ } @$cannotsend;
+
+            if( $forkmanagr ) {
+                $forkmanagr->start() && next(ONE_TO_ONE);
+                $interprocc->shlock;
+            }
 
             # Create email address objects from each envelope recipient address
             my $r = Haineko::SMTPD::Address->new( 'address' => $e );
@@ -801,14 +820,22 @@ sub submit {
                 }
 
                 $smtpmailer->sendmail();
-                $submission->add_response( $smtpmailer->response );
+                if( $forkmanagr ) {
+                    push @$shareddata, $smtpmailer->response;
+                } else {
+                    $submission->add_response( $smtpmailer->response );
+                }
 
             } elsif( $relayingto->{'mailer'} eq 'Discard' ) {
                 # Discard mailer, email blackhole. It will discard all messages
                 Module::Load::load('Haineko::SMTPD::Relay::Discard');
                 $smtpmailer = Haineko::SMTPD::Relay::Discard->new;
                 $smtpmailer->sendmail();
-                $submission->add_response( $smtpmailer->response );
+                if( $forkmanagr ) {
+                    push @$shareddata, $smtpmailer->response;
+                } else {
+                    $submission->add_response( $smtpmailer->response );
+                }
 
             } elsif( length $relayingto->{'mailer'} ) {
                 # Use Haineko::SMTPD::Relay::* except ESMTP, Haineko and Discard
@@ -847,13 +874,27 @@ sub submit {
                     }
                 }
 
-                $submission->add_response( $smtpmailer->response );
+                if( $forkmanagr ) {
+                    push @$shareddata, $smtpmailer->response;
+                } else {
+                    $submission->add_response( $smtpmailer->response );
+                }
 
             } else {
                 ;
             }
 
+            if( $forkmanagr ) {
+                $interprocc->shunlock;
+                $forkmanagr->finish;
+            }
+
         } # End of for(ONE_TO_ONE)
+
+        $forkmanagr->wait_all_children;
+        for my $e ( @$shareddata ) {
+            $submission->add_response( $e );
+        }
 
     } # End of SENDMAIL
 
