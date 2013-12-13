@@ -193,8 +193,6 @@ sub sendmail {
             $nekoparams->{'error'} = 1;
             $nekoparams->{'message'} = [ Haineko::E->new( $htresponse->message )->text ];
         }
-    use Data::Dumper;
-    warn Dumper $nekoparams;
         $self->response( Haineko::SMTPD::Response->new( %$nekoparams ) );
     }
 
