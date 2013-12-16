@@ -18,6 +18,10 @@ smtpd:
     # Max number of recipients, 0 is unlimited
     max_rcpts_per_message: 4
 
+    # Max workers. When the value is 0 or 1, emails are sent in single process.
+    # The hard limit of `max_workers` is 8.
+    max_workers: 4
+
     # Table files: mailer and access
     #   If each file name begin with ``/'', the file will be loaded as abusolute
     #   path, the file name does not begin with ``/'', Haineko try to find the
