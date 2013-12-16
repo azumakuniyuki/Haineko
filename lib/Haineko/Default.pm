@@ -9,6 +9,7 @@ sub conf {
             'hostname' => '',               # used at EHLO
             'max_message_size' => 4194304,  # 4KB
             'max_rcpts_per_message' => 4,   # 4 recipients
+            'max_workers' => 8,             # 8 worker processes
             'milter' => {
                 'libs' => [],
             },
