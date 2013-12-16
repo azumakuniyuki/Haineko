@@ -65,6 +65,7 @@ Hainekoは以下のモジュールに依存しています:
 * Net::SMTP (core module from v5.7.3)
 * __Net::SMTPS__
 * __Net::CIDR::Lite__
+* __Parallel::Prefork__
 * __Path::Class__
 * __Plack__
 * __Router::Simple__
