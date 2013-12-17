@@ -39,6 +39,7 @@
             "Test::MinimumVersion" : "0.10108",
             "Test::Pod" : "1.41",
             "Test::Spellunker" : "v0.2.7",
+            "Test::Synopsis::Expectation" : "0.01",
             "Test::UsedModules" : "0.03"
          }
       },
@@ -55,6 +56,7 @@
             "Net::CIDR::Lite" : "0.21",
             "Net::DNS" : "0.68",
             "Net::SMTPS" : "0.03",
+            "Parallel::Prefork" : "0.14",
             "Path::Class" : "0.24",
             "Plack" : "1.0027",
             "Plack::Middleware::Auth::Basic" : "0",
@@ -74,7 +76,7 @@
       }
    },
    "release_status" : "unstable",
-   "version" : "0.2.9",
+   "version" : "0.2.10",
    "x_contributors" : [
       "azumakuniyuki <perl.org@azumakuniyuki.org>"
    ]
