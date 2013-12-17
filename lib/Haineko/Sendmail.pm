@@ -6,6 +6,7 @@ use Try::Tiny;
 use Time::Piece;
 use Haineko::Log;
 use Haineko::JSON;
+use Haineko::Default;
 use Haineko::SMTPD::Milter;
 use Haineko::SMTPD::Session;
 use Haineko::SMTPD::Response;
@@ -15,6 +16,7 @@ sub submit {
     my $httpd = shift;  # (Haineko::HTTPD)
 
     my $serverconf = $httpd->{'conf'}->{'smtpd'};
+    my $defaultset = Haineko::Default->conf;
     my $responsecn = 'Haineko::SMTPD::Response';
     my $responsejk = 'response';    # Response json key name
     my $exceptions = 0;             # Flag, be set in try {...} catch { ... }
@@ -40,11 +42,13 @@ sub submit {
         'remoteaddr' => $remoteaddr,
         'remoteport' => $remoteport,
     };
+    for my $e ( 'facility', 'disabled' ) {
+        # Fallback to the default value when these values are not defined in
+        # etc/haineko.cf
+        $syslogargv->{ $e } //= $defaultset->{'smtpd'}->{'syslog'}->{ $e };
+    }
     my $nekosyslog = Haineko::Log->new( %$syslogargv );
     my $esresponse = undef;
-
-    my $milterlibs = [];
-    my $mfresponse = undef;
 
     # Create a new SMTP Session
     $tmpsession = Haineko::SMTPD::Session->new( 
@@ -121,11 +125,11 @@ sub submit {
 
         XXFI_CONNECT: {
             # Act like xxfi_connect() function
-            #
-            @$milterlibs = @{ $serverconf->{'milter'}->{'conn'} || [] };
+            my $milterlibs = $serverconf->{'milter'}->{'conn'} || [];
+            my $mfresponse = undef;
+
             for my $e ( @{ Haineko::SMTPD::Milter->import( $milterlibs ) } ) {
                 # Check the remote address with conn() method of each milter
-                #
                 $mfresponse = $responsecn->new( 'code' => 421, 'command' => 'CONN' );
                 last if not $e->conn( $mfresponse, $remotehost, $remoteaddr );
             }
@@ -138,12 +142,12 @@ sub submit {
             $nekosyslog->w( 'err', $esresponse->damn );
 
             return $httpd->res->json( 400, $tmpsession->damn );
-
         } # End of ``XXFI_CONNECT''
+
     } # End of ``CONN''
 
     my $headerlist = [ 'from', 'reply-to', 'subject' ];
-    my $emencoding = q();
+    my $emencoding = q();   # Character set such as iSO-2022-JP, UTF-8, or ISO-8859-1.
     my $recipients = [];    # Recipient addresses specified in JSON
     my $cannotsend = [];    # Invalid recipient addresses checked by the following codes
     my ( $ehlo, $mail, $rcpt, $head, $body, $json ) = undef;
@@ -182,6 +186,12 @@ sub submit {
     return $httpd->res->json( 400, $tmpsession->damn ) if $exceptions;
 
     DETECT_LOOP_DURING_HAINEKO_SERVERS: {
+        #  _                        ___ 
+        # | |    ___   ___  _ __   |__ \
+        # | |   / _ \ / _ \| '_ \    / /
+        # | |__| (_) | (_) | |_) |  |_| 
+        # |_____\___/ \___/| .__/   (_) 
+        #                  |_|          
         # Check ``X-Haineko-Loop'' header
         my $v = $head->{'x-haineko-loop'} || [];
         if( ref $v eq 'ARRAY' ) {
@@ -204,7 +214,7 @@ sub submit {
             }
         } else {
             # The value of the header is not an array reference, set this hostname
-            # into X-Haineko-Loop # header
+            # into X-Haineko-Loop header.
             $head->{'x-haineko-loop'} = [ $serverconf->{'servername'} ];
         }
     }
@@ -216,7 +226,7 @@ sub submit {
         # | |___|  _  | |__| |_| |
         # |_____|_| |_|_____\___/ 
         #                         
-        # Check ``ehlo'' value
+        # Check the value of ``ehlo'' field
         require Haineko::SMTPD::RFC5321;
         require Haineko::SMTPD::RFC5322;
 
@@ -239,7 +249,9 @@ sub submit {
 
         XXFI_HELO: {
             # Act like xxfi_helo() function
-            @$milterlibs = @{ $serverconf->{'milter'}->{'ehlo'} || [] };
+            my $milterlibs = $serverconf->{'milter'}->{'ehlo'} || [];
+            my $mfresponse = undef;
+
             for my $e ( @{ Haineko::SMTPD::Milter->import( $milterlibs ) } ) {
                 # Check the EHLO value with ehlo() method of each milter
                 #
@@ -294,7 +306,9 @@ sub submit {
 
         XXFI_ENVFROM: {
             # Act like xxfi_envfrom() function
-            @$milterlibs = @{ $serverconf->{'milter'}->{'mail'} || [] };
+            my $milterlibs = $serverconf->{'milter'}->{'mail'} || [];
+            my $mfresponse = undef;
+
             for my $e ( @{ Haineko::SMTPD::Milter->import( $milterlibs ) } ) {
                 # Check the envelope sender address with mail() method of each milter
                 $mfresponse = $responsecn->new( 'code' => 501, 'dsn' => '5.1.8', 'command' => 'MAIL' );
@@ -311,6 +325,7 @@ sub submit {
             }
         } # End of ``XXFI_ENVFROM''
         $tmpsession->mail(1);
+
     } # End of ``MAIL_FROM''
 
     RCPT_TO: {
@@ -322,7 +337,7 @@ sub submit {
         #                                      
         # Check envelope recipient addresses
         my $accessconf = undef;
-        my $xrecipient = $serverconf->{'max_rcpts_per_message'} // 0;
+        my $xrecipient = $serverconf->{'max_rcpts_per_message'} // $defaultset->{'smtpd'}->{'max_rcpts_per_message'};
 
         if( not scalar @$recipients ) {
             # No envelope recipient address: { "rcpt": [], ... }
@@ -439,7 +454,9 @@ sub submit {
 
         XXFI_ENVRCPT: {
             # Act like xxfi_envrcpt() function
-            @$milterlibs = @{ $serverconf->{'milter'}->{'rcpt'} || [] };
+            my $milterlibs = $serverconf->{'milter'}->{'rcpt'} || [];
+            my $mfresponse = undef;
+
             for my $e ( @{ Haineko::SMTPD::Milter->import( $milterlibs ) } ) {
                 # Check the envelope recipient address with rcpt() method of each milter
                 #
@@ -485,6 +502,7 @@ sub submit {
             }
         }
         $tmpsession->rcpt(1);
+
     } # End of ``RCPT_TO''
 
     DATA: {
@@ -503,7 +521,20 @@ sub submit {
 
             return $httpd->res->json( 400, $tmpsession->damn );
 
-        } elsif( not length $head->{'subject'} ) {
+        } else {
+            # Check message body size
+            my $x = $serverconf->{'max_message_size'} // $defaultset->{'smtpd'}->{'max_message_size'};
+            if( $x > 0 && length( $body ) > $x ) {
+                # Message body size exceeds the limit
+                $esresponse = $responsecn->r( 'data', 'mesg-too-big' );
+                $tmpsession->add_response( $esresponse );
+                $nekosyslog->w( 'err', $esresponse->damn );
+
+                return $httpd->res->json( 400, $tmpsession->damn );
+            }
+        }
+
+        if( not length $head->{'subject'} ) {
             # Empty subject is not allowed on Haineko
             $esresponse = $responsecn->r( 'data', 'empty-subject' );
             $tmpsession->add_response( $esresponse );
@@ -525,23 +556,22 @@ sub submit {
     my $timestamp1 = localtime Time::Piece->new;
     my $attributes = { 'content_type' => 'text/plain' };
     my $mailheader = {
-        'Date'       => sprintf( "%s", $timestamp1->strftime ),
+        'Date'       => $timestamp1->strftime,
         'Received'   => $head->{'received'} || [],
         'Message-Id' => sprintf( "%s.%d.%d.%03d@%s", 
                             $submission->queueid, $$, $submission->started->epoch,
                             int(rand(100)), $serverconf->{'hostname'}
                         ),
-        'MIME-Version'      => '1.0',
-        'X-Mailer'          => sprintf( "%s", $submission->useragent // q() ),
-        'X-SMTP-Engine'     => sprintf( "%s %s", $serverconf->{'system'}, $serverconf->{'version'} ),
-        'X-HTTP-Referer'    => sprintf( "%s", $submission->referer // q() ),
-        'X-Haineko-Loop'    => sprintf( "%s", join( ',', @{ $head->{'x-haineko-loop'} } ) ),
-        'X-Originating-IP'  => $remoteaddr,
+        'MIME-Version'     => '1.0',
+        'X-Mailer'         => $submission->useragent // q(),
+        'X-SMTP-Engine'    => sprintf( "%s %s", $serverconf->{'system'}, $serverconf->{'version'} ),
+        'X-HTTP-Referer'   => $submission->referer // q(),
+        'X-Haineko-Loop'   => join( ',', @{ $head->{'x-haineko-loop'} } ),
+        'X-Originating-IP' => $remoteaddr,
     };
-    my $received00 = sprintf( "from %s ([%s]) by %s with HTTP id %s; %s", 
-                        $ehlo, $remoteaddr, $serverconf->{'hostname'}, $submission->queueid, 
-                        $timestamp1->strftime );
-    push @{ $mailheader->{'Received'} }, $received00;
+    push @{ $mailheader->{'Received'} }, sprintf( "from %s ([%s]) by %s with HTTP id %s; %s", 
+                                            $ehlo, $remoteaddr, $serverconf->{'hostname'}, 
+                                            $submission->queueid, $timestamp1->strftime );
 
     MIME_ENCODING: {
         #  __  __ ___ __  __ _____ 
@@ -616,7 +646,8 @@ sub submit {
             } else {
                 $mailheader->{ $headername } = $fieldvalue;
             }
-        }
+        } # End of for()
+
     } # End of MIME_ENCODING
 
     SENDER_HEADER: {
@@ -628,7 +659,9 @@ sub submit {
 
     XXFI_HEADER: {
         # Act like xxfi_header() function
-        @$milterlibs = @{ $serverconf->{'milter'}->{'head'} || [] };
+        my $milterlibs = $serverconf->{'milter'}->{'head'} || [];
+        my $mfresponse = undef;
+
         for my $e ( @{ Haineko::SMTPD::Milter->import( $milterlibs ) } ) {
             # Check email headers with head() method of each milter
             $mfresponse = $responsecn->new( 'code' => 554, 'dsn' => '5.7.1', 'command' => 'DATA' );
@@ -647,7 +680,9 @@ sub submit {
 
     XXFI_BODY: {
         # Act like xxfi_body() function
-        @$milterlibs = @{ $serverconf->{'milter'}->{'body'} || [] };
+        my $milterlibs = $serverconf->{'milter'}->{'body'} || [];
+        my $mfresponse = undef;
+
         for my $e ( @{ Haineko::SMTPD::Milter->import( $milterlibs ) } ) {
             # Check the email body with body() method of each milter
             $mfresponse = $responsecn->new( 'code' => 554, 'dsn' => '5.6.0', 'command' => 'DATA' );
@@ -667,15 +702,17 @@ sub submit {
 
     # mailertable
     my $mailerconf = { 'mail' => {}, 'rcpt' => {} };
-    my $defaulthub = undef;
-    my $sendershub = undef;
+    my $defaulthub = undef; # Relays based on the domain part of the recipient address
+    my $sendershub = undef; # Relays based on the domain part of the sender address
 
     MAILERTABLE: {
         # Load etc/mailertable, etc/sendermt
         require Haineko::SMTPD::Relay;
 
         for my $e ( 'mail', 'rcpt' ) {
-            # Check mailer table files: etc/mailertable and etc/sendermt
+            # Check the following mailer table files:
+            #   - etc/mailertable 
+            #   - etc/sendermt
             try { 
                 $exceptions = 0;
                 $mailerconf->{ $e } = Haineko::JSON->loadfile( $serverconf->{'mailer'}->{ $e } );
@@ -736,8 +773,12 @@ sub submit {
         my $procnumber = 0;         # (Integer) Job ID of each child process
         my $trappedsig = 0;         # (Integer) The number of received USR2 signal
 
-        $maxworkers = 8 if $maxworkers > 8;
-        $useprefork = 1 if $maxworkers > 1;
+        if( $maxworkers > 1 ) {
+            # Adjust the number of max worker processes.
+            $useprefork = 1;
+            my $x = $serverconf->{'max_workers'} // $defaultset->{'smtpd'}->{'max_workers'};
+            $maxworkers = $x if $maxworkers > $x;
+        }
 
         if( $useprefork ) {
             # If the number of recipients or the value of `maxworkers` is greater
@@ -959,7 +1000,6 @@ sub submit {
         }
 
     } # End of SENDMAIL
-
 
     # Respond to the client
     $nekosyslog->w( 'notice', $submission->damn );
