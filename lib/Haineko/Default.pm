@@ -5,11 +5,10 @@ use warnings;
 sub conf {
     return {
         'smtpd' => { 
-            'auth' => 0,                    # No authentication
-            'hostname' => '',               # used at EHLO
+            'hostname' => '[127.0.0.1]',    # used at EHLO
             'max_message_size' => 4194304,  # 4KB
             'max_rcpts_per_message' => 4,   # 4 recipients
-            'max_workers' => 8,             # 8 worker processes
+            'max_workers' => 4,             # 4 worker processes
             'milter' => {
                 'libs' => [],
             },
@@ -75,6 +74,7 @@ Haineko server.
             'hostname' => '',
             'max_message_size' => 4194304,
             'max_rcpts_per_message' => 4,
+            'max_workers' => 4,
             'milter' => {
                 'libs' => [],
             },
