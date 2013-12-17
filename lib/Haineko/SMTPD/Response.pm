@@ -125,11 +125,6 @@ my $Replies = {
             'code' => 503,
             'message' => [ 'Sender already specified' ],
         },
-        'mesg-too-big' => {     # 552 5.2.3 Message size exceeds fixed maximum message size (10485760)
-            'dsn' => '5.2.3',
-            'code' => 552,
-            'message' => [ 'Message size exceeds fixed maximum message size' ],
-        },
         'domain-required' => {  # 553 5.5.4 <*>... Domain name required for sender address *
             'dsn' => '5.5.4',
             'code' => 553,
@@ -203,6 +198,11 @@ my $Replies = {
             'dsn' => undef,
             'code' => 354,
             'message' => [ 'Enter mail' ],
+        },
+        'mesg-too-big' => {     # 552 5.2.3 Message size exceeds fixed maximum message size (10485760)
+            'dsn' => '5.2.3',
+            'code' => 552,
+            'message' => [ 'Message size exceeds fixed maximum message size' ],
         },
         'empty-body' => {
             'dsn' => '5.6.0',
