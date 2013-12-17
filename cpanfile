@@ -27,5 +27,6 @@ on test => sub {
 
 on develop => sub {
     requires 'Test::UsedModules', '0.03';
+    requires 'Test::Synopsis::Expectation', '0.01';
     requires 'IO::Socket::INET', '1.31';
 };
