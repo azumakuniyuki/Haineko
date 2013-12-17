@@ -1,6 +1,6 @@
 Revision history for Haineko
 
-0.2.10
+0.2.10  Tue, 17 Dec 2013 18:22:22 +0900 (JST)
     - New aliases: "send"(mail) and "recv"(rcpt) for email data as a JSON.
     - Haineko does fork() when the number of recipients is greater than 1.
     - New haineko.cf configuration: "max_workers" is the limit of forked worker
