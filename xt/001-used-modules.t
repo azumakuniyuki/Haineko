@@ -31,6 +31,7 @@ my $f = [ qw|
 for my $e ( @$f ){ 
     used_modules_ok( 'lib/Haineko/'.$e );
 }
+used_modules_ok( 'lib/Haineko.pm' );
 used_modules_ok( 'libexec/haineko.psgi' );
 
 done_testing;
