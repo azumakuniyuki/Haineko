@@ -254,7 +254,7 @@ Haineko::CLI is a base class for command line interface of Haineko.
 
 =head2 B<new( I<%arguments> )>
 
-new() is a constructor of Haineko::CLI::Daemon
+C<new()> is a constructor of Haineko::CLI::Daemon
 
     my $e = Haineko::CLI::Daemon->new(
             'verbose' => 2,         # Verbose level
@@ -267,45 +267,47 @@ new() is a constructor of Haineko::CLI::Daemon
 
 =head2 B<version>
 
-version() returns the version number of Haineko.
+C<version()> returns the version number of Haineko.
 
 =head2 B<witch( I<command-name> )>
 
-witch() has the same feature of UNIX-command ``witch''.
+C<witch()> has the same feature of UNIX-command ``witch''.
 
 =head1 INSTANCE METHODS
 
 =head2 B<r( I<run-mode> )>
 
-r() returns current run-mode value, and r(2) set run-mode to ``2''
+C<r()> returns current "run mode" value, and C<r(2)> set "run mode" to ``2''
 
 =head2 B<v( I<verbose-level> )>
 
-v() returns current verbose level value, and v(2) set verbose-level to ``2''
+C<v()> returns current verbose level value, and C<v(2)> set "verbose level" to
+``2''
 
 =head2 B<e( I<Error message>, I<Continue> )>
 
-e() prints error message to STDERR and exit. if the second argument is given, 
-such as e('message', 1), running process does not exit.
+C<e()> prints error message to STDERR and exit. if the second argument is given, 
+such as C<e('message', 1)>, running process does not exit.
 
 =head2 B<p( I<message>, I<verbose level> )>
 
-p() prints message to STDERR. if the second argument is given, such as p('msg', 2),
-given message will be printed when the value of verbose level is 2 or higher.
+C<p()> prints message to STDERR. if the second argument is given, for example, 
+C<p('message',2)>, given message will be printed when the value of verbose level
+is 2 or higher.
 
-=head2 B<makepf>
+=head2 B<makepf()>
 
-makepf() creates pid file at the value of ``pidfile'' property of the instance.
+C<makepf()> creates pid file at the value of C<pidfile> property of the instance.
 If the value of pidfile is not defined or is empty, pid file is not created.
 
-=head2 B<readpf>
+=head2 B<readpf()>
 
-readpf() returns the process id of running process read from the value of ``pidfile''
-property of running process.
+C<readpf()> returns the process id of running process read from the value of 
+C<pidfile> property of running process.
 
-=head2 B<removepf>
+=head2 B<removepf()>
 
-removepf() delete the pid file.
+C<removepf()> delete the pid file.
 
 =head1 SEE ALSO
 
@@ -321,7 +323,7 @@ L<Haineko::CLI::Setup> - Setup files for Haineko
 L<Haineko::CLI::Password> - Password generator for Basic Authentication
 
 =item *
-L<Haineko::CLI::Help> - Help message for hainekoctl
+L<Haineko::CLI::Help> - Help message for C<hainekoctl>
 
 =item *
 L<bin/haineoctl> - Script of Haineko::CLI::* implementation
