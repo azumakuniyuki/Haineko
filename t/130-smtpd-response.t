@@ -33,14 +33,14 @@ CLASS_METHODS: {
                     unavailable-mech no-auth-mech
         / ],
         'mail' => [ qw/
-            ok sender-specified mesg-too-big domain-required syntax-error
+            ok sender-specified domain-required syntax-error
             domain-does-not-exist need-mail non-ascii
         / ],
         'rcpt' => [ qw/
             ok syntax-error address-required too-many-recipients
             is-not-emailaddress need-rcpt rejected
         / ],
-        'data' => [ qw/ok enter-mail empty-body empty-subject/ ],
+        'data' => [ qw/ok enter-mail empty-body empty-subject mesg-too-big/ ],
         'rset' => [ qw/ok/ ],
         'vrfy' => [ qw/cannot-vrfy/ ],
         'verb' => [ qw/verb-unavailable/ ],
