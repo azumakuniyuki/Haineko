@@ -51,13 +51,12 @@ sub new {
         'pid'     => 1,
     };
 
-    $argvs->{'facility'} ||= 'local2';
-    $argvs->{'loglevel'} ||= 'info';
-    $argvs->{'loglevel'}   = 'info' unless grep { $argvs->{'loglevel'} eq $_ } @$LogLevels;
-    $argvs->{'disabled'} //= 0;
-    $argvs->{'identity'}   = 'haineko';
-    $argvs->{'queueid'}  //= q();
-
+    $argvs->{'facility'}   ||= 'local2';
+    $argvs->{'loglevel'}   ||= 'info';
+    $argvs->{'loglevel'}     = 'info' unless grep { $argvs->{'loglevel'} eq $_ } @$LogLevels;
+    $argvs->{'disabled'}   //= 0;
+    $argvs->{'identity'}     = 'haineko';
+    $argvs->{'queueid'}    //= q();
     $argvs->{'useragent'}  ||= q();
     $argvs->{'remoteaddr'} ||= q();
     $argvs->{'remoteport'} //= q();
