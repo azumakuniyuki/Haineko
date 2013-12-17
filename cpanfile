@@ -10,6 +10,7 @@ requires 'JSON::Syck', '1.18';
 requires 'Net::DNS', '0.68';
 requires 'Net::SMTPS', '0.03';
 requires 'Net::CIDR::Lite', '0.21';
+requires 'Parallel::Prefork', '0.14';
 requires 'Path::Class', '0.24';
 requires 'Plack', '1.0027';
 requires 'Plack::Middleware::Auth::Basic', '';

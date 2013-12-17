@@ -5,6 +5,7 @@ use Encode;
 use Try::Tiny;
 use Time::Piece;
 use Haineko::Log;
+use Haineko::JSON;
 use Haineko::SMTPD::Milter;
 use Haineko::SMTPD::Session;
 use Haineko::SMTPD::Response;
@@ -726,139 +727,244 @@ sub submit {
         # |____/|_____|_| \_|____/|_|  |_/_/   \_\___|_____|
         #                                                   
         require Module::Load;
-        my $smtpmailer = undef;
-        my $relayingto = undef;
-        my $credential = undef;
-        my $relayclass = q();
-        my $methodargv = {};
 
-        ONE_TO_ONE: for my $e ( @$recipients ) {
-            # Skip if the recipient address is in @$cannotsend
-            next if grep { $e eq $_ } @$cannotsend;
+        my $maxworkers = scalar @$recipients;
+        my $preforkset = undef;     # (Parallel::Prefork) object
+        my $preforkarg = undef;     # (Ref->Hash) arguments for Parallel::Prefork
+        my $preforkipc = [];        # (Ref->Array) IO::Pipe objects
+        my $useprefork = 0;         # (Integer) use fork() or not
+        my $procnumber = 0;         # (Integer) Job ID of each child process
+        my $trappedsig = 0;         # (Integer) The number of received USR2 signal
 
-            # Create email address objects from each envelope recipient address
-            my $r = Haineko::SMTPD::Address->new( 'address' => $e );
+        $maxworkers = 8 if $maxworkers > 8;
+        $useprefork = 1 if $maxworkers > 1;
 
-            $smtpmailer = undef;
-            $relayingto = $mailerconf->{'rcpt'}->{ $r->host } // $sendershub;
-            $relayingto = $sendershub if $relayingto->{'disabled'};
+        if( $useprefork ) {
+            # If the number of recipients or the value of `maxworkers` is greater
+            # than 1, fork and send emails by each child process.
+            Module::Load::load('IO::Pipe');
+            Module::Load::load('Parallel::Prefork');
 
-            $relayingto = $defaulthub unless keys %$relayingto;
-            $relayingto = $defaulthub if $relayingto->{'disabled'};
+            $preforkarg = {
+                'max_workers' => $maxworkers,
+                'err_respawn_interval' => 2,
+                'spawn_interval' => 0,
+                'trap_signals' => { 'HUP' => 'TERM', 'TERM' => 'TERM' },
+                'before_fork' => sub {
+                    my $k = shift;
+                    $k->{'procnumber'} = $procnumber;
 
-            $relayingto->{'port'}   //= 25;
-            $relayingto->{'host'}   //= '127.0.0.1';
-            $relayingto->{'mailer'} //= 'ESMTP';
-
-            if( $relayingto->{'auth'} ) {
-                $credential = $autheninfo->{ $relayingto->{'auth'} } // {};
-            } 
-            $relayingto->{'auth'} = q() unless keys %$credential;
-
-            if( $relayingto->{'mailer'} =~ m/\A(?:ESMTP|Haineko|MX)\z/ ) {
-                # Use Haineko::SMTPD::Relay::ESMTP or Haineko::SMTPD::Relay::Haineko
-                #   ::MX      = Directly connect to the host listed in MX Resource record
-                #   ::ESMTP   = Generic SMTP connection to an external server
-                #   ::Haineko = Relay an message to Haineko running on other host
-                $methodargv = {
-                    'ehlo'      => $serverconf->{'hostname'},
-                    'mail'      => $submission->addresser->address,
-                    'rcpt'      => $r->address,
-                    'head'      => $mailheader,
-                    'body'      => \$body,
-                    'attr'      => $attributes,
-                    'host'      => $relayingto->{'host'} // '127.0.0.1',
-                    'retry'     => $relayingto->{'retry'} // 0,
-                    'sleep'     => $relayingto->{'sleep'} // 5,
-                    'timeout'   => $relayingto->{'timeout'} // 59,
-                    'starttls'  => $relayingto->{'starttls'},
-                };
-
-                if( $relayingto->{'mailer'} eq 'ESMTP' ) {
-                    # use well-known port for SMTP
-                    $methodargv->{'port'} = $relayingto->{'port'} // 25;
-                    $methodargv->{'debug'} = $relayingto->{'debug'} // 0;
-
-                } elsif( $relayingto->{'mailer'} eq 'Haineko' ) {
-                    # Haineko uses 2794 by default
-                    $methodargv->{'port'} = $relayingto->{'port'} // 2794;
-
-                } elsif( $relayingto->{'mailer'} eq 'MX' ) {
-                    # Mail Exchanger is waiting on *:25
-                    $methodargv->{'port'} = 25;
-                    $methodargv->{'debug'} = $relayingto->{'debug'} // 0;
-                }
-
-                $relayclass = sprintf( "Haineko::SMTPD::Relay::%s", $relayingto->{'mailer'} );
-                Module::Load::load( $relayclass );
-                $smtpmailer = $relayclass->new( %$methodargv );
-
-                if( $relayingto->{'auth'} ) {
-                    # Load credentials for SMTP-AUTH
-                    $smtpmailer->auth( 1 );
-                    $smtpmailer->username( $credential->{'username'} );
-                    $smtpmailer->password( $credential->{'password'} );
-                }
-
-                $smtpmailer->sendmail();
-                $submission->add_response( $smtpmailer->response );
-
-            } elsif( $relayingto->{'mailer'} eq 'Discard' ) {
-                # Discard mailer, email blackhole. It will discard all messages
-                Module::Load::load('Haineko::SMTPD::Relay::Discard');
-                $smtpmailer = Haineko::SMTPD::Relay::Discard->new;
-                $smtpmailer->sendmail();
-                $submission->add_response( $smtpmailer->response );
-
-            } elsif( length $relayingto->{'mailer'} ) {
-                # Use Haineko::SMTPD::Relay::* except ESMTP, Haineko and Discard
-                $mailheader->{'To'} = $r->address;
-                $methodargv = {
-                    'ehlo'    => $serverconf->{'hostname'},
-                    'mail'    => $submission->addresser->address,
-                    'rcpt'    => $r->address,
-                    'head'    => $mailheader,
-                    'body'    => \$body,
-                    'attr'    => $attributes,
-                    'retry'   => $relayingto->{'retry'} // 0,
-                    'timeout' => $relayingto->{'timeout'} // 60,
-                };
-
-                $relayclass = sprintf( "Haineko::SMTPD::Relay::%s", $relayingto->{'mailer'} );
-                Module::Load::load( $relayclass );
-                $smtpmailer = $relayclass->new( %$methodargv );
-
-                if( $relayingto->{'auth'} ) {
-                    # Load credentials for SMTP-AUTH
-                    $smtpmailer->auth( 1 );
-                    $smtpmailer->username( $credential->{'username'} );
-                    $smtpmailer->password( $credential->{'password'} );
-                }
-
-                $smtpmailer->sendmail();
-                if( not $smtpmailer->response->dsn ) {
-                    # D.S.N. is empty or undefined.
-                    if( $smtpmailer->response->error ) {
-                        # Error but no D.S.N.
-                        $smtpmailer->response->dsn( '5.0.0' );
-                    } else {
-                        # Successfully sent but no D.S.N.
-                        $smtpmailer->response->dsn( '2.0.0' );
+                    if( $procnumber < $maxworkers ) {
+                        $preforkipc->[ $procnumber ] = IO::Pipe->new;;
+                        $procnumber++;
                     }
                 }
+            };
+            $preforkset = Parallel::Prefork->new( $preforkarg );
 
-                $submission->add_response( $smtpmailer->response );
+            $SIG{'USR2'} = sub {
+                # Trap signal from each child process
+                $trappedsig++;
+                kill( 'TERM', $$ ) if $trappedsig >= $maxworkers;
+            };
+        }
+
+        my $sendmailto = sub {
+            # Code reference for sending an email to each recipient which called
+            # from Parallel::Prefork->start().
+            my $thisworker = undef;
+
+            local $SIG{'TERM'} = 'IGNORE';
+
+            if( $useprefork ) {
+                # fork and send each email
+                kill( 'USR2', $preforkset->manager_pid );
+                $thisworker = $preforkset->{'procnumber'};
+
+                # The number of worker processes has exceeded the limit
+                return -1 if $thisworker >= $maxworkers;
 
             } else {
-                ;
+                # send each email in order
+                $thisworker = 0;
             }
 
-        } # End of for(ONE_TO_ONE)
+            ONE_TO_ONE: for( my $i = $thisworker; $i < $maxworkers; $i += $maxworkers ) {
+                # Skip if the recipient address is in @$cannotsend
+                my $e = $recipients->[ $i ];
+                next if grep { $e eq $_ } @$cannotsend;
+
+                # Create email address objects from each envelope recipient address
+                my $r = Haineko::SMTPD::Address->new( 'address' => $e );
+                my $smtpmailer = undef;
+                my $relayingto = undef;
+                my $credential = undef;
+                my $relayclass = q();
+
+                $relayingto = $mailerconf->{'rcpt'}->{ $r->host } // $sendershub;
+                $relayingto = $sendershub if $relayingto->{'disabled'};
+
+                $relayingto = $defaulthub unless keys %$relayingto;
+                $relayingto = $defaulthub if $relayingto->{'disabled'};
+
+                $relayingto->{'port'}   //= 25;
+                $relayingto->{'host'}   //= '127.0.0.1';
+                $relayingto->{'mailer'} //= 'ESMTP';
+
+                if( $relayingto->{'auth'} ) {
+                    $credential = $autheninfo->{ $relayingto->{'auth'} } // {};
+                } 
+                $relayingto->{'auth'} = q() unless keys %$credential;
+
+                if( $relayingto->{'mailer'} =~ m/\A(?:ESMTP|Haineko|MX)\z/ ) {
+                    # Use Haineko::SMTPD::Relay::ESMTP or Haineko::SMTPD::Relay::Haineko
+                    #   ::MX      = Directly connect to the host listed in MX Resource record
+                    #   ::ESMTP   = Generic SMTP connection to an external server
+                    #   ::Haineko = Relay an message to Haineko running on other host
+                    my $methodargv = {
+                        'ehlo'      => $serverconf->{'hostname'},
+                        'mail'      => $submission->addresser->address,
+                        'rcpt'      => $r->address,
+                        'head'      => $mailheader,
+                        'body'      => \$body,
+                        'attr'      => $attributes,
+                        'host'      => $relayingto->{'host'} // '127.0.0.1',
+                        'retry'     => $relayingto->{'retry'} // 0,
+                        'sleep'     => $relayingto->{'sleep'} // 5,
+                        'timeout'   => $relayingto->{'timeout'} // 59,
+                        'starttls'  => $relayingto->{'starttls'},
+                    };
+
+                    if( $relayingto->{'mailer'} eq 'ESMTP' ) {
+                        # use well-known port for SMTP
+                        $methodargv->{'port'} = $relayingto->{'port'} // 25;
+                        $methodargv->{'debug'} = $relayingto->{'debug'} // 0;
+
+                    } elsif( $relayingto->{'mailer'} eq 'Haineko' ) {
+                        # Haineko uses 2794 by default
+                        $methodargv->{'port'} = $relayingto->{'port'} // 2794;
+
+                    } elsif( $relayingto->{'mailer'} eq 'MX' ) {
+                        # Mail Exchanger is waiting on *:25
+                        $methodargv->{'port'} = 25;
+                        $methodargv->{'debug'} = $relayingto->{'debug'} // 0;
+                    }
+
+                    $relayclass = sprintf( "Haineko::SMTPD::Relay::%s", $relayingto->{'mailer'} );
+                    Module::Load::load( $relayclass );
+                    $smtpmailer = $relayclass->new( %$methodargv );
+
+                    if( $relayingto->{'auth'} ) {
+                        # Load credentials for SMTP-AUTH
+                        $smtpmailer->auth( 1 );
+                        $smtpmailer->username( $credential->{'username'} );
+                        $smtpmailer->password( $credential->{'password'} );
+                    }
+
+                    $smtpmailer->sendmail();
+
+                } elsif( $relayingto->{'mailer'} eq 'Discard' ) {
+                    # Discard mailer, email blackhole. It will discard all messages
+                    Module::Load::load('Haineko::SMTPD::Relay::Discard');
+                    $smtpmailer = Haineko::SMTPD::Relay::Discard->new;
+                    $smtpmailer->sendmail();
+
+                } elsif( length $relayingto->{'mailer'} ) {
+                    # Use Haineko::SMTPD::Relay::* except H::S::R::ESMTP, 
+                    # H::S::R::Haineko and H::S::R::Discard.
+                    $mailheader->{'To'} = $r->address;
+                    my $methodargv = {
+                        'ehlo'    => $serverconf->{'hostname'},
+                        'mail'    => $submission->addresser->address,
+                        'rcpt'    => $r->address,
+                        'head'    => $mailheader,
+                        'body'    => \$body,
+                        'attr'    => $attributes,
+                        'retry'   => $relayingto->{'retry'} // 0,
+                        'timeout' => $relayingto->{'timeout'} // 60,
+                    };
+
+                    $relayclass = sprintf( "Haineko::SMTPD::Relay::%s", $relayingto->{'mailer'} );
+                    Module::Load::load( $relayclass );
+                    $smtpmailer = $relayclass->new( %$methodargv );
+
+                    if( $relayingto->{'auth'} ) {
+                        # Load credentials for SMTP-AUTH
+                        $smtpmailer->auth( 1 );
+                        $smtpmailer->username( $credential->{'username'} );
+                        $smtpmailer->password( $credential->{'password'} );
+                    }
+                    $smtpmailer->sendmail();
+
+                    if( not $smtpmailer->response->dsn ) {
+                        # D.S.N. is empty or undefined.
+                        if( $smtpmailer->response->error ) {
+                            # Error but no D.S.N.
+                            $smtpmailer->response->dsn( '5.0.0' );
+                        } else {
+                            # Successfully sent but no D.S.N.
+                            $smtpmailer->response->dsn( '2.0.0' );
+                        }
+                    }
+
+                } else {
+                    next;
+                }
+
+                if( $maxworkers > 1 ) {
+                    # Send the received response as a JSON from child process
+                    # to parent process via pipe.
+                    my $p = $preforkipc->[ $thisworker ];
+                    $p->writer;
+                    print( { $p } Haineko::JSON->dumpjson( $smtpmailer->response->damn ) );
+                    close $p;
+
+                } else {
+                    # Add the received response as a Haineko::SMTPD::Response object
+                    # into Haineko::SMTPD::Session object.
+                    $submission->add_response( $smtpmailer->response );
+                }
+
+            } # End of for(ONE_TO_ONE)
+
+            return 0;
+
+        }; # End of `sub sendmailto`
+
+        if( $useprefork ) {
+            # Call sendmailto->() and wait all children
+            while(1) {
+                last if $preforkset->signal_received eq 'TERM';
+                last if $preforkset->signal_received eq 'INT';
+                $preforkset->start( $sendmailto );
+            }
+            $preforkset->wait_all_children;
+
+            for my $v ( @$preforkipc ) {
+                # Receive the response as a JSON from each child
+                my $j = q();
+                my $p = undef;
+
+                $v->reader;
+                while( <$v> ) {
+                    $j .= $_;
+                }
+                $p = Haineko::JSON->loadjson( $j );
+                $submission->add_response( Haineko::SMTPD::Response->new( %$p ) );
+            }
+
+        } else {
+            # Haineko does not fork when the number of recipients is ``1''
+            $sendmailto->();
+        }
 
     } # End of SENDMAIL
 
+
+    # Respond to the client
     $nekosyslog->w( 'notice', $submission->damn );
     return $httpd->res->json( 200, $submission->damn );
+
 }
 
 1;
@@ -916,3 +1022,5 @@ This library is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself.
 
 =cut
+
+

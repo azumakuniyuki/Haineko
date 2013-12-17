@@ -56,6 +56,7 @@ Hainekoは以下のモジュールに依存しています:
 * __Furl__
 * Getopt::Long (core module from v5)
 * IO::File (core module from v5.3.7)
+* IO::Pipe (core module from v5.3.7)
 * __IO::Socket::SSL__
 * IO::Zlib (core module from v5.9.3)
 * __JSON::Syck__
@@ -65,6 +66,7 @@ Hainekoは以下のモジュールに依存しています:
 * Net::SMTP (core module from v5.7.3)
 * __Net::SMTPS__
 * __Net::CIDR::Lite__
+* __Parallel::Prefork__
 * __Path::Class__
 * __Plack__
 * __Router::Simple__
