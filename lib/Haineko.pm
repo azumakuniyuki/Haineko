@@ -87,21 +87,21 @@ OR
 
 These files are read from Haineko as a YAML-formatted file.
 
-=head2 etc/haineko.cf
+=head2 C<etc/haineko.cf>
 
 Main configuration file for Haineko.
 
-=head2 etc/mailertable
+=head2 C<etc/mailertable>
 
 Defines "mailer table": Recipient's domain part based routing table like the 
 same named file in Sendmail. This file is taken precedence over the routing 
 table defined in C<etc/sendermt> for deciding the mailer.
 
-=head2 etc/sendermt
+=head2 C<etc/sendermt>
 
 Defines "mailer table" which decide the mailer by sender's domain part.
 
-=head2 etc/authinfo
+=head2 C<etc/authinfo>
 
 Provide credentials for client side authentication information.  Credentials 
 defined in this file are used at relaying an email to external SMTP server.
@@ -109,15 +109,15 @@ defined in this file are used at relaying an email to external SMTP server.
 This file should be set secure permission: The only user who runs haineko server
 can read this file.
 
-=head2 etc/relayhosts
+=head2 C<etc/relayhosts>
 
 Permitted hosts or network table for relaying via C</submit>.
 
-=head2 etc/recipients
+=head2 C<etc/recipients>
 
 Permitted envelope recipients and domains for relaying via C</submit>.
 
-=head2 etc/password
+=head2 C<etc/password>
 
 Username and password pairs for basic authentication. Haineko require an username
 and a password at receiving an email if C<HAINEKO_AUTH> environment variable was
@@ -133,26 +133,26 @@ JSON.
 
 =head1 ENVIRONMENT VARIABLES
 
-=head2 HAINEKO_ROOT
+=head2 C<HAINEKO_ROOT>
 
 Haineko decides the root directory by C<HAINEKO_ROOT> or the result of C<`pwd`> 
 command, and read C<haineko.cf> from C<HAINEKO_ROOT/etc/haineko.cf> if C<HAINEKO_CONF>
 environment variable is not defined.
 
-=head2 HAINEKO_CONF
+=head2 C<HAINEKO_CONF>
 
 The value of C<HAINEKO_CONF> is the path to C<__haineko.cf__> file. If this variable
 is not defined, Haineko finds the file from C<HAINEKO_ROOT/etc> directory. This
 variable can be set with C<-C /path/to/haineko.cf> at C<bin/hainekoctl> script.
 
-=head2 HAINEKO_AUTH
+=head2 C<HAINEKO_AUTH>
 
 Haineko requires Basic Authentication at connecting Haineko server when C<HAINEK_AUTH>
 environment variable is set. The value of C<HAINEKO_AUTH> should be the path to
 the password file such as C<'export HAINEKO_AUTH=/path/to/password'>. This variable
 can be set with C<-A> option of C<bin/hainekoctl> script.
 
-=head2 HAINEKO_DEBUG
+=head2 C<HAINEKO_DEBUG>
 
 Haineko runs on debug (development) mode when this variable is set. C<-d> option
 of C<bin/hainekoctl> turns on debug mode.
