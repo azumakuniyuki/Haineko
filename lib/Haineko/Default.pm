@@ -5,7 +5,7 @@ use warnings;
 sub conf {
     return {
         'smtpd' => { 
-            'hostname' => '[127.0.0.1]',    # used at EHLO
+            'hostname' => '',               # used at EHLO
             'max_message_size' => 4194304,  # 4KB
             'max_rcpts_per_message' => 4,   # 4 recipients
             'max_workers' => 4,             # 4 worker processes
