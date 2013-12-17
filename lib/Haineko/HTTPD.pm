@@ -201,7 +201,7 @@ Haineko::HTTPD - Something like web application framework
 Haineko::HTTPD is something like web application framework for Haineko. It contain
 wrapper methods of Plack::Request and Plack::Response.
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     $ cat haineko.psgi
     use Haineko;

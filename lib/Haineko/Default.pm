@@ -53,6 +53,13 @@ Haineko::Default - Default configuration instead of etc/haineko.cf
 When etc/haineko.cf does not exist or failed to load at Haineko::HTTPD, This
 class provides default configuration to run haineko server.
 
+=head1 SYNOPSIS
+
+    use Haineko::Default;
+    my $v = undef;
+    $v = Haineko::Default->conf;            # => isa 'HASH' # Default configuration
+    $v = Haineko::Default->table('mailer'); # => isa 'HASH' # Mailer tables
+
 =head1 CLASS METHODS
 
 =head2 B<conf>

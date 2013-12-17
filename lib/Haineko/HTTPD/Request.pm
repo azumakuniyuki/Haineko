@@ -14,10 +14,10 @@ Haineko::HTTPD::Request - Child class of Plack::Request
 
 Haineko::HTTPD::Request is child class of Plack::Request.
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     use Haineko::HTTPD::Request;
-    my $r = Haineko::HTTPD::Request->new;
+    my $r = Haineko::HTTPD::Request->new( $env );
 
 =head1 SEE ALSO
 

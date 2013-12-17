@@ -239,7 +239,7 @@ Haineko::CLI - Base class for command line interface
 
 Haineko::CLI is a base class for command line interface of Haineko.
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     use Haineko::CLI;
     my $p = { 'pidfile' => '/tmp/haineko.pid' };

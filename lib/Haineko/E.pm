@@ -80,6 +80,12 @@ Haineko::E - Convert error message to an object
 Haineko::E provide methods for converting an error message of perl such as
 "error at /path/to/file.pl line 2." to an object.
 
+=head1 SYNOPSIS
+
+    use Haineko::E;
+    eval { die 'Nyaaaaaaa!!!!' };
+    my $e = Haineko::E->new( $@ );
+
 =head1 CLASS METHODS
 
 =head2 B<new( I<Error Message> )>
@@ -87,12 +93,12 @@ Haineko::E provide methods for converting an error message of perl such as
 new() is a constructor of Haineko::E
 
     use Haineko::E;
-    eval { die 'Hard' };
+    eval { die 'Hardest' };
     my $e = Haineko::E->new( $@ );
 
     print $e->file;             # /path/to/file.pl
     print $e->line;             # 2
-    print for @{ $e->mesg };    # Hard
+    print for @{ $e->mesg };    # Hardest
 
 =head1 INSTANCE METHODS
 

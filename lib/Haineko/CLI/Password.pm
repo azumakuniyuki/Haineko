@@ -178,7 +178,7 @@ Haineko::CLI::Password - Utility class for ``hainekoctl pw''
 Haineko::CLI::Password provide methods for generating a password used in Basic
 Authentication like ``htpasswd'' command of Apache.
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     use Haineko::CLI::Password;
     my $p = Haineko::CLI::Password->new();

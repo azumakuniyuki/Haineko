@@ -46,7 +46,7 @@ port 2794 using Plack.
 Haineko stands for B<H>TTP B<A>PI B<IN>TO B<E>SMTP B<K>=undef B<O>=undef, means
 a gray cat.
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     $ bin/hainekoctl start -a libexec/haineko.psgi
     $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi

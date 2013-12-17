@@ -50,6 +50,13 @@ Haineko::JSON - Wrapper class to load/dump JSON.
 Haineko::JSON is a wrapper class for parsing or dumping JSON. As of present,
 the module is using JSON::Syck module.
 
+=head1 SYNOPSIS
+
+    use Haineko::JSON;
+    my $p = { 'name' => 'Haineko', 'age' => 1 };
+    my $j = Haineko::JSON->dumpjson( $p );  # => is '{"name":"Haineko","age":1}'
+    my $v = Haineko::JSON->loadjson( $j );  # => is_deeply { 'name' => 'Haineko', 'age' => 1 }
+
 =head1 CLASS METHODS
 
 =head2 B<loadfile( I<File> )>

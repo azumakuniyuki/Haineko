@@ -124,8 +124,6 @@ Haineko::Root - Controller except /submit
 
 Haineko::Root is a controller except url /submit.
 
-=head1 SYNOPSYS
-
 =head2 URL
 
     http://127.0.0.1:2794/

@@ -67,12 +67,11 @@ Haineko::HTTPD::Response - Child class of Plack::Response
 Haineko::HTTPD::Response is child class of Plack::Response and contain some
 wrapper methods.
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     use Haineko::HTTPD::Response;
-    my $r = Haineko::HTTPD::Response->new;
-
-    print Haineko::HTTPD::Response->mime('text');   # text/plain
+    my $r = Haineko::HTTPD::Response->new;          # => isa 'Haineko::HTTPD::Response'
+    my $v = Haineko::HTTPD::Response->mime('text'); # => is 'text/plain; charset=utf-8'
 
     $r->text( 200, 'Nyaaaaa' );         # returns [ 200, [ ... ], [ 'Nyaaaaa' ] ]
     $r->json( 200, { 'neko' => 1 } );   # returns [ 200, [ ... ], [ '{ "neko": 1 }' ] ]

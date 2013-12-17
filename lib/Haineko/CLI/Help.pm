@@ -114,7 +114,7 @@ Haineko::CLI::Help - Class for displaying help message
 Haineko::CLI::Help provide methods for displaying help messages of each command
 or each class.
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     use Haineko::CLI::Help;
     my $d = Haineko::CLI::Help->new();

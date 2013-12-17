@@ -284,7 +284,7 @@ Haineko::CLI::Setup - Setup files for Haineko
 Haineko::CLI::Setup provide methods for setting up files for Haineko/hainekoctl
 script.
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     use Haineko::CLI::Setup;
     my $s = Haineko::CLI::Setup->new();

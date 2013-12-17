@@ -14,10 +14,10 @@ Haineko::HTTPD::Request - Child class of Plack::Request
 
 Haineko::HTTPD::Router is child class of Router::Simple.
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     use Haineko::HTTPD::Router;
-    my $r = Haineko::HTTPD::Router->new;
+    my $r = Haineko::HTTPD::Router->new;    # => isa 'Haineko::HTTPD::Router'
 
 =head1 SEE ALSO
 

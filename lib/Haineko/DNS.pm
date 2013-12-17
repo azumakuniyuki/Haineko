@@ -145,6 +145,12 @@ Haineko::DNS - Tiny resolver class
 Haineko::DNS provide methods for resolving internet domain such as A, MX, NS, and
 TXT resource record.
 
+=head1 SYNOPSIS
+
+    use Haineko::DNS;
+    my $e = Haineko::DNS->new('example.org');   # Target domain name is example.org
+    my $v = $e->resolve('a');                   # Resolve A resource record
+
 =head1 CLASS METHODS
 
 =head2 B<new( I<Domain Name> )>

@@ -389,7 +389,7 @@ Haineko::CLI::Daemon - Haineko server control class
 Haineko::CLI::Daemon provide methods for controlling Haineko server: to start, 
 stop, reload, and restart server.
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     use Haineko::CLI::Daemon;
     my $p = { 'pidfile' => '/tmp/haineko.pid' };

@@ -59,7 +59,7 @@ Haineko::HTTPD::Auth - Basic authentication at connecting Haineko server
 Haineko::HTTPD::Auth is an authenticator for Basic Authentication at connecting
 Haineko server. It is called from Plack::MiddleWare::Auth::Basic in libexec/haineko.psgi.
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     use Haineko::HTTPD::Auth;
     use Haineko::JSON;
