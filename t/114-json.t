@@ -17,7 +17,7 @@ my $d = undef;
 $d = $modulename->loadfile( $f );
 isa_ok $d, 'HASH';
 is $d->{'ehlo'}, '[127.0.0.1]';
-is $d->{'header'}->{'reply-to'}, 'straycats@cat-ml.example.org';
+is $d->{'header'}->{'replyto'}, 'straycats@cat-ml.example.org';
 
 $j = '{ "neko": [ "kijitora", "mikeneko" ], "home": "Kyoto" }';
 $d = $modulename->loadjson( $j );
