@@ -1,5 +1,5 @@
 use Test::More;
-use Test::Synopsis::Expectation;
+# use Test::Synopsis::Expectation;
 # (Experimental)
 # prove xt/004-synopsis.t fails sometime.
 #
