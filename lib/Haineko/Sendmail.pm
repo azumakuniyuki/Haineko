@@ -146,7 +146,7 @@ sub submit {
 
     } # End of ``CONN''
 
-    my $headerlist = [ 'from', 'reply-to', 'subject' ];
+    my $headerlist = [ 'from', 'replyto', 'subject' ];
     my $emencoding = q();   # Character set such as iSO-2022-JP, UTF-8, or ISO-8859-1.
     my $recipients = [];    # Recipient addresses specified in JSON
     my $cannotsend = [];    # Invalid recipient addresses checked by the following codes
@@ -620,11 +620,7 @@ sub submit {
 
             my $fieldvalue = $head->{ $e };
             my $headername = ucfirst $e;
-
-            if( $headername =~ m/[-]/ ) {
-                # e.g.) reply-to => Reply-To
-                $headername = join( '-', map { ucfirst $_ } split( '-', $headername ) );
-            }
+            $headername = 'Reply-To' if $headername eq 'Replyto';
 
             if( Haineko::SMTPD::RFC5321->is8bit( \$fieldvalue ) ) {
                 # MIME encode if the value of the header contains any multi-byte
