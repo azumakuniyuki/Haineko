@@ -18,7 +18,7 @@ emaildata1 = {
     'header': {
         'from': 'キジトラ <envelope-sender@example.jp>',
         'subject': 'テストメール',
-        'reply-to': 'neko@example.jp'
+        'replyto': 'neko@example.jp'
     }
 }
 

@@ -68,7 +68,7 @@ public class Sendmail {
         JSONObject emaildata1 = new JSONObject();
         JSONObject mailheader = new JSONObject();
 
-        mailheader.put( "reply-to", addresser );
+        mailheader.put( "replyto", addresser );
         mailheader.put( "from", "キジトラ <" + addresser + ">" );
         mailheader.put( "charset", "UTF-8" );
         mailheader.put( "subject", "テストメール" );

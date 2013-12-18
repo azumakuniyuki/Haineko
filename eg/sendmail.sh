@@ -19,7 +19,7 @@ cat << EOM | $CURL -d'@-' "$NEKO"
     'header': {
         'subject': 'テストメール',
         'from': 'キジトラ <envelope-sender@example.jp>',
-        'reply-to': 'neko@example.jp'
+        'replyto': 'neko@example.jp'
     },
     'body': 'テストメールです'
 }
