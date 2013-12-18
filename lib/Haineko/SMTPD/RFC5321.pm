@@ -50,9 +50,9 @@ Haineko::SMTPD::RFC5321 - Tools related RFC-5321
 
 =head1 CLASS METHODS
 
-=head2 B<is8bit( I<\$string> )>
+=head2 C<B<is8bit( I<\$string> )>>
 
-is8bit() returns whether $string contains non-ascii character or not.
+C<is8bit()> returns whether C<$string> contains non-ascii character or not.
 
     my $x = 'Stray cat';
     my $y = '野良猫';
@@ -63,9 +63,10 @@ is8bit() returns whether $string contains non-ascii character or not.
     print Haineko::SMTPD::RFC5321->is8bit( \$z );  # 1
 
 
-=head2 B<check_ehlo( I<EHLO-HOSTNAME>) >
+=head2 C<B<check_ehlo( I<EHLO-HOSTNAME>) >>
 
-check_ehlo() checks whether specified hostname is valid as EHLO-HOSTNAME or not.
+C<check_ehlo()> checks whether specified hostname is valid as C<EHLO-HOSTNAME>
+or not.
 
     print Haineko::SMTPD::RFC5321->check_ehlo('[127.0.0.1]');      # 1(OK)
     print Haineko::SMTPD::RFC5321->check_ehlo('cat.example.jp');   # 1(OK)

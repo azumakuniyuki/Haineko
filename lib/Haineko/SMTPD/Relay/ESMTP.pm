@@ -231,9 +231,9 @@ Send an email to external server using SMTP protocol.
 
 =head1 CLASS METHODS
 
-=head2 B<new( I<%arguments> )>
+=head2 C<B<new( I<%arguments> )>>
 
-new() is a constructor of Haineko::SMTPD::Relay::ESMTP
+C<new()> is a constructor of Haineko::SMTPD::Relay::ESMTP
 
     my $e = Haineko::SMTPD::Relay::ESMTP->new( 
             'host' => '192.0.2.1',          # SMTP Server
@@ -258,9 +258,9 @@ new() is a constructor of Haineko::SMTPD::Relay::ESMTP
 
 =head1 INSTANCE METHODS
 
-=head2 B<sendmail>
+=head2 C<B<sendmail>>
 
-sendmail() will send email to the specified recipient(rcpt) via specified host.
+C<sendmail()> will send email to the specified recipient via specified host.
 
     my $e = Haineko::SMTPD::Relay::ESMTP->new( %argvs );
     print $e->sendmail;         # 0 = Failed to send, 1 = Successfully sent

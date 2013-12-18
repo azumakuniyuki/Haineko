@@ -81,7 +81,7 @@ Haineko::SMTPD::Milter - Haineko milter base class
 =head1 DESCRIPTION
 
 Check or rewrite contents like a milter program at each phase of SMTP session.
-Each method is called from /submit for example: MAIL -> mail(), RCPT -> rcpt().
+Each method is called from /submit for example: MAIL -> C<mail()>, RCPT -> C<rcpt()>.
 
 =head1 SYNOPSIS
 
@@ -95,69 +95,66 @@ Each method is called from /submit for example: MAIL -> mail(), RCPT -> rcpt().
 
 =head1 CLASS METHODS
 
-=head2 B<libs( I<[ ... ]> )>
+=head2 C<B<libs( I<[ ... ]> )>>
 
-Add paths in the argument into @INC for finding modules of milter. It may be useful
-when modules used as a milter are not installed in directories of @INC.
+Add paths in the argument into C<@INC> for finding modules of milter. It may be
+useful when modules used as a milter are not installed in directories of C<@INC>.
 
-=head2 B<import( I<[ ... ]> )>
+=head2 C<B<import( I<[ ... ]> )>>
 
 Load modules in the argument as a module for milter. If a module name begin with
-``B<+>'' such as ``+My::Encrypt'', B<My::Encrypt> module will be loaded. A Module
-which doesn't begin with ``+'' such as ``Neko'', ``Haineko::SMTPD::Milter::Neko''
+C<B<+>> such as C<+My::Encrypt>, C<B<My::Encrypt>> module will be loaded. A Module
+which doesn't begin with C<+> such as C<Neko>, ``Haineko::SMTPD::Milter::Neko''
 will be loaded.
 
 =head1 IMPLEMENT MILTER METHODS (Overridden by Haineko::SMTPD::Milter::*)
 
-Each method is called from /submit at each phase of SMTP session. If you want to
-reject the smtp connection, set required values into Haineko::SMTPD::Response 
+Each method is called from C</submit> at each phase of SMTP session. If you want
+to reject the smtp connection, set required values into Haineko::SMTPD::Response 
 object and return 0 or undef as a return value of each method. However you want
 to only rewrite contents or passed your contents filter, return 1 or true as a 
 return value.
 
+=head2 C<B<conn( I<Haineko::SMTPD::Response>, I<REMOTE_HOST>, I<REMOTE_ADDR> )>>
 
-=head2 B<conn( I<Haineko::SMTPD::Response>, I<REMOTE_HOST>, I<REMOTE_ADDR> )>
-
-conn() method is for checking a client hostname and client IP address.
+C<conn()> method is for checking a client hostname and client IP address.
 
 =head3 Arguments
 
-=head4 B<Haineko::SMTPD::::Response> object
+=head4 C<B<Haineko::SMTPD::::Response>> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
 Default SMTP status codes is 421 in this method.
 
-=head4 B<REMOTE_HOST>
+=head4 C<B<REMOTE_HOST>>
 
-The host name of the message sender, as picked from HTTP REMOTE_HOST variable.
+The host name of the message sender, as picked from HTTP C<REMOTE_HOST> variable.
 
-=head4 B<REMOTE_ADDR>
+=head4 C<B<REMOTE_ADDR>>
 
-The host address, as picked from HTTP REMOTE_ADDR variable.
+The host address, as picked from HTTP C<REMOTE_ADDR> variable.
 
+=head2 C<B<ehlo( I<Haineko::SMTPD::Response>, I<HELO_HOST> )>>
 
-=head2 B<ehlo( I<Haineko::SMTPD::Response>, I<HELO_HOST> )>
-
-ehlo() method is for checking a hostname passed as an argument of EHLO.
+C<ehlo()> method is for checking a hostname passed as an argument of C<EHLO>.
 
 =head3 Arguments
 
-=head4 B<Haineko::SMTPD::Response> object
+=head4 C<B<Haineko::SMTPD::Response>> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
 override D.S.N value by ->dsn(). Default SMTP status codes is 521 in this method.
 
-=head4 B<HELO_HOST>
+=head4 C<B<HELO_HOST>>
 
-Value defined in "ehlo" field in HTTP-POSTed JSON data, which should be the 
+Value defined in C<ehlo> field in C<HTTP POST> JSON data, which should be the 
 domain name of the sending host or IP address enclosed square brackets.
 
+=head2 C<B<mail( I<Haineko::SMTPD::Response>, I<ENVELOPE_SENDER> )>>
 
-=head2 B<mail( I<Haineko::SMTPD::Response>, I<ENVELOPE_SENDER> )>
-
-mail() method is for checking an envelope sender address.
+C<mail()> method is for checking an envelope sender address.
 
 =head3 Arguments
 
@@ -170,13 +167,12 @@ in this method.
 
 =head4 B<ENVELOPE_SENDER>
 
-Value defined in "mail" field in HTTP-POSTed JSON data, which should be the 
+Value defined in "mail" field in HTTP POST JSON data, which should be the 
 valid email address.
 
+=head2 C<B<rcpt( I<Haineko::SMTPD::Response>, I<ENVELOPE_RECIPIENT> )>>
 
-=head2 B<rcpt( I<Haineko::SMTPD::Response>, I<ENVELOPE_RECIPIENT> )>
-
-rcpt() method is for checking envelope recipient address.
+C<rcpt()> method is for checking envelope recipient address.
 
 =head3 Arguments
 
@@ -189,14 +185,14 @@ in this method.
 
 =head4 B<ENVELOPE_RECIPIENTS>
 
-Values defined in "rcpt" field in HTTP-POSTed JSON data, which should be the 
+Values defined in C<rcpt> field in HTTP POST JSON data, which should be the 
 valid email address.
 
 
 =head2 B<head( I<Haineko::SMTPD::Response>, I< { EMAIL_HEADER } > )>
 
-head() method is for checking email header. Email header is passwd as an hash
-reference.
+C<head()> method is for checking email header. Email header is password as an
+hash reference.
 
 =head3 Arguments
 
@@ -209,12 +205,11 @@ in this method.
 
 =head4 B<EMAIL_HEADER>
 
-Values defined in "header" field in HTTP-POSTed JSON data.
+Values defined in "header" field in HTTP POST JSON data.
 
+=head2 C<B<body( I<Haineko::SMTPD::Response>, I< \EMAIL_BODY > )>>
 
-=head2 B<body( I<Haineko::SMTPD::Response>, I< \EMAIL_BODY > )>
-
-body() method is for checking email body. Email body is passwd as an scalar
+C<body()> method is for checking email body. Email body is password as an scalar
 reference.
 
 =head3 Arguments
@@ -228,8 +223,7 @@ in this method.
 
 =head4 B<EMAIL_BODY>
 
-Value defined in "body" field in HTTP-POSTed JSON data.
-
+Value defined in "body" field in HTTP POST JSON data.
 
 =head1 SEE ALSO
 

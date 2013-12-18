@@ -151,100 +151,97 @@ The host name of the message sender, as picked from HTTP REMOTE_HOST variable.
 The host address, as picked from HTTP REMOTE_ADDR variable.
 
 
-=head2 B<ehlo( I<Haineko::SMTPD::Response>, I<HELO_HOST> )>
+=head2 C<B<ehlo( I<Haineko::SMTPD::Response>, I<HELO_HOST> )>>
 
-ehlo() method is for checking a hostname passed as an argument of EHLO.
+C<ehlo()> method is for checking a hostname passed as an argument of EHLO.
 
 =head3 Arguments
 
-=head4 B<Haineko::SMTPD::Response> object
+=head4 C<B<Haineko::SMTPD::Response>> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
 override D.S.N value by ->dsn(). Default SMTP status codes is 521 in this method.
 
-=head4 B<HELO_HOST>
+=head4 C<B<HELO_HOST>>
 
-Value defined in "ehlo" field in HTTP-POSTed JSON data, which should be the 
-domain name of the sending host or IP address enclosed square brackets.
+Value defined in C<ehlo> field in HTTP POST JSON data, which should be the domain
+name of the sending host or IP address enclosed square brackets.
 
+=head2 C<B<mail( I<Haineko::SMTPD::Response>, I<ENVELOPE_SENDER> )>>
 
-=head2 B<mail( I<Haineko::SMTPD::Response>, I<ENVELOPE_SENDER> )>
-
-mail() method is for checking an envelope sender address.
+C<mail()> method is for checking an envelope sender address.
 
 =head3 Arguments
 
-=head4 B<Haineko::SMTPD::Response> object
+=head4 C<B<Haineko::SMTPD::Response>> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
 override D.S.N value by ->dsn(). Default SMTP status codes is 501, dsn is 5.1.8
 in this method.
 
-=head4 B<ENVELOPE_SENDER>
+=head4 C<B<ENVELOPE_SENDER>>
 
-Value defined in "mail" field in HTTP-POSTed JSON data, which should be the 
-valid email address.
+Value defined in C<mail> field in HTTP POST JSON data, which should be the valid
+email address.
 
 
-=head2 B<rcpt( I<Haineko::SMTPD::Response>, I< [ ENVELOPE_RECIPIENTS ] > )>
+=head2 C<B<rcpt( I<Haineko::SMTPD::Response>, I< [ ENVELOPE_RECIPIENTS ] > )>>
 
-rcpt() method is for checking envelope recipient addresses. Envelope recipient
-addresses are passwd as an array reference.
+C<rcpt()> method is for checking envelope recipient addresses. Envelope recipient
+addresses are password as an array reference.
 
 =head3 Arguments
 
-=head4 B<Haineko::SMTPD::Response> object
+=head4 C<B<Haineko::SMTPD::Response>> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
 override D.S.N value by ->dsn(). Default SMTP status codes is 553, dsn is 5.7.1
 in this method.
 
-=head4 B<ENVELOPE_RECIPIENTS>
+=head4 C<B<ENVELOPE_RECIPIENTS>>
 
-Values defined in "rcpt" field in HTTP-POSTed JSON data, which should be the 
+Values defined in C<rcpt> field in HTTP POST JSON data, which should be the 
 valid email address.
 
 
-=head2 B<head( I<Haineko::SMTPD::Response>, I< { EMAIL_HEADER } > )>
+=head2 C<B<head( I<Haineko::SMTPD::Response>, I< { EMAIL_HEADER } > )>>
 
-head() method is for checking email header. Email header is passwd as an hash
-reference.
+C<head()> method is for checking email header. Email header is password as an
+hash reference.
 
 =head3 Arguments
 
-=head4 B<Haineko::SMTPD::Response> object
+=head4 C<B<Haineko::SMTPD::Response>> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
 override D.S.N value by ->dsn(). Default SMTP status codes is 554, dsn is 5.7.1
 in this method.
 
-=head4 B<EMAIL_HEADER>
+=head4 C<B<EMAIL_HEADER>>
 
-Values defined in "header" field in HTTP-POSTed JSON data.
+Values defined in "header" field in HTTP POST JSON data.
 
+=head2 C<B<body( I<Haineko::SMTPD::Response>, I< \EMAIL_BODY > )>>
 
-=head2 B<body( I<Haineko::SMTPD::Response>, I< \EMAIL_BODY > )>
-
-boby() method is for checking email body. Email body is passwd as an scalar
+C<boby()> method is for checking email body. Email body is password as an scalar
 reference.
 
 =head3 Arguments
 
-=head4 B<Haineko::SMTPD::Response> object
+=head4 C<B<Haineko::SMTPD::Response>> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
 override D.S.N value by ->dsn(). Default SMTP status codes is 554, dsn is 5.6.0
 in this method.
 
-=head4 B<EMAIL_BODY>
+=head4 C<B<EMAIL_BODY>>
 
-Value defined in "body" field in HTTP-POSTed JSON data.
-
+Value defined in "body" field in HTTP POST JSON data.
 
 =head1 SEE ALSO
 

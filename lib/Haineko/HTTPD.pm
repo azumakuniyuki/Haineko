@@ -209,27 +209,27 @@ wrapper methods of Plack::Request and Plack::Response.
 
 =head1 CLASS METHODS
 
-=head2 B<new( I<%argvs> )>
+=head2 C<B<new( I<%argvs> )>>
 
-new() is a constructor of Haineko::HTTPD, is called from start() method.
+C<new()> is a constructor of Haineko::HTTPD, is called from C<start()> method.
 
 =head2 B<start>
 
-start() is a constructor of Haineko::HTTPD, is called from psgi file.
+C<start()> is a constructor of Haineko::HTTPD, is called from psgi file.
 
 =head1 INSTANCE METHODS
 
-=head2 B<req>
+=head2 C<B<req>>
 
-req() method is a shortcut to Haineko::HTTPD::Request.
+C<req()> method is a shortcut to Haineko::HTTPD::Request.
 
-=head2 B<res>
+=head2 C<B<res>>
 
-res() method is a shortcut to Haineko::HTTPD::Response.
+C<res()> method is a shortcut to Haineko::HTTPD::Response.
 
-=head2 B<rdr( I<Code> I<URL> ])>
+=head2 C<B<rdr( I<Code> I<URL> ])>>
 
-rdr() method is for redirecting to the specified URL.
+C<rdr()> method is for redirecting to the specified URL.
 
 =head3 Arguments
 
@@ -240,9 +240,9 @@ HTTP status code for redirecting. If it is omitted, 302 will be used.
 =head4 B<URL> URL to redirect
 
 
-=head2 B<err( [ I<Code> [, I<Message>] ] )>
+=head2 C<B<err( [ I<Code> [, I<Message>] ] )>>
 
-err() method is for making error response and returns Haineko::HTTPD::Response object.
+C<err()> method is for making error response and returns Haineko::HTTPD::Response object.
 
 =head3 Arguments
 
@@ -255,9 +255,9 @@ HTTP status code for responding error. If it is omitted, 404 will be used.
 Error message. If it is omitted, 'Not Found' will be used.
 
 
-=head2 B<r>
+=head2 C<B<r>>
 
-r() method is a dispatcher to each controller, is called from Haineko->start().
+C<r()> method is a dispatcher to each controller, is called from C<Haineko->start().>
 
 =head1 SEE ALSO
 

@@ -59,9 +59,9 @@ the module is using JSON::Syck module.
 
 =head1 CLASS METHODS
 
-=head2 B<loadfile( I<File> )>
+=head2 C<B<loadfile( I<File> )>>
 
-loadfile() is a wrapper method for loading JSON from a file.
+C<loadfile()> is a wrapper method for loading JSON from a file.
 
     my $e = Haineko::JSON->loadfile( '/path/to/haineko.cf' );
     warn Dumper $e;
@@ -75,9 +75,9 @@ loadfile() is a wrapper method for loading JSON from a file.
 
     my $f = Haineko::JSON->loadfile( 'does-not-exist.json' );   # undef
 
-=head2 B<loadjson( I<JSON> )>
+=head2 C<B<loadjson( I<JSON> )>>
 
-loadjson() is a wrapper method for loading JSON from scalar value.
+C<loadjson()> is a wrapper method for loading JSON from scalar value.
 
     my $v = '{ "mikeneko": 1, "kijitora": 2 }'
     my $e = Haineko::JSON->loadjson( $v );
@@ -87,9 +87,9 @@ loadjson() is a wrapper method for loading JSON from scalar value.
         'kijitora' => 2,
     };
 
-=head2 B<dumpjson( I<HashRef|ArrayRef> )>
+=head2 C<B<dumpjson( I<HashRef|ArrayRef> )>>
 
-dumpjson() is a wrapper method for dumping JSON from perl data.
+C<dumpjson()> is a wrapper method for dumping JSON from perl data.
 
     my $v = { 'neko' => [ 'kijitora', 'mikeneko' ], 'home' => 'Kyoto' };
     my $e = Haineko::JSON->dumpjson( $v );

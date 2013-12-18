@@ -172,6 +172,7 @@ sub submit {
         }
 
         $emencoding = $head->{'charset'} // $head->{'Charset'} // 'UTF-8';
+        $head->{'subject'} //= q();
         utf8::decode $body unless utf8::is_utf8 $body;
         $recipients = $rcpt;
 

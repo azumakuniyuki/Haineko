@@ -171,12 +171,12 @@ __END__
 
 =head1 NAME
 
-Haineko::CLI::Password - Utility class for ``hainekoctl pw''
+Haineko::CLI::Password - Utility class for C<hainekoctl pw>
 
 =head1 DESCRIPTION
 
 Haineko::CLI::Password provide methods for generating a password used in Basic
-Authentication like ``htpasswd'' command of Apache.
+Authentication like C<htpasswd> command of Apache.
 
 =head1 SYNOPSIS
 
@@ -190,27 +190,27 @@ Authentication like ``htpasswd'' command of Apache.
 
 =head1 INSTANCE METHODS
 
-=head2 B<make()>
+=head2 C<B<make()>>
 
-make() method update the contents of Haineko/CLI/Setup/Data.pm for setting up
+C<make()> method update the contents of Haineko/CLI/Setup/Data.pm for setting up
 files of Haineko. This method will be used by Haineko author only.
 
     my $p = Haineko::CLI::Password->new();
     $p->parseoptions;
     print $p->make;
 
-=head2 B<validate()>
+=head2 C<B<validate()>>
 
-validate() is a validator of input password.
+C<validate()> is a validator of input password.
 
 =head2 B<parseoptions()>
 
-parseoptions() method parse options given at command line and returns the value
-of run-mode.
+C<parseoptions()> method parse options given at command line and returns the 
+value of run-mode.
 
-=head2 B<help()>
+=head2 C<B<help()>>
 
-help() prints help message of Haineko::CLI::Password for command line.
+C<help()> prints help message of Haineko::CLI::Password for command line.
 
 =head1 SEE ALSO
 

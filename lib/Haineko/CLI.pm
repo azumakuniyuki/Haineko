@@ -298,7 +298,7 @@ is 2 or higher.
 =head2 B<makepf()>
 
 C<makepf()> creates pid file at the value of C<pidfile> property of the instance.
-If the value of pidfile is not defined or is empty, pid file is not created.
+If the value of C<pidfile> is not defined or is empty, pid file is not created.
 
 =head2 B<readpf()>
 

@@ -130,15 +130,15 @@ address.
 
 =head1 CLASS METHODS
 
-=head2 B<new( 'address' => I<email-address> )>
+=head2 C<B<new( 'address' => I<email-address> )>>
 
-new() is a constructor of Haineko::SMTPD::Address
+C<new()> is a constructor of Haineko::SMTPD::Address
 
     my $e = Haineko::SMTPD::Address->new( 'address' => 'kijitora@example.jp' );
 
-=head2 B<canonify>( I<email-address> )
+=head2 C<B<canonify>( I<email-address> )>
 
-canonify() picks an email address only (remove a name and comments)
+C<canonify()> picks an email address only (remove a name and comments)
 
     my $e = HainekoSMTPD::::Address->canonify( 'Kijitora <kijitora@example.jp>' );
     my $f = HainekoSMTPD::::Address->canonify( '<kijitora@example.jp>' );
@@ -147,19 +147,19 @@ canonify() picks an email address only (remove a name and comments)
 
 =head1 INSTANCE METHODS
 
-=head2 B<damn>
+=head2 C<B<damn>>
 
-damn() returns instance data as a hash reference
+C<damn()> returns instance data as a hash reference
 
     my $e = Haineko::SMTPD::Address->new( 'address' => 'kijitora@example.jp' );
     my $f = $e->damn;
 
     print Data::Dumper::Dumper $f;
     $VAR1 = {
-          'user' => 'kijitora',
-          'host' => 'example.jp',
-          'address' => 'kijitora@example.jp'
-        };
+        'user' => 'kijitora',
+        'host' => 'example.jp',
+        'address' => 'kijitora@example.jp'
+    };
 
 =head1 REPOSITORY
 

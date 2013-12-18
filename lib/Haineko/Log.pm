@@ -174,9 +174,9 @@ Write log messages via UNIX syslog
 
 =head1 CLASS METHODS
 
-=head2 B<new( I<%arguments> )>
+=head2 C<B<new( I<%arguments> )>>
 
-new() is a constructor of Haineko::Log
+C<new()> is a constructor of Haineko::Log
 
     my $e = Haineko::Log->new(
             'queueid' => 'ID string',   # Haineko::SMTPD::Session->queueid
@@ -187,9 +187,9 @@ new() is a constructor of Haineko::Log
 
 =head1 INSTANCE METHODS
 
-=head2 B<w( I<log-level>, I<arg>)>
+=head2 C<B<w( I<log-level>, I<argument>)>>
 
-w() write log messages via UNIX syslog
+C<w()> write log messages via UNIX syslog
 
     my $e = Haineko:::Log->new( %argvs );
     my $m = { 'message' => 'error', 'cat' => 'kijitora' };

@@ -126,37 +126,37 @@ or each class.
 
 =head1 CLASS METHODS
 
-=head2 B<new()>
+=head2 C<B<new()>>
 
-new() is a constructor of Haineko::CLI::Help.
+C<new()> is a constructor of Haineko::CLI::Help.
 
     use Haineko::CLI::Help;
     my $d = Haineko::CLI::Help->new();
 
 =head1 INSTANCE METHODS
 
-=head2 B<mesg()>
+=head2 C<B<mesg()>>
 
-mesg() print help messages to STDERR.
+C<mesg()> print help messages to STDERR.
 
     $d->add( Haineko::CLI::Daemon->help('o'), 'option' );
     $d->add( Haineko::CLI::Daemon->help('s'), 'subcommand' );
     $d->add( [ 'Command example' ], 'example' );
     $d->mesg();
 
-=head2 B<add( [I<Messages>], I<type> )>
+=head2 C<B<add( [I<Messages>], I<type> )>>
 
-add() method add help messages into the object. The first argument should be an
-array reference, the second argument should be 'option' or 'subcommand' or 'example'.
+C<add()> method add help messages into the object. The first argument should be an
+array reference, the second argument should be 'option' or C<subcommand> or 'example'.
 
-=head2 B<parseoptions()>
+=head2 C<B<parseoptions()>>
 
-parseoptions() method parse options given at command line and returns the value
-of run-mode.
+C<parseoptions()> method parse options given at command line and returns the
+value of run-mode.
 
-=head2 B<help()>
+=head2 C<B<help()>>
 
-help() prints help message of Haineko::CLI::Help for command line.
+C<help()> prints help message of Haineko::CLI::Help for command line.
 
 =head1 SEE ALSO
 

@@ -206,7 +206,7 @@ __END__
 
 =head1 NAME
 
-HainekoSMTPD::::Relay::AmazonSES - Amazon SES API class for sending email
+Haineko::SMTPD::Relay::AmazonSES - Amazon SES API class for sending email
 
 =head1 DESCRIPTION
 
@@ -241,9 +241,9 @@ Send an email to a recipient via Amazon SES using API.
 
 =head1 CLASS METHODS
 
-=head2 B<new( I<%arguments> )>
+=head2 C<B<new( I<%arguments> )>>
 
-new() is a constructor of HainekoSMTPD::::Relay::AmazonSES
+C<new()> is a constructor of Haineko::SMTPD::Relay::AmazonSES
 
     my $e = Haineko::SMTPD::Relay::AmazonSES->new( 
             'username' => 'username',       # API Access Key ID for AmazonSES
@@ -263,9 +263,9 @@ new() is a constructor of HainekoSMTPD::::Relay::AmazonSES
 
 =head1 INSTANCE METHODS
 
-=head2 B<sendmail>
+=head2 C<B<sendmail>>
 
-sendmail() will send email to the specified recipient(rcpt) via specified host.
+C<sendmail()> will send email to the specified recipient via specified host.
 
     my $e = Haineko::SMTPD::Relay::AmazonSES->new( %argvs );
     print $e->sendmail;         # 0 = Failed to send, 1 = Successfully sent

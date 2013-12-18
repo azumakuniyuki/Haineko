@@ -314,9 +314,9 @@ Send an email to a recipient via Mandrill using Web API.
 
 =head1 CLASS METHODS
 
-=head2 B<new( I<%arguments> )>
+=head2 C<B<new( I<%arguments> )>>
 
-new() is a constructor of Haineko::SMTPD::Relay::Mandrill
+C<new()> is a constructor of Haineko::SMTPD::Relay::Mandrill
 
     my $e = Haineko::SMTPD::Relay::Mandrill->new( 
             'username' => 'username',       # API User for Mandrill
@@ -336,18 +336,18 @@ new() is a constructor of Haineko::SMTPD::Relay::Mandrill
 
 =head1 INSTANCE METHODS
 
-=head2 B<sendmail>
+=head2 C<B<sendmail>>
 
-sendmail() will send email to the specified recipient(rcpt) via specified host.
+C<sendmail()> will send email to the specified recipient via specified host.
 
     my $e = Haineko::SMTPD::Relay::Mandrill->new( %argvs );
     print $e->sendmail; # 0 = Failed to send, 1 = Successfully sent
 
     print Dumper $e->response; # Dumps Haineko::SMTPD::Response object
 
-=head2 B<getbounce>
+=head2 C<B<getbounce>>
 
-getbounce() retrieve bounced records using Mandrill API.
+C<getbounce()> retrieve bounced records using Mandrill API.
 
     my $e = Haineko::SMTPD::Relay::Mandrill->new( %$argvs );
     print $e->getbounce;    # 0 = No bounce or failed to retrieve

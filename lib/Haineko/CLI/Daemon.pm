@@ -404,9 +404,9 @@ stop, reload, and restart server.
 
 =head1 INSTANCE METHODS
 
-=head2 B<run()>
+=head2 C<B<run()>>
 
-run() method starts haineko server
+C<run()> method starts haineko server
 
     my $p = { 'pidfile' => '/tmp/haineko.pid' };
     my $e = Haineko::CLI::Daemon->new( %$p );
@@ -414,21 +414,21 @@ run() method starts haineko server
     $e->parseoptions;
     $e->run;
 
-=head2 B<ctrl( I<action> )>
+=head2 C<B<ctrl( I<action> )>>
 
-ctrl() is a method for controlling haineko server process. ctrl('start') calls
-run() method, ctrl('stop') stops running haineko server, ctrl('reload') sends
-``USR1'' signal to the server, and ctrl('restart') sends ``HUP'' signal to the
-server.
+C<ctrl()> is a method for controlling haineko server process. C<ctrl('start')>
+calls C<run()> method, C<ctrl('stop')> stops running haineko server, C<ctrl('reload')>
+sends C<USR1> signal to the server, and C<ctrl('restart')> sends C<HUP> signal 
+to the server.
 
-=head2 B<parseoptions()>
+=head2 C<B<parseoptions()>>
 
-parseoptions() method parse options given at command line and returns the value
-of run-mode.
+C<parseoptions()> method parse options given at command line and returns the
+value of run-mode.
 
-=head2 B<help()>
+=head2 C<B<help()>>
 
-help() prints help message of Haineko::CLI::Daemon for command line.
+C<help()> prints help message of Haineko::CLI::Daemon for command line.
 
 =head1 SEE ALSO
 

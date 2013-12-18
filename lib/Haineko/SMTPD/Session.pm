@@ -264,9 +264,9 @@ Haineko server.
 
 =head1 CLASS METHODS
 
-=head2 B<new( I<%arguments> )>
+=head2 C<B<new( I<%arguments> )>>
 
-new() is a constructor of Haineko::SMTPD::Session
+C<new()> is a constructor of Haineko::SMTPD::Session
 
     my $e = Haineko::SMTPD::Session->new( 
             'useragent' => $self->req->headers->user_agent,
@@ -276,9 +276,9 @@ new() is a constructor of Haineko::SMTPD::Session
             'recipient' => [ 'neko@example.org', 'cat@example.com' ],
     );
 
-=head2 B<load( I<Hash reference> )>
+=head2 C<B<load( I<Hash reference> )>>
 
-load() is also a constructor of Haineko::SMTPD::Session. 
+C<load()> is also a constructor of Haineko::SMTPD::Session. 
 
     my $v = {
         'queueid' => 'r64CvGQ21769QslMmPPuD2jC',
@@ -289,20 +289,19 @@ load() is also a constructor of Haineko::SMTPD::Session.
     print $e->queueid;              # r64CvGQ21769QslMmPPuD2jC
     print $e->addresser->address;   # kijitora@example.jp
 
-=head2 B<make_queueid>
+=head2 C<B<make_queueid>>
 
-make_queueid() generate a queue id string.
+C<make_queueid()> generate a queue id string.
+
     print Haineko::SMTPD::Session->make_queueid;   # r64IHFV22109f8KATxdNDSj7
     print Haineko::SMTPD::Session->make_queueid;   # r64IHJP22111Q9PCwpWX1Pd0
     print Haineko::SMTPD::Session->make_queueid;   # r64IHV622112od227ioJMxhh
 
-
-
 =head1 INSTANCE METHODS
 
-=head2 B<r( I<SMTP command>, I<Error type> [,I<Message>] )>
+=head2 C<B<r( I<SMTP command>, I<Error type> [,I<Message>] )>>
 
-r() sets Haineko::SMTPD::Response object from a SMTP Command and an error type.
+C<r()> sets Haineko::SMTPD::Response object from a SMTP Command and an error type.
 
     my $e = Haineko::SMTPD::Session->new( ... );
     print $e->response->dsn;    # undef
@@ -311,9 +310,9 @@ r() sets Haineko::SMTPD::Response object from a SMTP Command and an error type.
     print $e->response->dsn;    # 5.7.1
     print $e->response->code;   # 553
 
-=head2 B<damn>
+=head2 C<B<damn>>
 
-damn() returns instance data as a hash reference
+C<damn()> returns instance data as a hash reference
 
     warn Data::Dumper::Dumper $e;
     $VAR1 = {

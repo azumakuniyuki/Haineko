@@ -78,26 +78,26 @@ wrapper methods.
 
 =head1 CLASS METHODS
 
-=head2 B<mime( I<Type> )>
+=head2 C<B<mime( I<Type> )>>
 
-mime() returns the value of "Content-Type" header for the argument. For example,
-mime('json') returns 'application/json', mime('text') returns 'text/plain'.
+C<mime()> returns the value of "Content-Type" header for the argument. For example,
+C<mime('json')> returns 'application/json', C<mime('text')> returns 'text/plain'.
 
 =head1 INSTANCE METHODS
 
-=head2 B<text( I<Code>, I<Content> )>
+=head2 C<B<text( I<Code>, I<Content> )>>
 
-text() is a wrapper method for _res() method to respond 'text/plain' content.
+C<text()> is a wrapper method for C<_res()> method to respond 'text/plain' content.
 
-=head2 B<json( I<Code>, I<ArrayRef|HashRef> )>
+=head2 C<B<json( I<Code>, I<ArrayRef|HashRef> )>>
 
-json() is a wrapper metod for _res() method to respond 'application/json' content.
-The 2nd argument will be converted to JSON as a string automatically.
+C<json()> is a wrapper method for C<_res()> method to respond 'application/json'
+content. The 2nd argument will be converted to JSON as a string automatically.
 
-=head2 B<_res( I<Content>, I<Type> )>
+=head2 C<B<_res( I<Content>, I<Type> )>>
 
-_res() is wrapper method for responding. For example _res( 'Nyaaa', 'text' ) or
-_res( { 'neko': 2 }, 'json' ).
+C<_res()> is wrapper method for responding. For example C<_res( 'Nyaaa', 'text' )>
+or C<_res( { 'neko': 2 }, 'json' )>.
 
 =head1 SEE ALSO
 

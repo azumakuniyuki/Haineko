@@ -397,17 +397,18 @@ and SMTP command.
 
 =head1 CLASS METHODS
 
-=head2 B<new( I<%arguments> )>
+=head2 C<B<new( I<%arguments> )>>
 
-new() is a constructor of Haineko::SMTPD::Response
+C<new()> is a constructor of Haineko::SMTPD::Response
 
-=head2 B<r( I<SMTP Command>, I<Error type> )>
+=head2 C<B<r( I<SMTP Command>, I<Error type> )>>
 
-r() creates an Haineko::SMTPD::Response object from specified SMTP command and error type.
+C<r()> creates an Haineko::SMTPD::Response object from specified SMTP command 
+and error type.
 
-=head2 B<p( I<%arguments> )>
+=head2 C<B<p( I<%arguments> )>>
 
-p() creates an Haineko::SMTPD::Response object from SMTP response message.
+C<p()> creates an Haineko::SMTPD::Response object from SMTP response message.
 
     my $v = { 'command' => 'MAIL', message => [ '552 5.2.2 Mailbox full' ] };
     my $f = Haineko::SMTPD::Response->p( %$v );
@@ -422,17 +423,17 @@ p() creates an Haineko::SMTPD::Response object from SMTP response message.
 
 =head1 INSTANCE METHODS
 
-=head2 B<mesg>
+=head2 C<B<mesg>>
 
-mesg() add messages to the instance->message
+C<mesg()> add messages to the instance->message
 
     my $f = Haineko::SMTPD::Response->new();
     my $v = [ 'new message1', 'new message2' ];
     $f->m( $v );
 
-=head2 B<damn>
+=head2 C<B<damn>>
 
-damn() returns instance data as a hash reference
+C<damn()> returns instance data as a hash reference
 
     my $v = { 'command' => 'DATA', message => [ '551 5.7.1 Refused' ] };
     my $f = Haineko::SMTPD::Response->p( %$v );

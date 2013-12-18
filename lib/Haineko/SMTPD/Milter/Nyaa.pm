@@ -49,23 +49,22 @@ using Acme::Nyaa module.
 
     print $e;   # 猫がかわいいニャー
 
-=head2 B<body( I<Haineko::SMTPD::Response>, I< \EMAIL_BODY > )>
+=head2 C<B<body( I<Haineko::SMTPD::Response>, I< \EMAIL_BODY > )>>
 
-body() method is for writing email body using Acme::Nyaa.
+C<body()> method is for writing email body using Acme::Nyaa.
 
 =head3 Arguments
 
-=head4 B<Haineko::SMTPD::Response> object
+=head4 C<B<Haineko::SMTPD::Response>> object
 
 If your milter program rejects a message, set 1 by ->error(1), set error message
 by ->message( [ 'Error message' ]), and override SMTP status code by ->code(), 
 override D.S.N value by ->dsn(). Default SMTP status codes is 554, dsn is 5.6.0
 in this method.
 
-=head4 B<EMAIL_BODY>
+=head4 C<B<EMAIL_BODY>>
 
-Value defined in "body" field in HTTP-POSTed JSON data.
-
+Value defined in "body" field in HTTP POST JSON data.
 
 =head1 SEE ALSO
 

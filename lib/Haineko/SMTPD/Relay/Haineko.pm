@@ -173,9 +173,9 @@ Send an email from Haineko to other Haineko server using HTTP.
 
 =head1 CLASS METHODS
 
-=head2 B<new( I<%arguments> )>
+=head2 C<B<new( I<%arguments> )>>
 
-new() is a constructor of Haineko::SMTPD::Relay::Haineko
+C<new()> is a constructor of Haineko::SMTPD::Relay::Haineko
 
     my $e = Haineko::SMTPD::Relay::Haineko->new( 
             'host' => '192.0.2.1',          # Other Haineko server
@@ -199,9 +199,9 @@ new() is a constructor of Haineko::SMTPD::Relay::Haineko
 
 =head1 INSTANCE METHODS
 
-=head2 B<sendmail>
+=head2 C<B<sendmail>>
 
-sendmail() will send email to the specified recipient(rcpt) via specified host.
+C<sendmail()> will send email to the specified recipient via specified host.
 
     my $e = Haineko::SMTPD::Relay::Haineko->new( %argvs );
     print $e->sendmail;         # 0 = Failed to send, 1 = Successfully sent

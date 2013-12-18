@@ -142,8 +142,8 @@ Haineko::DNS - Tiny resolver class
 
 =head1 DESCRIPTION
 
-Haineko::DNS provide methods for resolving internet domain such as A, MX, NS, and
-TXT resource record.
+Haineko::DNS provide methods for resolving internet domain such as A, MX, NS, 
+and TXT resource record.
 
 =head1 SYNOPSIS
 
@@ -153,9 +153,9 @@ TXT resource record.
 
 =head1 CLASS METHODS
 
-=head2 B<new( I<Domain Name> )>
+=head2 C<B<new( I<Domain Name> )>>
 
-new() is a constructor of Haineko::DNS
+C<new()> is a constructor of Haineko::DNS
 
     use Haineko::DNS;
     my $e = Haineko::DNS->new('example.org');
@@ -205,9 +205,9 @@ new() is a constructor of Haineko::DNS
 
 =head1 INSTANCE METHODS
 
-=head2 B<resolve(I<Type>)>
+=head2 C<B<resolve(I<Type>)>>
 
-resolve() set resource records of specified type into the object .
+C<resolve()> set resource records of specified type into the object .
 
     use Haineko::DNS;
     my $e = Haineko::DNS->new('example.org');
@@ -217,9 +217,9 @@ resolve() set resource records of specified type into the object .
     print for @$v;      # 93.184.216.119
     print for @$w;      # 
 
-=head2 B<rr(I<Type>)>
+=head2 C<B<rr(I<Type>)>>
 
-rr() returns the list of resource records as an array reference
+C<rr()> returns the list of resource records as an array reference
 
     use Haineko::DNS;
     my $e = Haineko::DNS->new('gmail.com');
@@ -233,21 +233,21 @@ rr() returns the list of resource records as an array reference
     $v = $e->rr('A');
     print for @$v;  # 207.171.7.53, 207.171.7.43
 
-=head2 B<arr()>
+=head2 C<B<arr()>>
 
-arr() is an alias for rr('A');
+C<arr()> is an alias for C<rr('A');>
 
-=head2 B<mxrr()>
+=head2 C<B<mxrr()>>
 
-mxrr() is an alias for rr('MX');
+C<mxrr()> is an alias for C<rr('MX');>
 
-=head2 B<nsrr()>
+=head2 C<B<nsrr()>>
 
-nsrr() is an alias for rr('NS');
+C<nsrr()> is an alias for C<rr('NS');>
 
-=head2 B<txtrr()>
+=head2 C<B<txtrr()>>
 
-txtrr() is an alias for rr('TXT');
+C<txtrr()> is an alias for C<rr('TXT');>
 
 =head1 REPOSITORY
 

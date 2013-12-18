@@ -257,9 +257,9 @@ Send an email to a recipient via SendGrid using Web API.
 
 =head1 CLASS METHODS
 
-=head2 B<new( I<%arguments> )>
+=head2 C<B<new( I<%arguments> )>>
 
-new() is a constructor of Haineko::SMTPD::Relay::SendGrid
+C<new()> is a constructor of Haineko::SMTPD::Relay::SendGrid
 
     my $e = Haineko::SMTPD::Relay::SendGrid->new( 
             'username' => 'username',       # API User for SendGrid
@@ -279,18 +279,18 @@ new() is a constructor of Haineko::SMTPD::Relay::SendGrid
 
 =head1 INSTANCE METHODS
 
-=head2 B<sendmail>
+=head2 C<B<sendmail>>
 
-sendmail() will send email to the specified recipient(rcpt) via specified host.
+C<sendmail()> will send email to the specified recipient via specified host.
 
     my $e = Haineko::SMTPD::Relay::SendGrid->new( %argvs );
     print $e->sendmail; # 0 = Failed to send, 1 = Successfully sent
 
     print Dumper $e->response; # Dumps Haineko::SMTPD::Response object
 
-=head2 B<getbounce>
+=head2 C<B<getbounce>>
 
-getbounce() retrieve bounced records using SendGrid API.
+C<getbounce()> retrieve bounced records using SendGrid API.
 
     my $e = Haineko::SMTPD::Relay::SendGrid->new( %$argvs );
     print $e->getbounce;    # 0 = No bounce or failed to retrieve

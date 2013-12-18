@@ -99,9 +99,9 @@ Haineko::SMTPD::Greeting - Create an EHLO response object
 
 =head1 CLASS METHODS
 
-=head2 B<new( I<@{EHLO Response lines}> )>
+=head2 C<B<new( I<@{EHLO Response lines}> )>>
 
-new() is a constructor of Haineko::SMTPD::Greeting
+C<new()> is a constructor of Haineko::SMTPD::Greeting
 
     my $r = [ 
         '250-PIPELINING', '250-DSN', '250-STARTTLS', '250-SIZE 26214400',
@@ -111,9 +111,9 @@ new() is a constructor of Haineko::SMTPD::Greeting
 
 =head1 INSTANCE METHODS
 
-=head2 B<mechs( I<SMTP-AUTH MECHANISM>) >
+=head2 C<B<mechs( I<SMTP-AUTH MECHANISM>) >>
 
-mechs() returns whether specified SMTP-AUTH mechanism is available or not.
+C<mechs()> returns whether specified SMTP-AUTH mechanism is available or not.
 
     print $g->mechs( 'CRAM-MD5' );      # 1
     print $g->mechs( 'LOGIN' );         # 0

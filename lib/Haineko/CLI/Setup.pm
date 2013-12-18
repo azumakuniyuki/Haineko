@@ -295,30 +295,30 @@ script.
 
 =head1 INSTANCE METHODS
 
-=head2 B<make()>
+=head2 C<B<make()>>
 
-make() method update the contents of Haineko/CLI/Setup/Data.pm for setting up
+C<make()> method update the contents of Haineko/CLI/Setup/Data.pm for setting up
 files of Haineko. This method will be used by Haineko author only.
 
     my $s = Haineko::CLI::Setup->new();
     $s->parseoptions;
     $s->make;
 
-=head2 B<init()>
+=head2 C<B<init()>>
 
-init() method copy files for Haineko to the current directory. The source of files
-are extracted from Haineko::CLI::Setup::Data::DATA section as a BASE64 encoded 
+C<init()> method copy files for Haineko to the current directory. The source of
+files are extracted from Haineko::CLI::Setup::Data::DATA section as a BASE64 encoded 
 test, and configuration files and psgi file are copied to the current directory
-or the directory specified with ``--dest'' option of hainekoctl script.
+or the directory specified with C<--dest> option of C<hainekoctl> script.
 
-=head2 B<parseoptions()>
+=head2 C<B<parseoptions()>>
 
-parseoptions() method parse options given at command line and returns the value
+C<parseoptions()> method parse options given at command line and returns the value
 of run-mode.
 
-=head2 B<help()>
+=head2 C<B<help()>>
 
-help() prints help message of Haineko::CLI::Setup for command line.
+C<help()> prints help message of Haineko::CLI::Setup for command line.
 
 =head1 SEE ALSO
 
