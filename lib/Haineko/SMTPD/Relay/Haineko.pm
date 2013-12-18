@@ -35,7 +35,7 @@ sub sendmail {
     };
 
     if( $self->{'head'}->{'Reply-To'} ) {
-        $parameters->{'header'}->{'reply-to'} = $self->{'head'}->{'Reply-To'};
+        $parameters->{'header'}->{'replyto'} = $self->{'head'}->{'Reply-To'};
     }
 
     my $jsonstring = Haineko::JSON->dumpjson( $parameters );
