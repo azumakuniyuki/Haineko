@@ -131,6 +131,7 @@ my $jsondata = {
             'rcpt' => [
                 'haineko@'.$hostname,
             ],
+            'header' => { 'subject' => 'make test' },
         },
         'code' => 500, 'dsn' => '5.6.0', 'status' => 400, 'command' => 'DATA',
         'message' => 'Message body is empty',
@@ -143,7 +144,8 @@ my $jsondata = {
             'rcpt' => [
                 'haineko@'.$hostname,
             ],
-            'body' => '猫が出た'
+            'body' => '猫が出た',
+            'header' => { 'subject' => '' },
         },
         'code' => 500, 'dsn' => '5.6.0', 'status' => 400, 'command' => 'DATA',
         'message' => 'Subject header is empty',
