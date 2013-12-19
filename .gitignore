@@ -1,18 +1,8 @@
-/dist
-/eg/org
-/eg/*.class
-/etc/*-debug
-/log
-/nytprof.out
-/nytprof
-/run
-/tmp
-/templates/
-
-/.build/
-/_build/
-/Build
-/blib
+dist
+.build/
+_build/
+Build
+blib
 cover_db/
 *.bak
 *.old
@@ -20,10 +10,28 @@ cover_db/
 *.swp
 *.o
 *.obj
-/carton.lock
-/.carton/
-/local/
 MYMETA.*
+
+# Files under development
 /Haineko-*
 lib/Haineko/SMTPD/Relay/MailChimp.pm
 lib/Haineko/SMTPD/Relay/Mirror.pm
+/etc/*-debug
+/log
+/run
+/tmp
+
+# Carton related files and directories
+/carton.lock
+/.carton/
+/local/
+
+# Devel::NYTProf related files and directories
+nytprof.out
+nytprof*
+report
+
+# Java packages and class files
+/eg/org
+/eg/*.class
+
