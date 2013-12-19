@@ -41,7 +41,11 @@ my $hainekoapp = builder {
         next unless $r;
         if( exists $plackargvs->{ $e } ) {
             # Enable Plack-Middleware with arguments
-            enable $e, %{ $plackargvs->{ $e } };
+            if( ref $plackargvs->{ $e } eq 'HASH' ) {
+                enable $e, %{ $plackargvs->{ $e } };
+            } else {
+                enable $e, $plackargvs->{ $e };
+            }
         } else {
             # Enable Plack-Middleware
             enable $e;
