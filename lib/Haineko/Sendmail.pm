@@ -147,12 +147,12 @@ sub submit {
     try { 
         # Load email data as a JSON
         $exceptions = 0;
-        $json   = Haineko::JSON->loadjson( $httpd->req->content );
-        $ehlo //= $json->{'ehlo'} // $json->{'helo'} // q();
-        $mail //= $json->{'mail'} // $json->{'send'} // $json->{'from'} // q();
-        $rcpt //= $json->{'rcpt'} // $json->{'recv'} // $json->{'to'} // [];
-        $body //= $json->{'body'} // q();
-        $head //= {};
+        $json = Haineko::JSON->loadjson( $httpd->req->content );
+        $ehlo = $json->{'ehlo'} // $json->{'helo'} // q();
+        $mail = $json->{'mail'} // $json->{'send'} // $json->{'from'} // q();
+        $rcpt = $json->{'rcpt'} // $json->{'recv'} // $json->{'to'}   // [];
+        $body = $json->{'body'} // q();
+        $head = {};
 
         for my $e ( @$headerlist ) {
             # Load each email header
