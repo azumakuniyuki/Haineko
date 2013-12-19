@@ -104,15 +104,7 @@ sub submit {
         if( not $relayhosts->{'open-relay'} ) {
             # When the value of ``openrelay'' is defined as ``0'' in etc/relayhosts,
             # Only permitted host can send an email.
-            if( not defined $ip4network ) {
-                # Code in this block might not be used...
-                $esresponse = $responsecn->r( 'auth', 'no-checkrelay' );
-                $tmpsession->add_response( $esresponse );
-                $nekosyslog->w( 'err', $esresponse->damn );
-
-                return $httpd->res->json( 403, $tmpsession->damn );
-
-            } elsif( not $ip4network->find( $remoteaddr ) ) {
+            if( not $ip4network->find( $remoteaddr ) ) {
                 # The remote address or the remote network is not listed in 
                 # etc/relayhosts.
                 $esresponse = $responsecn->r( 'auth', 'access-denied' );
