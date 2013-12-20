@@ -55,6 +55,8 @@ push:
 
 clean:
 	yes | $(MINIL) clean
+	$(RM) -r nytprof*
+	$(RM) -r cover_db
 	$(RM) -r ./build
 	for F in authinfo haineko.cf mailertable password recipients relayhosts sendermt; do \
 		$(RM) etc/$$F; \
