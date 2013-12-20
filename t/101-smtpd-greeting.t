@@ -17,6 +17,7 @@ can_ok $testobject, @$objmethods;
 INSTANCE_METHODS: {
 
     my $o = new $modulename( @$ehlogreets );
+    my $v = undef;
 
     is $o->dsn, 1, '->dsn => 1';
     ok $o->size, '->size => '.$o->size;
@@ -27,6 +28,10 @@ INSTANCE_METHODS: {
     like $o->greeting, qr/kijitora/, '->greeting => '.$o->greeting;
     isnt $o->starttls, 1, '->starttls => undef';
     is $o->pipelining, 1, '->pipelining => 1';
+
+    is $o->mechs, 0;
+    is $o->mechs('NEKO'), 0;
+    is $o->mechs('PLAIN'), 1;
 }
 
 done_testing;
