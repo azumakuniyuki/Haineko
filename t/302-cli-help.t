@@ -5,7 +5,7 @@ use Haineko::CLI::Help;
 use Test::More;
 
 my $modulename = 'Haineko::CLI::Help';
-my $pkgmethods = [ 'new', 'version', 'witch' ];
+my $pkgmethods = [ 'new', 'version', 'which' ];
 my $objmethods = [ 
     'stdin', 'stdout', 'stderr', 'r', 'v', 'e', 'p',
     'makepf', 'readpf', 'removepf', 'add',
@@ -20,7 +20,7 @@ can_ok $modulename, @$pkgmethods;
 can_ok $testobject, @$objmethods;
 
 CLASS_METHODS: {
-    ok( $modulename->witch('ls') );
+    ok( $modulename->which('ls') );
 }
 
 INSTANCE_METHODS: {

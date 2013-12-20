@@ -5,7 +5,7 @@ use Haineko::CLI::Daemon;
 use Test::More;
 
 my $modulename = 'Haineko::CLI::Daemon';
-my $pkgmethods = [ 'options', 'default', 'new', 'version', 'witch' ];
+my $pkgmethods = [ 'options', 'default', 'new', 'version', 'which' ];
 my $objmethods = [ 
     'stdin', 'stdout', 'stderr', 'r', 'v', 'e', 'p',
     'makepf', 'readpf', 'removepf', 'run', 'ctrl',
@@ -21,7 +21,7 @@ can_ok $modulename, @$pkgmethods;
 can_ok $testobject, @$objmethods;
 
 CLASS_METHODS: {
-    ok( $modulename->witch('ls') );
+    ok( $modulename->which('ls') );
     my $v = undef;
 
     $v = $modulename->options;

@@ -122,11 +122,11 @@ sub run {
         # Status file is saved in the same directory of pid file.
         my $s = $self->{'pidfile'}; $s =~ s|[.]pid|.status|;
 
-        unshift @$plackuparg, __PACKAGE__->witch('plackup');
+        unshift @$plackuparg, __PACKAGE__->which('plackup');
         push @$plackuparg, '--daemonize';
 
         $commandarg .= 'nohup ';
-        $commandarg .= __PACKAGE__->witch('start_server');
+        $commandarg .= __PACKAGE__->which('start_server');
         $commandarg .= ' --port='.$p->{'port'};
         $commandarg .= ' --pid-file='.$self->{'pidfile'};
         $commandarg .= ' --status-file='.$s;
