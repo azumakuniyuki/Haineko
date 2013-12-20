@@ -252,7 +252,7 @@ Haineko::CLI is a base class for command line interface of Haineko.
 
 =head1 CLASS METHODS
 
-=head2 B<new( I<%arguments> )>
+=head2 C<B<new( I<%arguments> )>>
 
 C<new()> is a constructor of Haineko::CLI::Daemon
 
@@ -265,13 +265,25 @@ C<new()> is a constructor of Haineko::CLI::Daemon
             'pidfile' => '/tmp/pid',# process id file
     );
 
-=head2 B<version>
+=head2 C<B<version>>
 
 C<version()> returns the version number of Haineko.
 
-=head2 B<which( I<command-name> )>
+=head2 C<B<which( I<command-name> )>>
 
 C<which()> has the same feature of UNIX-command ``which''.
+
+=head2 C<B<stdin>>
+
+C<stdin()> ruturns the result of C<-t STDIN>.
+
+=head2 C<B<stdout>>
+
+C<stdout()> ruturns the result of C<-t STDOUT>.
+
+=head2 C<B<stderr>>
+
+C<stderr()> ruturns the result of C<-t STDERR>.
 
 =head1 INSTANCE METHODS
 
