@@ -26,6 +26,9 @@ lib/Haineko/SMTPD/Relay/Mirror.pm
 /.carton/
 /local/
 
+# Devel::Cover related files and directories
+cover_db
+
 # Devel::NYTProf related files and directories
 nytprof.out
 nytprof*
