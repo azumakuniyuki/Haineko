@@ -14,6 +14,7 @@ can_ok $modulename, @$pkgmethods;
 can_ok $testobject, @$objmethods;
 
 CLASS_METHODS: {
+    my $v = undef;
     my $emailaddrs = [
         q{"neko" <neko@example.jp>},
         q{"=?ISO-2022-JP?B?dummy?=" <neko@example.jp>},
@@ -38,7 +39,14 @@ CLASS_METHODS: {
         q{[neko@example.jp]},
         q|{neko@example.jp}|,
         q{&lt;neko@example.jp&gt;},
+        q{neko@example.jp},
     ];
+
+    $v = $modulename->new( 'address' => undef ); is $v, undef;
+    $v = $modulename->new( 'address' => 'cat' ); is $v, undef;
+
+    $v = $modulename->canonify(undef); is $v, q();
+    $v = $modulename->canonify(['1']); is $v, q();
 
     for my $e ( @$emailaddrs ) {
 
