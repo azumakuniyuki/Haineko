@@ -8,7 +8,7 @@ my $modulename = 'Haineko::CLI::Help';
 my $pkgmethods = [ 'new', 'version', 'which' ];
 my $objmethods = [ 
     'stdin', 'stdout', 'stderr', 'r', 'v', 'e', 'p',
-    'makepf', 'readpf', 'removepf', 'add',
+    'makepf', 'readpf', 'removepf', 'add', 'mesg',
 ];
 my $testobject = $modulename->new( 
     'verbose' => 2,
@@ -20,7 +20,7 @@ can_ok $modulename, @$pkgmethods;
 can_ok $testobject, @$objmethods;
 
 CLASS_METHODS: {
-    ok( $modulename->which('ls') );
+    ok $modulename->which('ls');
 }
 
 INSTANCE_METHODS: {
@@ -31,7 +31,15 @@ INSTANCE_METHODS: {
 
         $testobject->add( [ 'neko' => 'nyaa' ], $e );
         is( scalar @{ $testobject->params->{ $e } }, 2 );
+
+        $testobject->add( [ 'nyaa' => 'neko' ], substr($e,0,1) );
+        is( scalar @{ $testobject->params->{ $e } }, 4 );
     }
+
+    isa_ok $testobject->add( [ 'mike' => 'neko' ], 'cat' ), 'HASH';
+    isa_ok $testobject->add(undef), 'HASH';
+    isa_ok $testobject->add('cat'), 'HASH';
+    isa_ok $testobject->add( {} ),  'HASH';
 }
 
 done_testing;
