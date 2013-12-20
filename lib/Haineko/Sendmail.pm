@@ -18,8 +18,8 @@ sub submit {
     my $serverconf = $httpd->{'conf'}->{'smtpd'};
     my $defaultset = Haineko::Default->conf;
     my $responsecn = 'Haineko::SMTPD::Response';
-    my $responsejk = 'response';    # Response json key name
-    my $exceptions = 0;             # Flag, be set in try {...} catch { ... }
+    my $responsejk = 'response';    # (String) Response json key name
+    my $exceptions = 0;             # (Integer) Flag, be set in try {...} catch { ... }
     my $tmpsession = undef;         # (Haineko::SMTPD::Session) Temporary session object
 
     # Create a queue id (session id)
@@ -194,7 +194,7 @@ sub submit {
                 # "header": { ..., "x-haineko-loop": [] }, 
                 if( grep { $serverconf->{'servername'} eq $_ } @$v ) {
                     # DETECTED LOOP:
-                    # The message has already passed this Haineko
+                    # THE MESSAGE HAS ALREADY PASSED THIS Haineko
                     $esresponse = $responsecn->r( 'conn', 'detect-loop' );
                     $tmpsession->add_response( $esresponse );
                     $nekosyslog->w( 'err', $esresponse->damn );
@@ -247,7 +247,6 @@ sub submit {
 
             for my $e ( @{ Haineko::SMTPD::Milter->import( $milterlibs ) } ) {
                 # Check the EHLO value with ehlo() method of each milter
-                #
                 $mfresponse = $responsecn->new( 'code' => 521, 'command' => 'EHLO' );
                 last if not $e->ehlo( $mfresponse, $remotehost, $remoteaddr );
             }
@@ -262,6 +261,7 @@ sub submit {
             }
         } # End of ``XXFI_HELO''
         $tmpsession->ehlo(1);
+
     } # End of ``EHLO''
 
     MAIL_FROM: {
@@ -273,7 +273,7 @@ sub submit {
         #                                                      
         # Check the envelope sender address
         if( not length $mail ) {
-            # The address is empty: { "mail": '', ... }
+            # The envelope sender address is empty: { "mail": '', ... }
             $esresponse = $responsecn->r( 'mail', 'syntax-error' );
             $tmpsession->add_response( $esresponse );
             $nekosyslog->w( 'err', $esresponse->damn );
@@ -281,7 +281,7 @@ sub submit {
             return $httpd->res->json( 400, $tmpsession->damn );
 
         } elsif( not Haineko::SMTPD::RFC5322->is_emailaddress( $mail ) ) {
-            # The address is not valid: { "mail": 'neko', ... }
+            # The envelope sender address is not valid: { "mail": 'neko', ... }
             $esresponse = $responsecn->r( 'mail', 'domain-required' );
             $tmpsession->add_response( $esresponse );
             $nekosyslog->w( 'err', $esresponse->damn );
@@ -289,7 +289,7 @@ sub submit {
             return $httpd->res->json( 400, $tmpsession->damn );
 
         } elsif( Haineko::SMTPD::RFC5321->is8bit( \$mail ) ) {
-            # The address includes multi-byte character
+            # The envelope sender address includes multi-byte character
             $esresponse = $responsecn->r( 'mail', 'non-ascii' );
             $tmpsession->add_response( $esresponse );
             $nekosyslog->w( 'err', $esresponse->damn );
@@ -344,8 +344,8 @@ sub submit {
         if( $xrecipient && $xrecipient > 0 ) {
 
             if( scalar @$recipients > $xrecipient ) {
-                # The number of recipients exceeded ``max_rcpts_per_message'' 
-                # value defined in etc/haineko.cf
+                # The number of recipients exceeded the value of ``max_rcpts_per_message'' 
+                # defined in etc/haineko.cf
                 $esresponse = $responsecn->r( 'rcpt', 'too-many-recipients' );
                 $tmpsession->add_response( $esresponse );
                 $nekosyslog->w( 'err', $esresponse->damn );
@@ -361,15 +361,15 @@ sub submit {
             for my $e ( @$recipients ) { 
                 # Check the all envelope recipient addresses
                 if( Haineko::SMTPD::RFC5322->is_emailaddress( $e ) ) {
-
-                    # The address includes multi-byte character or not
+                    # Check the envelope recipient address includes multi-byte 
+                    # character or not.
                     next unless Haineko::SMTPD::RFC5321->is8bit( \$e );
 
-                    # The address includes multi-byte character
+                    # The envelope recipient address includes multi-byte character
                     $esresponse = $responsecn->r( 'mail', 'non-ascii' );
 
                 } else {
-                    # The address is not valid email address
+                    # The envelope recipient address is not valid email address
                     $esresponse = $responsecn->r( 'rcpt', 'is-not-emailaddress' );
                 }
 
@@ -381,8 +381,8 @@ sub submit {
         }
 
         ALLOWED_RECIPIENT: {
-            # Check etc/recipients file. The envelope recipient address or domain part of
-            # the recipient address should be listed in the file.
+            # Check etc/recipients file. The envelope recipient address or the 
+            # domain part of the recipient address should be listed in the file.
             try { 
                 $exceptions = 0;
                 $accessconf = Haineko::JSON->loadfile( $serverconf->{'access'}->{'rcpt'} );
@@ -392,9 +392,9 @@ sub submit {
             };
 
             if( not defined $accessconf ) {
-                # If the file does not exist or failed to load, only $serverconf->{'hostname'} 
-                # or $ENV{'HOSTNAME'} or $ENV{'SERVER_NAME'} or `hostname` allowed
-                # as a # domain part of the recipient address.
+                # If the file does not exist or failed to load the file, only
+                # $serverconf->{'hostname'} or $ENV{'HOSTNAME'} or $ENV{'SERVER_NAME'} 
+                # or `hostname` allowed as a domain part of the recipient address.
                 $accessconf //= { 
                     'open-relay' => 0,
                     'domainpart' => [ $serverconf->{'hostname'} ],
@@ -418,22 +418,23 @@ sub submit {
                 }
 
                 if( not $accessconf->{'open-relay'} ) {
-                    # When ``open-relay'' is 0, check the all recipient addresses
-                    # with entries defined in etc/recipients.
+                    # When the value of ``open-relay'' is 0, check the all recipient
+                    # addresses with entries defined in etc/recipients.
                     my $r = $accessconf->{'recipients'} || [];
                     my $d = $accessconf->{'domainpart'} || [];
 
                     for my $e ( @$recipients ) {
-
-                        # The address is defined in etc/recipients
+                        # The envelope recipient address is defined in etc/recipients
                         next if grep { $e eq $_ } @$r;
 
-                        # The domain part of the address is defined in etc/recipients
+                        # The domain part of the envelope recipient address is
+                        # defined in etc/recipients
                         my $x = [ split( '@', $e ) ]->[-1];
                         next if grep { $x eq $_ } @$d;
 
-                        # Neither the address nor the domain part of the address are
-                        # not allowed at etc/recipients file.
+                        # Neither the envelope recipient address nor the domain
+                        # part of the address are not allowed at etc/recipients
+                        # file.
                         $esresponse = $responsecn->r( 'rcpt', 'rejected' );
                         $esresponse->rcpt( $e );
                         $tmpsession->add_response( $esresponse );
@@ -452,14 +453,13 @@ sub submit {
 
             for my $e ( @{ Haineko::SMTPD::Milter->import( $milterlibs ) } ) {
                 # Check the envelope recipient address with rcpt() method of each milter
-                #
                 for my $r ( @$recipients ) {
                     my $v = { 'code' => 553, 'dsn' => '5.7.1', 'command' => 'RCPT' };
                     $mfresponse = $responsecn->new( %$v );
 
                     next if $e->rcpt( $mfresponse, $r );
                     if( defined $mfresponse && $mfresponse->error ) {
-                        # 1 or more envelope recipient address rejected
+                        # One or more envelope recipient address will be rejected
                         $esresponse = $mfresponse->damn;
                         $mfresponse->rcpt( $r );
                         $tmpsession->add_response( $mfresponse );
@@ -472,24 +472,26 @@ sub submit {
         } # End of ``XXFI_ENVRCPT''
 
         CHECK_RCPT: {
-            # Check recipient addresses. If there is no recipient address 
+            # Check recipient addresses. If there is no envelope recipient address
             # Haineko can send. The following code returns error.
             if( scalar @$cannotsend ) {
-                # Cannot send to one or more recipient address
+                # Cannot send to one or more envelope recipient address
                 my $v = [];
 
                 for my $e ( @$recipients ) {
-                    # Verify each recipient address with addresses in @$cannotsend
+                    # Verify each envelope recipient address with addresses in
+                    # variable ``@$cannotsend''
                     next if grep { $e eq $_ } @$cannotsend;
                     push @$v, $e;
                 }
 
                 if( scalar @$v ) {
-                    # Update recipient addresses without invalid addresses
+                    # Update the variable for holding recipient addresses without
+                    # invalid addresses checked above.
                     $recipients = $v;
 
                 } else {
-                    # There is no valid recipient address.
+                    # There is no valid envelope recipient address.
                     return $httpd->res->json( 400, $tmpsession->damn );
                 }
             }
@@ -518,7 +520,8 @@ sub submit {
             # Check message body size
             my $x = $serverconf->{'max_message_size'} // $defaultset->{'smtpd'}->{'max_message_size'};
             if( $x > 0 && length( $body ) > $x ) {
-                # Message body size exceeds the limit
+                # Message body size exceeds the limit defined in etc/haineko.cf
+                # or Haineko::Default module.
                 $esresponse = $responsecn->r( 'data', 'mesg-too-big' );
                 $tmpsession->add_response( $esresponse );
                 $nekosyslog->w( 'err', $esresponse->damn );
@@ -536,10 +539,11 @@ sub submit {
             return $httpd->res->json( 400, $tmpsession->damn );
         }
         $tmpsession->data(1);
+
     } # End of ``DATA''
 
 
-    # Create Haineko::SMTPD::Session object from temporary session object
+    # Create new Haineko::SMTPD::Session object from temporary session object
     my $submission = Haineko::SMTPD::Session->new(
                         'addresser' => $mail,
                         'recipient' => $recipients,
@@ -586,14 +590,15 @@ sub submit {
         my $thisencode = uc $emencoding;    # The value of ``charset'' in received JSON
 
         if( grep { $thisencode eq $_ } @$encodelist ) {
-            # Received Supported encodings except UTF-8
+            # Received supported encodings except UTF-8
             if( $ctencoding eq '8bit' ) {
-
+                # The message body includes multi-byte character
                 $ctencoding = $ctencindex->{ $thisencode };
 
                 if( $thisencode eq 'ISO-2022-JP' ) {
+                    # ISO-2022-JP is 7bit encoding
                     $thisencode =~ y/-/_/;
-                    $headencode = sprintf( "MIME-Header-%s", $thisencode );
+                    $headencode =  sprintf( "MIME-Header-%s", $thisencode );
                 }
             }
 
@@ -605,8 +610,8 @@ sub submit {
         $attributes->{'encoding'} = $ctencoding;
 
         for my $e ( keys %$head ) {
-            # Prepare email headers. An email header in received JSON except 
-            # supported headers are not converted.
+            # Prepare email headers. Email headers in received JSON except supported
+            # headers in Haineko are not converted (will be ignored).
             next unless grep { $e eq $_ } @$headerlist;
             next unless defined $head->{ $e };
 
@@ -622,13 +627,13 @@ sub submit {
 
             if( exists $mailheader->{ $headername } ) {
                 # There is the header which has the same header name, such as
-                # ``Received:'' header.
+                # ``Received:'' header in generic email message.
                 if( ref $mailheader->{ $headername } eq 'ARRAY' ) {
-                    # The header already exists
+                    # The header already exists, Add the header into array.
                     push @{ $mailheader->{ $headername } }, $fieldvalue;
 
                 } else {
-                    # The first header
+                    # The first header, Add the header as the first element
                     $mailheader->{ $headername } = [ $mailheader->{ $headername }, $fieldvalue ];
                 }
 
@@ -640,7 +645,7 @@ sub submit {
     } # End of MIME_ENCODING
 
     SENDER_HEADER: {
-        # Add ``Sender:'' header
+        # Add the envelope sender address into ``Sender:'' header.
         my $fromheader = Haineko::SMTPD::Address->canonify( $head->{'from'} );
         my $envelopemf = $submission->addresser->address;
         $mailheader->{'Sender'} = $envelopemf if $fromheader eq $envelopemf;
@@ -658,7 +663,7 @@ sub submit {
         }
 
         if( defined $mfresponse && $mfresponse->error ){
-            # 1 or more email header rejected
+            # One or more email header will be rejected
             $esresponse = $mfresponse->damn;
             $nekosyslog->w( 'err', $esresponse );
             $submission->add_response( $mfresponse );
@@ -679,13 +684,14 @@ sub submit {
         }
 
         if( defined $mfresponse && $mfresponse->error ){
-            # The email body rejected
+            # The email body will be rejected
             $esresponse = $mfresponse->damn;
             $submission->add_response( $mfresponse );
             $nekosyslog->w( 'err', $esresponse );
 
             return $httpd->res->json( 400, $submission->damn );
         }
+
     } # End of ``XXFI_BODY''
 
 
@@ -699,7 +705,7 @@ sub submit {
         require Haineko::SMTPD::Relay;
 
         for my $e ( 'mail', 'rcpt' ) {
-            # Check the following mailer table files:
+            # Check the contents of the following mailer table files:
             #   - etc/mailertable 
             #   - etc/sendermt
             try { 
@@ -712,13 +718,13 @@ sub submit {
                 $exceptions = 1;
             };
 
-            # ``default:'' section in etc/mailertable
+            # Load ``default:'' section in etc/mailertable
             $defaulthub //= $mailerconf->{'rcpt'}->{'default'};
 
             last if $e eq 'rcpt';
 
-            # If the value of ``disabled'' is 1, the mailer configuration will
-            # not be used.
+            # If the value of ``disabled'' is 1, the mailer table based on the 
+            # domain part of the envelope sender address will not be used.
             next unless exists $mailerconf->{'mail'}->{ $submission->addresser->host };
             next if $mailerconf->{'mail'}->{ $submission->addresser->host }->{'disabled'};
 
@@ -826,10 +832,11 @@ sub submit {
 
                 # Create email address objects from each envelope recipient address
                 my $r = Haineko::SMTPD::Address->new( 'address' => $e );
-                my $smtpmailer = undef;
-                my $relayingto = undef;
-                my $credential = undef;
-                my $relayclass = q();
+
+                my $relayclass = q();       # (String) Class name of $smtpmailer
+                my $smtpmailer = undef;     # (Haineko::SMTPD::Relay::*) Mailer object
+                my $relayingto = undef;     # (Ref->Hash) Mailertable
+                my $credential = undef;     # (Ref->Hash) Username and password for SMTP-AUTH or API
 
                 $relayingto = $mailerconf->{'rcpt'}->{ $r->host } // $sendershub;
                 $relayingto = $sendershub if $relayingto->{'disabled'};
