@@ -12,10 +12,16 @@ can_ok( $modulename, @$pkgmethods );
 METHODS: {
 
     my $x = Haineko::SMTPD::Milter->libs( [ '/tmp', '/var/tmp', './t' ] );
-    is( $x, 3, '->libs => 3' );
+    is $x, 3, '->libs => 3';
+
+    $x = Haineko::SMTPD::Milter->libs(1); is $x, 0;
+    $x = Haineko::SMTPD::Milter->libs('.'); is $x, 0;
 
     my $y = Haineko::SMTPD::Milter->import( [ 'Example' ] );
-    is( $y->[0], 'Haineko::SMTPD::Milter::Example', '->import => [ Haineko::SMTPD::Milter::Example ]' );
+    is $y->[0], 'Haineko::SMTPD::Milter::Example', '->import => [ Haineko::SMTPD::Milter::Example ]';
+
+    $y = Haineko::SMTPD::Milter->import(1);
+    is $y, 0;
 
     for my $e ( @$pkgmethods ){
         next if $e eq 'import' || $e eq 'libs';
