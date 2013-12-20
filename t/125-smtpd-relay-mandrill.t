@@ -42,6 +42,11 @@ INSTANCE_METHODS: {
     isa_ok $o->time, 'Time::Piece';
     ok $o->time, '->time => '.$o->time->epoch;
 
+    $methodargv->{'time'} = Time::Piece->new;
+    $o = $modulename->new( %$methodargv );
+    isa_ok $o->time, 'Time::Piece';
+    ok $o->time, '->time => '.$o->time->epoch;
+
     is $o->queueid, undef, '->queueid => undef';
 
     is $o->mail, $methodargv->{'mail'}, '->mail => '.$o->mail;
