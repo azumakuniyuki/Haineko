@@ -778,8 +778,8 @@ sub submit {
         if( $useprefork ) {
             # If the number of recipients or the value of `maxworkers` is greater
             # than 1, fork and send emails by each child process.
-            Module::Load::load('IO::Pipe');
-            Module::Load::load('Parallel::Prefork');
+            require IO::Pipe;
+            require Parallel::Prefork;
 
             $preforkarg = {
                 'max_workers' => $maxworkers,
@@ -902,7 +902,7 @@ sub submit {
 
                 } elsif( $relayingto->{'mailer'} eq 'Discard' ) {
                     # Discard mailer, email blackhole. It will discard all messages
-                    Module::Load::load('Haineko::SMTPD::Relay::Discard');
+                    require Haineko::SMTPD::Relay::Discard;
                     $smtpmailer = Haineko::SMTPD::Relay::Discard->new;
                     $smtpmailer->sendmail();
 
