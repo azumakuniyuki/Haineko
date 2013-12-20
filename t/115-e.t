@@ -16,9 +16,13 @@ eval { keys %$errormesgs; }; push @$errormesgs, $@;
 eval { die('Hard'); }; push @$errormesgs, $@;
 eval { my $x = 0; my $y = 1 / $x; }; push @$errormesgs, $@;
 
+is $modulename->new, undef;
+isa_ok $modulename->new('neko'), $modulename;
+isa_ok $modulename->p(), 'ARRAY';
+
 for my $r ( @$errormesgs ) {
 
-    my $e = Haineko::E->new( $r );
+    my $e = $modulename->new( $r );
     my $d = $e->message;
 
     ok( $r, '$@ = '.$r );
