@@ -113,11 +113,8 @@ my $jsondata = {
             'ehlo' => 'example.jp', 
             'mail' => 'kijitora@example.jp',
             'rcpt' => [
-                '1@'.$hostname,
-                '2@'.$hostname,
-                '3@'.$hostname,
-                '4@'.$hostname,
-                '5@'.$hostname,
+                '0@'.$hostname, '1@'.$hostname, '2@'.$hostname, '3@'.$hostname, '4@'.$hostname,
+                '5@'.$hostname, '6@'.$hostname, '7@'.$hostname, '8@'.$hostname, '9@'.$hostname,
             ],
         },
         'code' => 452, 'dsn' => '4.5.3', 'status' => 403, 'command' => 'RCPT',
