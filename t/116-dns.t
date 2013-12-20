@@ -6,7 +6,7 @@ use Test::More;
 
 my $modulename = 'Haineko::DNS';
 my $pkgmethods = [ 'new' ];
-my $objmethods = [ 'resolve' ];
+my $objmethods = [ 'resolve', 'flush' ];
 
 can_ok $modulename, @$pkgmethods;
 
@@ -52,8 +52,10 @@ for my $e ( @$domainlist ) {
             ok( scalar @$r );
             ok( (grep { $w eq $_ } @$r), sprintf( "(%s/%s) includes %s", $e, uc $v, $w ) );
         }
-
     }
+
+    isa_ok $hainekodns->resolve, 'Haineko::DNS';
+    isa_ok $hainekodns->flush, 'Haineko::DNS';
 }
 
 done_testing;
