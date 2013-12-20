@@ -21,9 +21,14 @@ METHODS: {
     my $y = {};
 
     CONN: {
+        is $m->conn, 1;
+
         $r = Haineko::SMTPD::Response->new();
         $v = $m->conn( $r, 'localhost', '127.0.0.1' );
         is( $v, 1, '->conn( $r, localhost, 127.0.0.1 ) => 1' );
+
+        $v = $m->conn( $r, 'localhost.localdomain' );
+        is( $v, 0, '->conn( $r, localhost.localdomain ) => 0' );
 
         $v = $m->conn( $r, 'localhost', '255.255.255.255' );
         is( $v, 0, '->conn( $r, localhost, 255.255.255.255 ) => 0' );
@@ -32,6 +37,8 @@ METHODS: {
     }
 
     EHLO: {
+        is $m->ehlo, 1;
+
         $r = Haineko::SMTPD::Response->new();
         $v = $m->ehlo( $r, 'neko.example.jp' );
         is( $v, 1, '->ehlo( $r, neko.example.jp ) => 1' );
@@ -44,6 +51,8 @@ METHODS: {
     }
 
     MAIL: {
+        is $m->mail, 1;
+
         $r = Haineko::SMTPD::Response->new();
         $v = $m->mail( $r, 'cat@neko.example.jp' );
         is( $v, 1, '->mail( $r, cat@neko.example.jp ) => 1' );
@@ -55,6 +64,8 @@ METHODS: {
     }
 
     RCPT: {
+        is $m->rcpt, 1;
+
         $r = Haineko::SMTPD::Response->new();
         $x = [ 'kijitora@example.jp' ];
         $v = $m->rcpt( $r, $x );
@@ -65,6 +76,8 @@ METHODS: {
     }
 
     HEAD: {
+        is $m->head, 1;
+
         $r = Haineko::SMTPD::Response->new();
         $y = { 'subject' => 'spam spam spam', 'from' => 'kijitora@example.org' };
         $v = $m->head( $r, $y );
@@ -75,6 +88,8 @@ METHODS: {
     }
 
     BODY: {
+        is $m->body, 1;
+
         $r = Haineko::SMTPD::Response->new();
         $v = $m->body( $r, \'URL is http://nekochan.example.com/?neko=kijitora' );
         is( $v, 0, '->body( $r, \"URL is http://..." )' );
