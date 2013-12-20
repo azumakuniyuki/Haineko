@@ -3,9 +3,10 @@ use strict;
 use warnings;
 use Haineko::SMTPD::Relay::AmazonSES;
 use Test::More;
+use Time::Piece;
 
 my $modulename = 'Haineko::SMTPD::Relay::AmazonSES';
-my $pkgmethods = [ 'new' ];
+my $pkgmethods = [ 'new', 'sign' ];
 my $objmethods = [ 'sendmail' ];
 my $methodargv = {
     'ehlo' => 'Haineko/make-test',
@@ -29,6 +30,10 @@ isa_ok $testobject, $modulename;
 can_ok $modulename, @$pkgmethods;
 can_ok $testobject, @$objmethods;
 
+CLASS_METHODS: {
+    ok $modulename->sign( 'neko', 'cat' );
+}
+
 INSTANCE_METHODS: {
 
     for my $e ( qw/mail rcpt head body host port attr auth username password/ ) {
@@ -39,6 +44,11 @@ INSTANCE_METHODS: {
     my $r = undef;
     my $m = undef;
 
+    isa_ok $o->time, 'Time::Piece';
+    ok $o->time, '->time => '.$o->time->epoch;
+
+    $methodargv->{'time'} = Time::Piece->new;
+    $o = $modulename->new( %$methodargv );
     isa_ok $o->time, 'Time::Piece';
     ok $o->time, '->time => '.$o->time->epoch;
 
