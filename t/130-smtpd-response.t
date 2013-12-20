@@ -24,6 +24,12 @@ CLASS_METHODS: {
     is $o->message, undef, '->message => undef';
     is $o->command, undef, '->command => undef';
 
+    $o = $modulename->new( 'message' => 1 );
+    is $o->message, 1, '->message => 1';
+
+    $o = $modulename->new( 'message' => [] );
+    isa_ok $o->message, 'ARRAY', '->message => []';
+
     $r = {
         'conn' => [ qw/ok cannot-connect/ ],
         'http' => [ qw/method-not-supported malformed-json not-found server-error/ ],
@@ -47,6 +53,11 @@ CLASS_METHODS: {
         'noop' => [ qw/ok/ ],
         'quit' => [ qw/ok/ ],
     };
+
+    is $modulename->r, undef;
+    is $modulename->r('EHLO'), undef;
+    is $modulename->r('NEKO'), undef;
+    is $modulename->r('EHLO','unknown-response'), undef;
 
     for my $e ( keys %$r ) {
 
@@ -82,6 +93,9 @@ CLASS_METHODS: {
     is $r->{'error'}, 1, '->error => 1';
     is $r->{'command'}, 'RCPT', '->command => RCPT';
     like $r->{'message'}->[0], qr/Cannot find a cat/, '->message => '.$r->{'message'}->[0];
+
+    isa_ok $o->mesg, $modulename;
+    isa_ok $o->mesg('neko'), $modulename;
 }
 
 done_testing;
