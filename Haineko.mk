@@ -24,7 +24,13 @@ CTL = ./bin/hainekoctl
 .PHONY: clean
 
 start:
-	netstat -tan | grep -E '127.0.0.1[.:]2794' || $(CTL) start -d -C $(CF) &
+	netstat -tan | grep -E '127.0.0.1[.:]2794' || $(CTL) start -d -C $(CF) & 
+	sleep 1
+
+start-with-cover:
+	netstat -tan | grep -E '127.0.0.1[.:]2794' && $(MAKE) -f Haineko.mk stop || true
+	sleep 1
+	perl -MDevel::Cover $(CTL) start -d -C $(CF) &
 	sleep 1
 
 stop:
@@ -40,6 +46,13 @@ user-test:
 
 author-test: start
 	$(PROVE) xt/
+
+cover-test:
+	$(MAKE) -f Haineko.mk start-with-cover
+	cp Haineko.mk ./makefile
+	cover -test
+	$(MAKE) -f Haineko.mk stop
+	$(RM) ./makefile
 
 release-test: start
 	$(CP) ./README.md /tmp
