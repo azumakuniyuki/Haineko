@@ -19,6 +19,9 @@ isa_ok $d, 'HASH';
 is $d->{'ehlo'}, '[127.0.0.1]';
 is $d->{'header'}->{'replyto'}, 'straycats@cat-ml.example.org';
 
+$d = $modulename->loadfile;
+is $d, undef;
+
 $j = '{ "neko": [ "kijitora", "mikeneko" ], "home": "Kyoto" }';
 $d = $modulename->loadjson( $j );
 isa_ok $d, 'HASH';
@@ -32,6 +35,9 @@ $d = $modulename->loadjson( $j );
 isa_ok $d, 'HASH';
 isa_ok $d->{'neko'}, 'ARRAY';
 is $d->{'home'}, 'Kyoto';
+
+$d = $modulename->loadjson;
+is $d, undef;
 
 done_testing;
 __END__
