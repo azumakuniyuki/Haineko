@@ -56,7 +56,7 @@ sub version {
     printf( STDERR "Haineko %s\n", $Haineko::VERSION );
 }
 
-sub witch {
+sub which {
     my $class = shift;
     my $cname = shift || return q();
     my $paths = [ split( ':', $ENV{'PATH'} ) ];
@@ -269,9 +269,9 @@ C<new()> is a constructor of Haineko::CLI::Daemon
 
 C<version()> returns the version number of Haineko.
 
-=head2 B<witch( I<command-name> )>
+=head2 B<which( I<command-name> )>
 
-C<witch()> has the same feature of UNIX-command ``witch''.
+C<which()> has the same feature of UNIX-command ``which''.
 
 =head1 INSTANCE METHODS
 
