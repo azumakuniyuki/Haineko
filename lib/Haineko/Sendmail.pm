@@ -900,10 +900,23 @@ sub submit {
 
                     $smtpmailer->sendmail();
 
-                } elsif( $relayingto->{'mailer'} eq 'Discard' ) {
-                    # Discard mailer, email blackhole. It will discard all messages
-                    require Haineko::SMTPD::Relay::Discard;
-                    $smtpmailer = Haineko::SMTPD::Relay::Discard->new;
+                } elsif( $relayingto->{'mailer'} =~ m/(?:Discard|Screen)/ ) {
+                    # These mailer does not open new connection to any host.
+                    # Haineko::SMTPD::Relay::
+                    #   - Discard: email blackhole. It will discard all messages
+                    #   - Screen: print the email message to STDERR
+                    $relayclass = sprintf( "Haineko::SMTPD::Relay::%s", $relayingto->{'mailer'} );
+                    Module::Load::load( $relayclass );
+
+                    my $methodargv = {
+                        'ehlo'      => $serverconf->{'hostname'},
+                        'mail'      => $submission->addresser->address,
+                        'rcpt'      => $r->address,
+                        'head'      => $mailheader,
+                        'body'      => \$body,
+                        'attr'      => $attributes,
+                    };
+                    $smtpmailer = $relayclass->new( %$methodargv );
                     $smtpmailer->sendmail();
 
                 } elsif( length $relayingto->{'mailer'} ) {
