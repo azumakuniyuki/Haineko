@@ -9,16 +9,20 @@ sub new {
     my $class = shift;
     my $argvs = { @_ };
 
-    $argvs->{'time'}    ||= Time::Piece->new;
-    $argvs->{'retry'}     = 0;
-    $argvs->{'sleep'}     = 0;
-    $argvs->{'timeout'}   = 0;
+    $argvs->{'time'}  ||= Time::Piece->new;
+    $argvs->{'retry'}   = 0;
+    $argvs->{'sleep'}   = 0;
+    $argvs->{'timeout'} = 0;
+    $argvs->{'startls'} = 0;
     return bless $argvs, __PACKAGE__;
 }
 
 sub sendmail {
     my $self = shift;
+
     $self->response( Haineko::SMTPD::Response->r( 'data', 'discard' ) );
+    $self->response->rcpt( $self->{'rcpt'} );
+    $self->response->mailer('Discard');
     return 1;
 }
 
