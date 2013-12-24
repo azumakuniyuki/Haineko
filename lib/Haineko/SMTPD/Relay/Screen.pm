@@ -3,7 +3,6 @@ use parent 'Haineko::SMTPD::Relay';
 use strict;
 use warnings;
 use Haineko::SMTPD::Response;
-use Haineko::SMTPD::Greeting;
 use Email::MIME;
 use Time::Piece;
 use Encode;
