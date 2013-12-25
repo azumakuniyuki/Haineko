@@ -43,8 +43,18 @@ sub p {
     my $error = [];
 
     chomp $argvs;
-    $error = [ split( "\n", $argvs ) ];
-    map { $_ =~ s|\A\s*||; $_ =~ s|\s*\z||; } @$error;
+    if( $argvs =~ m|\A(Can't locate .+\s)(in\s[@]INC\s.+)\z| ) {
+        # Can\'t locate Haineko/SMTPD/Relay/Neko.pm in @INC (@INC contains: /tmp...)
+        $error = [ $1, $2 ];
+
+    } else {
+        $error = [ split( "\n", $argvs ) ];
+    }
+
+    for my $e ( @$error ) {
+        $e =~ s|\A\s*||; 
+        $e =~ s|\s*\z||; 
+    }
 
     return $error;
 }
