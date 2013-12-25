@@ -7,7 +7,8 @@
 # Description: Recipient based routing table
 # Syntax:
 #   domain-part-of-recipient:
-#     mailer:   ESMTP or module name in lib/Haineko/Relay/ such as 'SendGrid'.
+#     mailer:   "ESMTP" or a module name stored in lib/Haineko/SMTPD/Relay/ such
+#               as 'SendGrid' or 'MX'.
 #     host:     SMTP server for relaying, default value is 127.0.0.1
 #     port:     Port number of the server, default value is 25.
 #     auth:     'key' = Use SMTP-AUTH in relaying by using credentials defined
