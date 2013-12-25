@@ -797,7 +797,6 @@ sub submit {
 
         if( $maxworkers > 1 ) {
             # Adjust the number of max worker processes.
-            $useprefork = 1;
             my $xprocesses = $serverconf->{'max_workers'} // $defaultset->{'smtpd'}->{'max_workers'};
 
             if( Scalar::Util::looks_like_number $xprocesses ) {
@@ -815,6 +814,7 @@ sub submit {
 
                 return $httpd->res->json( 500, $tmpsession->damn );
             }
+            $useprefork = 1 if $maxworkers > 1;;
         }
 
         if( $useprefork ) {
