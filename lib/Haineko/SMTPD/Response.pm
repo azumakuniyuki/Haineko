@@ -60,6 +60,13 @@ my $Replies = {
             'message' => [ 'Internal Server Error' ],
         },
     },
+    'conf' => {
+        'not-looks-like-number' => {
+            'dsn' => undef,
+            'code' => 500,
+            'message' => [ 'does not look like number' ],
+        },
+    },
     'ehlo' => {
         'invalid-domain' => {   # 501 5.0.0 Invalid domain name
             'dsn' => '5.0.0',
