@@ -5,6 +5,7 @@ x.y.z
       error device.
     - Haineko::SMTPD::Relay::File is a class for saving an email to /tmp direc-
       tory or the specified directory in etc/mailertable file.
+    - Fix comments about Haineko::SMTPD::Relay::* in mailertable and sendermt.
 
 0.2.11  Tue, 18 Dec 2013 20:22:22 +0900 (JST)
     - Fixed issues: Travis CI Build #26 #27, and #28.
