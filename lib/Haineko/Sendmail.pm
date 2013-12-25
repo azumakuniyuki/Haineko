@@ -4,6 +4,7 @@ use warnings;
 use Encode;
 use Try::Tiny;
 use Time::Piece;
+use Scalar::Util;
 use Haineko::Log;
 use Haineko::JSON;
 use Haineko::Default;
@@ -341,17 +342,29 @@ sub submit {
             return $httpd->res->json( 400, $tmpsession->damn );
         }
 
-        if( $xrecipient && $xrecipient > 0 ) {
+        if( Scalar::Util::looks_like_number $xrecipient ) {
 
-            if( scalar @$recipients > $xrecipient ) {
-                # The number of recipients exceeded the value of ``max_rcpts_per_message'' 
-                # defined in etc/haineko.cf
-                $esresponse = $responsecn->r( 'rcpt', 'too-many-recipients' );
-                $tmpsession->add_response( $esresponse );
-                $nekosyslog->w( 'err', $esresponse->damn );
+            if( $xrecipient && $xrecipient > 0 ) {
 
-                return $httpd->res->json( 403, $tmpsession->damn );
+                if( scalar @$recipients > $xrecipient ) {
+                    # The number of recipients exceeded the value of ``max_rcpts_per_message'' 
+                    # defined in etc/haineko.cf
+                    $esresponse = $responsecn->r( 'rcpt', 'too-many-recipients' );
+                    $tmpsession->add_response( $esresponse );
+                    $nekosyslog->w( 'err', $esresponse->damn );
+
+                    return $httpd->res->json( 403, $tmpsession->damn );
+                }
             }
+        } else {
+            # The value of max_rcpts_per_message does not look like number, such
+            # as "max_rcpts_per_message": "neko"
+            $esresponse = $responsecn->r( 'conf', 'not-looks-like-number' );
+            $esresponse->mesg( sprintf( "Wrong value of max_rcpts_per_message: '%s'", $xrecipient ) );
+            $tmpsession->add_response( $esresponse );
+            $nekosyslog->w( 'err', $esresponse->damn );
+
+            return $httpd->res->json( 500, $tmpsession->damn );
         }
 
         VALID_EMAIL_ADDRESS_OR_NOT: {
@@ -518,15 +531,29 @@ sub submit {
 
         } else {
             # Check message body size
-            my $x = $serverconf->{'max_message_size'} // $defaultset->{'smtpd'}->{'max_message_size'};
-            if( $x > 0 && length( $body ) > $x ) {
-                # Message body size exceeds the limit defined in etc/haineko.cf
-                # or Haineko::Default module.
-                $esresponse = $responsecn->r( 'data', 'mesg-too-big' );
+            my $xmesgsize = $serverconf->{'max_message_size'} // $defaultset->{'smtpd'}->{'max_message_size'};
+
+            if( Scalar::Util::looks_like_number $xmesgsize ) {
+
+                if( $xmesgsize > 0 && length( $body ) > $xmesgsize ) {
+                    # Message body size exceeds the limit defined in etc/haineko.cf
+                    # or Haineko::Default module.
+                    $esresponse = $responsecn->r( 'data', 'mesg-too-big' );
+                    $tmpsession->add_response( $esresponse );
+                    $nekosyslog->w( 'err', $esresponse->damn );
+
+                    return $httpd->res->json( 400, $tmpsession->damn );
+                }
+
+            } else {
+                # The value of max_message_size does not look like number, such
+                # as "max_message_size": "neko"
+                $esresponse = $responsecn->r( 'conf', 'not-looks-like-number' );
+                $esresponse->mesg( sprintf( "Wrong value of max_message_size: '%s'", $xmesgsize ) );
                 $tmpsession->add_response( $esresponse );
                 $nekosyslog->w( 'err', $esresponse->damn );
 
-                return $httpd->res->json( 400, $tmpsession->damn );
+                return $httpd->res->json( 500, $tmpsession->damn );
             }
         }
 
@@ -771,8 +798,23 @@ sub submit {
         if( $maxworkers > 1 ) {
             # Adjust the number of max worker processes.
             $useprefork = 1;
-            my $x = $serverconf->{'max_workers'} // $defaultset->{'smtpd'}->{'max_workers'};
-            $maxworkers = $x if $maxworkers > $x;
+            my $xprocesses = $serverconf->{'max_workers'} // $defaultset->{'smtpd'}->{'max_workers'};
+
+            if( Scalar::Util::looks_like_number $xprocesses ) {
+                # Limit the value of max_workers to the value defined in 
+                # etc/haineko.cf or Haineko::Default.
+                $maxworkers = $xprocesses if $maxworkers > $xprocesses;
+
+            } else {
+                # The value of max_workers does not look like number, such as
+                # "max_workers": "neko"
+                $esresponse = $responsecn->r( 'conf', 'not-looks-like-number' );
+                $esresponse->mesg( sprintf( "Wrong value of max_workers: '%s'", $xprocesses ) );
+                $tmpsession->add_response( $esresponse );
+                $nekosyslog->w( 'err', $esresponse->damn );
+
+                return $httpd->res->json( 500, $tmpsession->damn );
+            }
         }
 
         if( $useprefork ) {
