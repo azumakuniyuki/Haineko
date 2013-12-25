@@ -69,6 +69,7 @@ Haineko relies on:
 * __Path::Class__
 * __Plack__
 * __Router::Simple__
+* Scalar::Util (core module from v5.7.3)
 * __Server::Starter__
 * Sys::Syslog (core module from v5)
 * Time::Piece (core module from v5.9.5)
