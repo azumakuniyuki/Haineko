@@ -20,6 +20,7 @@ my $f = [ qw|
     SMTPD/Relay/AmazonSES.pm
     SMTPD/Relay/Discard.pm
     SMTPD/Relay/ESMTP.pm
+    SMTPD/Relay/File.pm
     SMTPD/Relay/Haineko.pm
     SMTPD/Relay/MX.pm
     SMTPD/Relay/Screen.pm
