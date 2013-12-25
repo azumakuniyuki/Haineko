@@ -200,7 +200,7 @@ An email will be saved in /tmp directory.
 =head2 C<mailer: "/var/tmp">
 
 An email will be saved in /var/tmp directory. When the specified directory does
-not exist or cannot be wrote, Haineko returns error response.
+not exist or cannot be written, Haineko returns error response.
 
 =head1 REPOSITORY
 
