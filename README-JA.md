@@ -91,7 +91,23 @@ Hainekoにメールデータを渡す前にBASIC認証を必要とする場合�
     $ cd /usr/local/src
     $ git clone https://github.com/azumakuniyuki/Haineko.git
 
-A. ソースコードのディレクトリで直接実行
+A. CPANからインストール(cpanmを使って)
+--------------------------------------
+
+    $ sudo cpanm Haineko
+    $ export HAINEKO_ROOT=/path/to/some/dir/for/haineko
+    $ hainekoctl setup --dest $HAINEKO_ROOT
+    $ cd $HAINEKO_ROOT
+    $ vi ./etc/haineko.cf
+
+    And edit other files in etc/ directory if you needed.
+
+Run by the one of the followings:
+
+    $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
+    $ hainekoctl start --devel
+
+B. ソースコードのディレクトリで直接実行
 ---------------------------------------
 
     $ cd ./Haineko
@@ -107,7 +123,7 @@ A. ソースコードのディレクトリで直接実行
     $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
     $ ./bin/hainekoctl start --devel
 
-B. /usr/local/hainekoにインストールする
+C. /usr/local/hainekoにインストールする
 ---------------------------------------
 
 ### 1. ``configure''スクリプトの準備
@@ -141,7 +157,7 @@ B. /usr/local/hainekoにインストールする
     $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
     $ ./bin/hainekoctl start --devel
 
-C. /usr/localにインストールする
+D. /usr/localにインストールする
 -------------------------------
 
     $ cd ./Haineko

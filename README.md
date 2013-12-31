@@ -89,7 +89,23 @@ Get the source
     $ cd /usr/local/src
     $ git clone https://github.com/azumakuniyuki/Haineko.git
 
-A. Run at the source directory
+A. Build and install from CPAN using cpanm
+------------------------------------------
+
+    $ sudo cpanm Haineko
+    $ export HAINEKO_ROOT=/path/to/some/dir/for/haineko
+    $ hainekoctl setup --dest $HAINEKO_ROOT
+    $ cd $HAINEKO_ROOT
+    $ vi ./etc/haineko.cf
+
+    And edit other files in etc/ directory if you needed.
+
+Run by the one of the followings:
+
+    $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
+    $ hainekoctl start --devel
+
+B. Run at the source directory
 ------------------------------
 
     $ cd ./Haineko
@@ -98,14 +114,14 @@ A. Run at the source directory
     $ vi ./etc/haineko.cf
 
     And edit other files in etc/ directory if you needed.
-    
+
 
 Run by the one of the followings:
 
     $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
     $ ./bin/hainekoctl start --devel
 
-B. Build and install into /usr/local/haineko
+C. Build and install into /usr/local/haineko
 --------------------------------------------
 
 ### 1. Prepare ``configure'' script
@@ -139,7 +155,7 @@ Run by the one of the followings:
     $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
     $ ./bin/hainekoctl start --devel
 
-C. Build and install into /usr/local
+D. Build and install into /usr/local
 ------------------------------------
 
     $ cd ./Haineko
