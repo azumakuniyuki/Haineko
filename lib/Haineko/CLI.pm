@@ -275,15 +275,15 @@ C<which()> has the same feature of UNIX-command ``which''.
 
 =head2 C<B<stdin>>
 
-C<stdin()> ruturns the result of C<-t STDIN>.
+C<stdin()> returns the result of C<-t STDIN>.
 
 =head2 C<B<stdout>>
 
-C<stdout()> ruturns the result of C<-t STDOUT>.
+C<stdout()> returns the result of C<-t STDOUT>.
 
 =head2 C<B<stderr>>
 
-C<stderr()> ruturns the result of C<-t STDERR>.
+C<stderr()> returns the result of C<-t STDERR>.
 
 =head1 INSTANCE METHODS
 
