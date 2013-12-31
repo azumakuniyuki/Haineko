@@ -7,6 +7,7 @@
 # |_|  |_|\__,_|_|\_\___|_| |_|_|\___|
 # ---------------------------------------------------------------------------
 HERE = $(shell `pwd`)
+TIME = $(shell date '+%s')
 NEKO = 'http://127.0.0.1:2794/submit'
 MAKE = /usr/bin/make
 PERL = /usr/local/bin/perl
@@ -55,10 +56,17 @@ cover-test:
 	$(RM) ./makefile
 
 release-test: start
-	$(CP) ./README.md /tmp
+	$(CP) ./README.md /tmp/README.$(TIME).md
 	$(MAKE) -f Haineko.mk clean
 	$(MINIL) test
-	$(CP) /tmp/README.md ./
+	$(CP) /tmp/README.$(TIME).md ./README.md
+	$(PERL) -i -ple 's|<.+[@]gmail.com>|<perl.org\@azumakuniyuki.org>|' META.json
+
+dist: start
+	$(CP) ./README.md /tmp/README.$(TIME).md
+	$(MAKE) -f Haineko.mk clean
+	$(MINIL) dist
+	$(CP) /tmp/README.$(TIME).md ./README.md
 	$(PERL) -i -ple 's|<.+[@]gmail.com>|<perl.org\@azumakuniyuki.org>|' META.json
 
 push:
