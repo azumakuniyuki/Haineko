@@ -1,6 +1,7 @@
 Revision history for Haineko
 
-x.y.z
+0.2.12  Tue, 31 Dec 2013 12:22:22 +0900 (JST)
+    - Haineko now can be installed from CPAN: ``cpanm Haineko''.
     - Haineko::SMTPD::Relay::Screen is a class for printing an email to standard
       error device.
     - Haineko::SMTPD::Relay::File is a class for saving an email to /tmp direc-
