@@ -977,9 +977,7 @@ sub submit {
                     $smtpmailer = Haineko::SMTPD::Relay::File->new( %$methodargv );
                     $smtpmailer->sendmail();
 
-                } elsif( length $relayingto->{'mailer'} ) {
-                    # Use Haineko::SMTPD::Relay::* except H::S::R::ESMTP, 
-                    # H::S::R::Haineko and H::S::R::Discard.
+                } else {
                     $mailheader->{'To'} = $r->address;
                     my $methodargv = {
                         'ehlo'    => $serverconf->{'hostname'},
@@ -992,47 +990,58 @@ sub submit {
                         'timeout' => $relayingto->{'timeout'} // 60,
                     };
 
-                    try {
-                        $relayclass = sprintf( "Haineko::SMTPD::Relay::%s", $relayingto->{'mailer'} );
-                        Module::Load::load( $relayclass );
-                        $smtpmailer = $relayclass->new( %$methodargv );
+                    if( length $relayingto->{'mailer'} ) {
+                        # Use Haineko::SMTPD::Relay::* except H::S::R::ESMTP, 
+                        # H::S::R::Haineko and H::S::R::Discard.
+                        try {
+                            $relayclass = sprintf( "Haineko::SMTPD::Relay::%s", $relayingto->{'mailer'} );
+                            Module::Load::load( $relayclass );
+                            $smtpmailer = $relayclass->new( %$methodargv );
 
-                        if( $relayingto->{'auth'} ) {
-                            # Load credentials for SMTP-AUTH
-                            $smtpmailer->auth( 1 );
-                            $smtpmailer->username( $credential->{'username'} );
-                            $smtpmailer->password( $credential->{'password'} );
-                        }
-
-                        $smtpmailer->sendmail();
-
-                        if( not $smtpmailer->response->dsn ) {
-                            # D.S.N. is empty or undefined.
-                            if( $smtpmailer->response->error ) {
-                                # Error but no D.S.N.
-                                $smtpmailer->response->dsn( '5.0.0' );
-                            } else {
-                                # Successfully sent but no D.S.N.
-                                $smtpmailer->response->dsn( '2.0.0' );
+                            if( $relayingto->{'auth'} ) {
+                                # Load credentials for SMTP-AUTH
+                                $smtpmailer->auth( 1 );
+                                $smtpmailer->username( $credential->{'username'} );
+                                $smtpmailer->password( $credential->{'password'} );
                             }
-                        }
 
-                    } catch {
-                        require Haineko::E;
-                        my $v = [ split( "\n", $_ ) ]->[0];
-                        my $E = Haineko::E->new( $v );
+                            $smtpmailer->sendmail();
+
+                            if( not $smtpmailer->response->dsn ) {
+                                # D.S.N. is empty or undefined.
+                                if( $smtpmailer->response->error ) {
+                                    # Error but no D.S.N.
+                                    $smtpmailer->response->dsn( '5.0.0' );
+                                } else {
+                                    # Successfully sent but no D.S.N.
+                                    $smtpmailer->response->dsn( '2.0.0' );
+                                }
+                            }
+
+                        } catch {
+                            require Haineko::E;
+                            my $v = [ split( "\n", $_ ) ]->[0];
+                            my $E = Haineko::E->new( $v );
+                            my $R = { 
+                                'code' => 500, 
+                                'error' => 1, 
+                                'message' => [ $E->mesg->[0] ],
+                            };
+
+                            $smtpmailer = Haineko::SMTPD::Relay->new( %$methodargv );
+                            $smtpmailer->response( Haineko::SMTPD::Response->new( %$R ) );
+                        };
+
+                    } else {
+                        # The value of "mailer" is empty
+                        $smtpmailer = Haineko::SMTPD::Relay->new( %$methodargv );
                         my $R = { 
                             'code' => 500, 
                             'error' => 1, 
-                            'message' => [ $E->mesg->[0] ],
+                            'message' => [ 'The value of "mailer" is empty' ],
                         };
-
-                        $smtpmailer = Haineko::SMTPD::Relay->new( %$methodargv );
                         $smtpmailer->response( Haineko::SMTPD::Response->new( %$R ) );
-                    };
-
-                } else {
-                    next;
+                    }
                 }
 
                 if( $maxworkers > 1 ) {
