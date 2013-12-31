@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use parent 'Haineko::HTTPD';
 
-our $VERSION = '0.2.11';
+our $VERSION = '0.2.12';
 our $SYSNAME = 'Haineko';
 
 sub startup {
