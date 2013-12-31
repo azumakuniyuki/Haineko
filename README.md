@@ -115,7 +115,6 @@ B. Run at the source directory
 
     And edit other files in etc/ directory if you needed.
 
-
 Run by the one of the followings:
 
     $ plackup -o '127.0.0.1' -p 2794 -a libexec/haineko.psgi
