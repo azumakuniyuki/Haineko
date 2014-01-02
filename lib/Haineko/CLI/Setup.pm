@@ -195,7 +195,7 @@ sub init {
 
             if( $g =~ m|/authinfo| ) {
                 chmod( 0600, $g );
-                $self->p( '[PERM] 0600'.$g, 1 );
+                $self->p( '[PERM] 0600 '.$g, 1 );
             }
 
             next unless $g =~ m|/bin/|;
