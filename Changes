@@ -1,5 +1,9 @@
 Revision history for Haineko
 
+0.2.13  Fri,  3 Jan 2014 17:41:11 +0900 (JST)
+    - Fixed base64 encoded setup data for "setup" sub command of bin/hainekoctl
+      script at Haineko::CLI::Setup::Data.
+
 0.2.12  Tue, 31 Dec 2013 12:22:22 +0900 (JST)
     - Haineko now can be installed from CPAN: ``cpanm Haineko''.
     - Haineko::SMTPD::Relay::Screen is a class for printing an email to standard
