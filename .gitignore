@@ -11,6 +11,7 @@ cover_db/
 *.o
 *.obj
 MYMETA.*
+minil.toml
 
 # Files under development
 /Haineko-*
