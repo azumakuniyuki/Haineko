@@ -46,6 +46,7 @@ user-test:
 	$(PROVE) t/
 
 author-test: start
+	$(CTL) make-setup-data
 	$(PROVE) xt/
 
 cover-test:
