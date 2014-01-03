@@ -158,7 +158,7 @@ sub makerf {
     }
     return 0 unless $self->{'runfile'};
 
-    $self->removeaf if -e $self->{'runfile'};
+    $self->removerf if -e $self->{'runfile'};
     $file = IO::File->new( $self->{'runfile'}, 'w' ) || return 0;
     $text = sprintf( "%s\nexec %s\n", '#!/bin/sh', join( ' ', @$argv ) );
 
