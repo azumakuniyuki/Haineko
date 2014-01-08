@@ -5,7 +5,7 @@ distdir = $(BUILDROOT)/dist/lib/Haineko
 instdir = @libdir@/Haineko
 pkgdatadir = @libdir@/Haineko
 pkgdata_DATA = Default.pm Log.pm HTTPD.pm JSON.pm Root.pm Sendmail.pm CLI.pm \
-			   E.pm DNS.pm
+			   E.pm DNS.pm Sample.pm
 
 .PHONY: clean
 all-am:
