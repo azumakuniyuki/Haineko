@@ -136,7 +136,8 @@ Haineko::Root - Controller except /submit
 
 =head1 DESCRIPTION
 
-Haineko::Root is a controller except url /submit.
+Haineko::Root is a controller except url /submit. The module provide following
+urls: /conf, /dump, and /neko.
 
 =head2 URL
 
