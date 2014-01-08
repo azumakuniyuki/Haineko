@@ -54,6 +54,11 @@ my $Replies = {
             'code' => 421,
             'message' => [ 'Not found' ],
         },
+        'forbidden' => {
+            'dsn' => undef,
+            'code' => 500,
+            'message' => [ 'Access denied' ],
+        },
         'server-error' => {
             'dsn' => undef,
             'code' => 500,
