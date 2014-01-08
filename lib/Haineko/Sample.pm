@@ -2,6 +2,7 @@ package Haineko::Sample;
 use feature ':5.10';
 use strict;
 use warnings;
+use utf8;
 
 sub mail {
     my $class = shift;
@@ -9,18 +10,30 @@ sub mail {
 
     my $xforwarded = [ split( ',', $httpd->req->header('X-Forwarded-For') || q() ) ];
     my $remoteaddr = pop @$xforwarded || $httpd->req->address // undef;
-    my $samplemail = {
-        'mail' => 'envelope-sender-address@example.org',
-        'rcpt' => [ 'envelope-recipient-address-1@example.jp' ],
-        'ehlo' => sprintf( "[%s]", $remoteaddr ),
-        'body' => 'Email message body',
-        'header' => {
-            'from' => 'Your Name <email-from-addr@example.com>',
-            'subject' => 'Email subject',
-            'replyto' => 'another-email-address-if-you-want-to-receive@example.net',
-            'charset' => 'UTF-8',
+    my $samplemail = [
+        {
+            'mail' => 'envelope-sender-address@example.org',
+            'rcpt' => [ 'envelope-recipient-address-1@example.jp' ],
+            'ehlo' => sprintf( "[%s]", $remoteaddr ),
+            'body' => 'Email message body',
+            'header' => {
+                'from' => 'Your Name <email-from-addr@example.com>',
+                'subject' => 'Email subject',
+                'replyto' => 'another-email-address-if-you-want-to-receive@example.net',
+            },
         },
-    };
+        {
+            'helo' => 'your-host-name.example.net',
+            'from' => 'envelope-sender-address@example.org',
+            'to' => [ 'recipient1@example.com', 'recipient2@example.com' ],
+            'body' => 'メールの本文(日本語)',
+            'header' => {
+                'from' => 'はいねこ <email-from-addr@example.com>',
+                'subject' => 'メールの件名',
+                'charset' => 'UTF-8',
+            },
+         },
+    ];
 
     return $httpd->res->json( 200, Haineko::JSON->dumpjson( $samplemail ) );
 
