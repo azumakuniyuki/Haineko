@@ -32,7 +32,10 @@ CLASS_METHODS: {
 
     $r = {
         'conn' => [ qw/ok cannot-connect/ ],
-        'http' => [ qw/method-not-supported malformed-json not-found server-error/ ],
+        'http' => [ qw/
+                    method-not-supported malformed-json not-found server-error
+                    forbidden
+        / ],
         'conf' => [ qw/not-looks-like-number/ ],
         'ehlo' => [ qw/invalid-domain require-domain helo-first/ ],
         'auth' => [ qw/
