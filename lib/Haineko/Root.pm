@@ -99,8 +99,22 @@ sub info {
         }
 
     } else {
-        # Access denied
-        return $httpd->res->text( 403, 'Access denied' );
+        # Respond "Access denied" as a JSON
+        require Haineko::SMTPD::Response;
+        require Haineko::SMTPD::Session;
+
+        my $mesg = Haineko::SMTPD::Response->r( 'http', 'forbidden' )->damn;
+        my $argv = {
+            'referer'    => $httpd->req->referer // undef,
+            'response'   => [ $mesg ],
+            'remoteaddr' => $remoteaddr,
+            'remoteport' => $httpd->req->env->{'REMOTE_ADDR'} // undef,
+            'useragent'  => $httpd->req->user_agent // undef,
+        };
+        my $sess = Haineko::SMTPD::Session->new( %$argv )->damn;
+
+        $sess->{'queueid'} = undef;
+        return $httpd->response->json( 403, $sess );
     }
 }
 
