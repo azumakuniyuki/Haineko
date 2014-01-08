@@ -1,5 +1,10 @@
 Revision history for Haineko
 
+0.2.14
+    - New URL /sample/mail respond sample email data.
+    - Respond "Access denied" as a JSON when the client address is not the same
+      address of the server.
+
 0.2.13  Fri,  3 Jan 2014 17:41:11 +0900 (JST)
     - Fixed base64 encoded setup data for "setup" sub command of bin/hainekoctl
       script at Haineko::CLI::Setup::Data.
