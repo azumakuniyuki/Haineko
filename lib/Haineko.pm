@@ -26,6 +26,7 @@ sub startup {
     $nekorouter->connect( '/dump', { 'controller' => 'Root', 'action' => 'info' } );
     $nekorouter->connect( '/conf', { 'controller' => 'Root', 'action' => 'info' } );
     $nekorouter->connect( '/submit', { 'controller' => 'Sendmail', 'action' => 'submit' } );
+    $nekorouter->connect( '/sample/mail', { 'controller' => 'Sample', 'action' => 'mail' } );
 
     return $httpd->r;
 }
