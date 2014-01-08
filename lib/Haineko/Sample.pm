@@ -32,12 +32,12 @@ sub mail {
                 'subject' => 'メールの件名',
                 'charset' => 'UTF-8',
             },
-         },
+        },
     ];
 
     return $httpd->res->json( 200, Haineko::JSON->dumpjson( $samplemail ) );
-
 }
+
 1;
 __END__
 =encoding utf-8
