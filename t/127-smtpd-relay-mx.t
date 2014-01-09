@@ -9,10 +9,10 @@ my $pkgmethods = [ 'new' ];
 my $objmethods = [ 'sendmail' ];
 my $methodargv = {
     'mail' => 'kijitora@example.jp',
-    'rcpt' => 'mikeneko@example.org',
+    'rcpt' => 'mikeneko@example.co.jp',
     'head' => { 
         'From', 'Kijitora <kijitora@example.jp>',
-        'To', 'Mikechan <mikenkeko@example.org>',
+        'To', 'Mikechan <mikenkeko@example.co.jp>',
         'Subject', 'Nyaa--',
     },
     'body' => \'Nyaaaaaaaaaaaaa',
