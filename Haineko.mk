@@ -21,24 +21,34 @@ RM = /bin/rm -f
 MV = /bin/mv
 GIT = /usr/bin/git
 CTL = ./bin/hainekoctl
+PID = ./run/haineko.pid
 
 .PHONY: clean
 
 start:
-	netstat -tan | grep -E '127.0.0.1[.:]2794' || $(CTL) start -d -C $(CF) & 
-	sleep 1
+	if [ -f "$(PID)" ]; then \
+		kill -0 `head -1 $(PID)` 2> /dev/null || true ;\
+	else \
+		export HAINEKO_PROC=1;\
+		$(CTL) start -d -C $(CF) & \
+		sleep 1 ;\
+	fi
 
 start-with-cover:
-	netstat -tan | grep -E '127.0.0.1[.:]2794' && $(MAKE) -f Haineko.mk stop || true
-	sleep 1
-	perl -MDevel::Cover $(CTL) start -d -C $(CF) &
-	sleep 1
+	if [ -f "$(PID)" ]; then \
+		kill -0 `head -1 $(PID)` 2> /dev/null || true ;\
+	else \
+		export HAINEKO_PROC=1 ;\
+		perl -MDevel::Cover $(CTL) start -d -C $(CF) &
+		sleep 1 ;\
+	fi
 
 stop:
 	$(CTL) stop
 
 send: start
 	$(CURL) -d'@tmp/email.json' $(NEKO) | $(JQ)
+	test -n $$HAINEKO_PROC && $(CTL) stop
 
 test: user-test author-test
 
@@ -47,7 +57,9 @@ user-test:
 
 author-test: start
 	$(CTL) make-setup-data
+	sleep 2
 	$(PROVE) xt/
+	test -n $$HAINEKO_PROC && $(CTL) stop
 
 cover-test:
 	$(MAKE) -f Haineko.mk start-with-cover
@@ -62,6 +74,7 @@ release-test: start
 	$(MINIL) test
 	$(CP) /tmp/README.$(TIME).md ./README.md
 	$(PERL) -i -ple 's|<.+[@]gmail.com>|<perl.org\@azumakuniyuki.org>|' META.json
+	test -n $$HAINEKO_PROC && $(CTL) stop
 
 dist: start
 	$(CP) ./README.md /tmp/README.$(TIME).md
@@ -69,6 +82,7 @@ dist: start
 	$(MINIL) dist
 	$(CP) /tmp/README.$(TIME).md ./README.md
 	$(PERL) -i -ple 's|<.+[@]gmail.com>|<perl.org\@azumakuniyuki.org>|' META.json
+	test -n $$HAINEKO_PROC && $(CTL) stop
 
 push:
 	for G in pchan github; do \
