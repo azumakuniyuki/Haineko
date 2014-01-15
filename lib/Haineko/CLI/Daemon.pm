@@ -23,7 +23,7 @@ sub default {
         'logging' => { 'disabled' => 1, 'facility' => 'user', 'file' => '' },
         'workers' => 2,
         'maxreqs' => 100,
-        'interval'=> 5,
+        'interval'=> 2,
     };
 }
 
@@ -128,6 +128,7 @@ sub run {
         $commandarg .= 'nohup ';
         $commandarg .= __PACKAGE__->which('start_server');
         $commandarg .= ' --port='.$p->{'port'};
+        $commandarg .= ' --interval='.$p->{'interval'};
         $commandarg .= ' --pid-file='.$self->{'pidfile'};
         $commandarg .= ' --status-file='.$s;
         $commandarg .= ' -- ';
@@ -171,6 +172,16 @@ sub ctrl {
         $s = kill( $sigs->{ $argv }, $p );
 
         if( $argv eq 'stop' ) {
+            # Sleep for a few seconds until the process exits
+            sleep $self->{'params'}->{'interval'};
+
+            if( kill( 0, $p ) ) {
+                # If the process is still running, send 'KILL' signal to the
+                # process
+                kill( 'KILL', $p );
+                sleep $self->{'params'}->{'interval'};
+            }
+
             $self->{'runfile'} =  $self->{'pidfile'};
             $self->{'runfile'} =~ s|[.]pid|.sh|;
             $self->removepf;
