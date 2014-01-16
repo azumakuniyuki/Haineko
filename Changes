@@ -7,6 +7,7 @@ Revision history for Haineko
     - Maybe fixed for CPAN Testers Report 9ad9acca-78b1-11e3-a3d9-01ccd95af652,
       issue #9 at t/127-smtpd-relay-mx.t. Thanks to Nigel Horne.
     - Fixed an issue that the app process does not exit at "hainekoctl stop".
+    - XML::Simple module is optional.
 
 0.2.13  Fri,  3 Jan 2014 17:41:11 +0900 (JST)
     - Fixed base64 encoded setup data for "setup" sub command of bin/hainekoctl
