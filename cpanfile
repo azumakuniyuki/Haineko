@@ -17,7 +17,6 @@ requires 'Plack::Middleware::Auth::Basic', '';
 requires 'Router::Simple', '0.14';
 requires 'Server::Starter', '0.15';
 requires 'Try::Tiny', '0.16';
-requires 'XML::Simple', '2.20';
 
 on test => sub {
     requires 'Test::More', '0.98';
