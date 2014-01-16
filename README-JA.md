@@ -85,6 +85,14 @@ Hainekoにメールデータを渡す前にBASIC認証を必要とする場合�
 * __Crypt::SaltedHash__
 * __Plack::MiddleWare::Auth::Basic__
 
+Haineko::SMTPD::Relay::AmazonSESを使用する場合
+----------------------------------------------
+
+もしもHaineko::SMTPD::Relay::AmazonSESを使う場合は下記のモジュールもインストール
+してください。
+
+* __XML::Simple__ 2.20 以降
+
 ソースコードの取得
 ------------------
 

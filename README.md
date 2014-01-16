@@ -83,6 +83,14 @@ Haineko with Basic Authentication at sending an email relies on the following mo
 * __Crypt::SaltedHash__
 * __Plack::MiddleWare::Auth::Basic__
 
+Dependencies with Haineko::SMTPD::Relay::AmazonSES
+--------------------------------------------------
+
+If you will use Haineko::SMTPD::Relay::AmazonSES, please install the following
+modules.
+
+* __XML::Simple__ 2.20 or later
+
 Get the source
 --------------
 
