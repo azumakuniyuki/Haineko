@@ -8,11 +8,11 @@ my $modulename = 'Haineko::SMTPD::Relay::MX';
 my $pkgmethods = [ 'new' ];
 my $objmethods = [ 'sendmail' ];
 my $methodargv = {
-    'mail' => 'kijitora@example.jp',
-    'rcpt' => 'mikeneko@example.co.jp',
+    'mail' => 'kijitora@from.haineko.org',
+    'rcpt' => 'mikeneko@rcpt.haineko.org',
     'head' => { 
-        'From', 'Kijitora <kijitora@example.jp>',
-        'To', 'Mikechan <mikenkeko@example.co.jp>',
+        'From', 'Kijitora <kijitora@from.haineko.org>',
+        'To', 'Mikechan <mikenkeko@rcpt.haineko.org>',
         'Subject', 'Nyaa--',
     },
     'body' => \'Nyaaaaaaaaaaaaa',
