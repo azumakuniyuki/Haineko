@@ -132,6 +132,7 @@ sub sendmail {
     my $htresponse = undef;
     my $retryuntil = $self->{'retry'} || 0;
     my $smtpstatus = 0;
+    my $exceptions = 0;
     my $sendmailto = sub {
         $htresponse = $httpclient->post( $amazonses1, undef, $parameters );
         return 0 unless defined $htresponse;
@@ -167,25 +168,37 @@ sub sendmail {
         if( $htmimetype eq 'text/xml' ) {
             # text/xml
             try { 
-                # Amazon SES respond contents as a XML
                 require XML::Simple;
-                $htcontents = XML::Simple::XMLin( $htresponse->content );
-
-                for my $e ( keys %{ $htcontents->{'Error'} } ) {
-                    # Get error messages
-                    my $v = $htcontents->{'Error'}->{ $e };
-                    push @{ $nekoparams->{'message'} }, sprintf( "%s=%s", $e, $v );
-                }
 
             } catch {
-                # It was not JSON
-                require Haineko::E;
-                my $v = $htresponse->body || q();
-
+                # XML::Simple is not installed
                 $nekoparams->{'error'} = 1;
-                $nekoparams->{'message'} = [ Haineko::E->new( $v )->text ] if $v;
-                push @{ $nekoparams->{'message'} }, Haineko::E->new( $_ )->text;
+                $nekoparams->{'message'} = [ 'Please install XML::Simple 2.20 or later' ];
+                $exceptions = 1;
             };
+
+            if( not $exceptions ) {
+                # XML::Simple is already installed
+                try {
+                    # Amazon SES respond contents as a XML
+                    $htcontents = XML::Simple::XMLin( $htresponse->content );
+
+                    for my $e ( keys %{ $htcontents->{'Error'} } ) {
+                        # Get error messages
+                        my $v = $htcontents->{'Error'}->{ $e };
+                        push @{ $nekoparams->{'message'} }, sprintf( "%s=%s", $e, $v );
+                    }
+
+                } catch {
+                    # It was not JSON
+                    require Haineko::E;
+                    my $v = $htresponse->body || q();
+
+                    $nekoparams->{'error'} = 1;
+                    $nekoparams->{'message'} = [ Haineko::E->new( $v )->text ] if $v;
+                    push @{ $nekoparams->{'message'} }, Haineko::E->new( $_ )->text;
+                };
+            }
 
         } else {
 
