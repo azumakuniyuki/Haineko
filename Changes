@@ -1,6 +1,6 @@
 Revision history for Haineko
 
-0.2.14
+0.2.14  Thu, 16 Jan 2014 15:15:44 +0900 (JST)
     - New URL /sample/mail respond sample email data.
     - Respond "Access denied" as a JSON when the client address is not the same
       address of the server.
