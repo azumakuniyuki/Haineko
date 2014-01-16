@@ -62,7 +62,6 @@
             "Router::Simple" : "0.14",
             "Server::Starter" : "0.15",
             "Try::Tiny" : "0.16",
-            "XML::Simple" : "2.20",
             "perl" : "5.010"
          }
       },
@@ -75,7 +74,7 @@
       }
    },
    "release_status" : "unstable",
-   "version" : "0.2.13",
+   "version" : "0.2.14",
    "x_contributors" : [
       "azumakuniyuki <perl.org@azumakuniyuki.org>"
    ]
