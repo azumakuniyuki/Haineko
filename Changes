@@ -1,5 +1,10 @@
 Revision history for Haineko
 
+0.2.15  Thu, 23 Jan 2014 19:00:04 +0900 (JST)
+    - Fix help message of bin/hainekoctl script.
+    - Fixed again for CPAN Testers Report c629c620-8393-11e3-b3f9-dc652915a26c,
+      at t/127-smtpd-relay-mx.t.
+
 0.2.14  Thu, 16 Jan 2014 15:15:44 +0900 (JST)
     - New URL /sample/mail respond sample email data.
     - Respond "Access denied" as a JSON when the client address is not the same
