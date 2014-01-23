@@ -68,7 +68,8 @@ if( $subcommand ) {
             require Haineko::CLI::Help;
             my $climodules = [ 'Daemon', 'Setup', 'Password' ];
 
-            $hainekocmd = Haineko::CLI::Help->new;
+            $methodargv = { 'command' => $commandset };
+            $hainekocmd = Haineko::CLI::Help->new( %$methodargv );
             for my $e ( @$climodules, '' ) {
                 my $c = 'Haineko::CLI';
                 $c .= '::'.$e if length $e;
