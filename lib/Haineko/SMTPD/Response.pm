@@ -280,6 +280,7 @@ sub new {
         last unless scalar @{ $argvs->{'message'} };
 
         for my $r ( @{ $argvs->{'message'} } ) {
+            next unless defined $r;
             chomp $r;
             $r =~ s|\r\n||g;
             $r =~ s|\A *||;
