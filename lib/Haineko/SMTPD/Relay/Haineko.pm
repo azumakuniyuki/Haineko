@@ -101,11 +101,20 @@ sub sendmail {
         } else {
             # Received as a JSON ?
             try {
-                $htcontents = Haineko::JSON->loadjson( $htresponse->body ) || {};
+                my $c = $htresponse->body || q();
+                my $v = {};
 
-                my $v = $htcontents->{'response'} || {};
-                $nekoparams->{'dsn'} ||= $v->{'dsn'};
-                push @{ $nekoparams->{'message'} }, $v->{'message'}->[-1];
+                if( $c =~ m/(Failed to send HTTP request)/ ) {
+                    # Failed to send HTTP request
+                    # $htcontents = { 'response' => $1 };
+                    $nekoparams->{'message'} = [ $1 ];
+                } else {
+                    # Response maybe JSON
+                    $htcontents = Haineko::JSON->loadjson( $c ) || {};
+                    $v = $htcontents->{'response'} || {};
+                    $nekoparams->{'dsn'} ||= $v->{'dsn'};
+                    push @{ $nekoparams->{'message'} }, ( $v->{'message'}->[-1] || q() );
+                }
 
             } catch {
 
