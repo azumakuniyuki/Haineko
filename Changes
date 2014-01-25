@@ -1,5 +1,9 @@
 Revision history for Haineko
 
+0.2.16  Sat, 25 Jan 2014 21:00:22 +0900 (JST)
+    - Fixed code at lib/Haineko/SMTPD/Relay/Haineko.pm reported at CPAN Testers
+      Report 54826936-84d9-11e3-bb3c-11f7f1eb6092, Thanks to Victor Efimov.
+
 0.2.15  Thu, 23 Jan 2014 19:00:04 +0900 (JST)
     - Fix help message of bin/hainekoctl script.
     - Fixed again for CPAN Testers Report c629c620-8393-11e3-b3f9-dc652915a26c,
