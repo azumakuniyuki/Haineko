@@ -67,14 +67,21 @@ INSTANCE_METHODS: {
     $m = shift @{ $o->response->message };
 
     is $r->dsn, undef, '->response->dsn => undef';
-    is $r->code, 421, '->response->code => 421';
     is $r->host, $methodargv->{'host'}, '->response->host => '.$r->host;
     is $r->port, $methodargv->{'port'}, '->response->port => '.$r->port;
     is $r->rcpt, $methodargv->{'rcpt'}, '->response->port => '.$r->rcpt;
     is $r->error, 1, '->response->error=> 1';
-    is $r->command, 'CONN', '->response->command => CONN';
 
-    like $m, qr/Cannot connect SMTP Server/, '->response->message => '.$m;
+    if( $r->code == 421 ) {
+        is $r->code, 421, '->response->code => 421';
+        is $r->command, 'CONN', '->response->command => CONN';
+        like $m, qr/Cannot connect SMTP Server/, '->response->message => '.$m;
+
+    } elsif( $r->code == 500 ) {
+        is $r->code, 500, '->response->code => 500';
+        is $r->command, 'POST', '->response->command => POST';
+        like $m, qr/Failed to send HTTP request/, '->response->message => '.$m;
+    }
 }
 
 done_testing;
