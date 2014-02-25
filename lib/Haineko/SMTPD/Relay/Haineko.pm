@@ -40,7 +40,7 @@ sub sendmail {
 
     my $jsonstring = Haineko::JSON->dumpjson( $parameters );
     my $httpheader = [];
-    my $httpobject = undef;
+    my $httpclient = undef;
     my $htresponse = undef;
     my $hainekores = undef;
 
@@ -51,7 +51,7 @@ sub sendmail {
         $httpheader = [ 'Authorization' => sprintf( "Basic %s", $v ) ];
     }
 
-    $httpobject = Furl->new(
+    $httpclient = Furl->new(
         'agent'    => __PACKAGE__,
         'timeout'  => 10,
         'headers'  => $httpheader,
@@ -62,7 +62,7 @@ sub sendmail {
     my $retryuntil = $self->{'retry'} || 0;
 
     my $sendmailto = sub {
-        $htresponse = $httpobject->post( $hainekourl, $httpheader, $jsonstring );
+        $htresponse = $httpclient->post( $hainekourl, $httpheader, $jsonstring );
 
         return 0 unless defined $htresponse;
         return 0 unless $htresponse->is_success;
