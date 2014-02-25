@@ -8,6 +8,7 @@
 # ---------------------------------------------------------------------------
 HERE = $(shell `pwd`)
 TIME = $(shell date '+%s')
+NAME = Haineko
 NEKO = 'http://127.0.0.1:2794/submit'
 MAKE = /usr/bin/make
 PERL = /usr/local/bin/perl
@@ -62,25 +63,25 @@ author-test: start
 	test -n $$HAINEKO_PROC && $(CTL) stop
 
 cover-test:
-	$(MAKE) -f Haineko.mk start-with-cover
-	cp Haineko.mk ./makefile
+	$(MAKE) -f $(NAME).mk start-with-cover
+	cp $(NAME).mk ./makefile
 	cover -test
-	$(MAKE) -f Haineko.mk stop
+	$(MAKE) -f $(NAME).mk stop
 	$(RM) ./makefile
 
 release-test: start
-	$(CP) ./README.md /tmp/README.$(TIME).md
-	$(MAKE) -f Haineko.mk clean
+	$(CP) ./README.md /tmp/$(NAME)-README.$(TIME).md
+	$(MAKE) -f $(NAME).mk clean
 	$(MINIL) test
-	$(CP) /tmp/README.$(TIME).md ./README.md
+	$(CP) /tmp/$(NAME)-README.$(TIME).md ./README.md
 	$(PERL) -i -ple 's|<.+[@]gmail.com>|<perl.org\@azumakuniyuki.org>|' META.json
 	test -n $$HAINEKO_PROC && $(CTL) stop
 
 dist: start
-	$(CP) ./README.md /tmp/README.$(TIME).md
-	$(MAKE) -f Haineko.mk clean
+	$(CP) ./README.md /tmp/$(NAME)-README.$(TIME).md
+	$(MAKE) -f $(NAME).mk clean
 	$(MINIL) dist
-	$(CP) /tmp/README.$(TIME).md ./README.md
+	$(CP) /tmp/$(NAME)-README.$(TIME).md ./README.md
 	$(PERL) -i -ple 's|<.+[@]gmail.com>|<perl.org\@azumakuniyuki.org>|' META.json
 	test -n $$HAINEKO_PROC && $(CTL) stop
 
