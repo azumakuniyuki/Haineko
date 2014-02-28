@@ -13,13 +13,15 @@
 #     port:     Port number of the server, default value is 25.
 #     auth:     'key' = Use SMTP-AUTH in relaying by using credentials defined
 #                       in etc/authinfo
-#               ''    = No SMTP-AUTH
-#     retry:    Retry count when an SMTP server returns 4XX.
-#     sleep:    Sleep for specified seconds until the next retrying
-#     timeout:  Seconds until timeout for SMTP connection
+#               ''    = No SMTP-AUTH (Default)
+#     retry:    Retry count when an SMTP server returns 4XX, Default value is 0.
+#     sleep:    Sleep for specified seconds until the next retrying, Default
+#               value is 5 seconds.
+#     timeout:  Seconds until timeout for SMTP connection, Default value is 30.
 #     starttls: 1 = Use STARTTLS at SMTP connection
+#               0 = Do not use STARTTLS (Default)
 #     disabled: 1 = Do not use this routing
-#               0 = Use this routing
+#               0 = Use this routing (Default)
 #
 # Example:
 #   smtp.kijitora.example.jp:
