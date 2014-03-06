@@ -26,6 +26,15 @@ Class::Accessor::Lite->mk_accessors( @$rwaccessors );
 Class::Accessor::Lite->mk_ro_accessors( @$roaccessors );
 
 sub new {
+    # @Description  Constructor of Haineko::HTTPD
+    # @Param <hash> Arguments
+    #   runfile       (String) status file of the script
+    #   pidfile       (String) path to pid file
+    #   verbose       (Boolean) Verbose or not
+    #   command       (String) Command line
+    #   runmode       (Integer) Run mode of the script
+    #   logging       (Ref->Hash) Logging configuration
+    # @Return       (Haineko::CLI) CLI Object
     my $class = shift;
     my $argvs = { @_ };
     my $param = {};
@@ -51,12 +60,18 @@ sub new {
 }
 
 sub version {
+    # @Description  Returns the number of version
+    # @Param        <None>
+    # @Return       (String) Version
     my $class = shift;
     use Haineko;
     printf( STDERR "Haineko %s\n", $Haineko::VERSION );
 }
 
 sub which {
+    # @Description  Run as "which" command of UNIX
+    # @Param <name> (String) Command name
+    # @Return       (String) Command path
     my $class = shift;
     my $cname = shift || return q();
     my $paths = [ split( ':', $ENV{'PATH'} ) ];
@@ -76,21 +91,33 @@ sub which {
 }
 
 sub stdin  { 
+    # @Description  Shortcut for stream->stdin
+    # @Param        <None>
+    # @Return       (Boolean) 0 = No tty, 1 = tty ok
     my $self = shift;
     return $self->{'stream'}->{'stdin'};
 }
 
 sub stdout { 
+    # @Description  Shortcut for stream->stdout
+    # @Param        <None>
+    # @Return       (Boolean) 0 = No tty, 1 = tty ok
     my $self = shift;
     return $self->{'stream'}->{'stdout'};
 }
 
 sub stderr { 
+    # @Description  Shortcut for stream->stderr
+    # @Param        <None>
+    # @Return       (Boolean) 0 = No tty, 1 = tty ok
     my $self = shift;
     return $self->{'stream'}->{'stderr'};
 }
 
 sub r { 
+    # @Description  Shortcut for "runmode"
+    # @Param <val>  (Integer) The value of new "runmode"
+    # @Return       (Integer) Current "runmode"
     my $self = shift;
     my $argv = shift;
 
@@ -99,6 +126,9 @@ sub r {
 }
 
 sub v { 
+    # @Description  Shortcut for "verbose"
+    # @Param <val>  (Integer) The value of new "verbose"
+    # @Return       (Integer) Current "verbose"
     my $self = shift;
     my $argv = shift;
 
@@ -107,6 +137,10 @@ sub v {
 }
 
 sub e {
+    # @Description  Print error message and exit
+    # @Param <mesg> (String) Error message
+    # @Param <flag> (Boolean) 0 = exit, 1 = does not exit
+    # @Return       (Integer) 1 or exit
     my $self = shift;
     my $mesg = shift; return 0 unless length $mesg;
     my $cont = shift || 0;
@@ -120,6 +154,10 @@ sub e {
 }
 
 sub p {
+    # @Description  Print debug message
+    # @Param <mesg> (String) Debug message
+    # @Param <mode> (Integer) Run mode
+    # @Return       (Integer) 1 or 0
     my $self = shift;
     my $mesg = shift; return 0 unless length $mesg;
     my $rung = shift // 1;
@@ -142,6 +180,9 @@ sub p {
 }
 
 sub makerf {
+    # @Description  Make "runfile"
+    # @Param <cont> (Ref->Array) File contents of the runfile
+    # @Return       (Integer) 1 or 0
     my $self = shift;
     my $argv = shift;
     my $file = undef;
@@ -176,6 +217,9 @@ sub removerf {
 }
 
 sub makepf {
+    # @Description  Make "pidfile"
+    # @Param        <None>
+    # @Return       (Integer) 1 or 0
     my $self = shift;
     my $file = undef;
     my $text = '';
@@ -192,6 +236,9 @@ sub makepf {
 }
 
 sub removepf { 
+    # @Description  Delete "pidfile"
+    # @Param        <None>
+    # @Return       (Integer) 1 or 0
     my $self = shift; 
     return 0 unless -f $self->{'pidfile'};
     unlink $self->{'pidfile'};
@@ -199,6 +246,9 @@ sub removepf {
 }
 
 sub readpf {
+    # @Description  Read pidfile and return the value of pid
+    # @Param        <None>
+    # @Return       (Integer) pid or undef
     my $self = shift;
 
     return undef unless -e $self->{'pidfile'};
@@ -215,6 +265,9 @@ sub readpf {
 
 sub optionparser {}
 sub help {
+    # @Description  Return help message
+    # @Param <char> (Character) Message category
+    # @Return       (Ref->Array) Help messages
     my $class = shift;
     my $argvs = shift || q();
 
