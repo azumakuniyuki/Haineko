@@ -13,6 +13,9 @@ use Haineko::SMTPD::Session;
 use Haineko::SMTPD::Response;
 
 sub submit {
+    # @Description  /submit action
+    # @Param <obj>  (Haineko::HTTPD) httpd object
+    # @Return       (Haineko::Response) Response object
     my $class = shift;
     my $httpd = shift;  # (Haineko::HTTPD)
 
