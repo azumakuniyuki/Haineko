@@ -28,6 +28,11 @@ Class::Accessor::Lite->mk_accessors( @$rwaccessors );
 Class::Accessor::Lite->mk_ro_accessors( @$roaccessors );
 
 sub new {
+    # @Description  Constructor of Haineko::HTTPD
+    # @Param <hash> (Hash) Arguments
+    #   root          (String) Root directory of Haineko
+    #   conf          (String) Path to haineko.cf file
+    # @Return       (Haineko::HTTPD) HTTPD Object
     my $class = shift;
     my $argvs = { @_ };
 
@@ -85,6 +90,9 @@ sub new {
 }
 
 sub start {
+    # @Description  Start Haineko server
+    # @Param        <None>
+    # @Return       (Ref->CODE) Code reference
     my $class = shift;
     my $nyaaa = sub {
         my $hainekoenv = shift;
@@ -102,16 +110,26 @@ sub start {
 }
 
 sub req {
+    # @Description  Wrapper method of Haineko::Request
+    # @Param        <None>
+    # @Return       (Haineko::Request) Request object
     my $self = shift;
     return $self->request;
 }
 
 sub res {
+    # @Description  Wrapper method of Haineko::Response
+    # @Param        <None>
+    # @Return       (Haineko::Response) Response object
     my $self = shift;
     return $self->response;
 }
 
 sub rdr {
+    # @Description  Shortcut to Haineko::Response->redirect
+    # @Param <code> (Integer) HTTP Status code: default = 302
+    # @Param <url>  (String) The next URL
+    # @Return       (Haineko::Response) Request object
     my $self = shift;
     my $code = shift || 302;
     my $next = shift;
@@ -121,6 +139,10 @@ sub rdr {
 }
 
 sub err {
+    # @Description  Return error response
+    # @Param <code> (Integer) HTTP Status code: default = 404 
+    # @Param <mesg> (String) Error message
+    # @Return       (Haineko::Response) Response object
     my $self = shift;
     my $code = shift || 404;
     my $mesg = shift;
@@ -156,6 +178,9 @@ sub err {
 }
 
 sub r {
+    # @Description  Return response of matched action
+    # @Param        <None>
+    # @Return       (Haineko::Response) Response object
     my $self = shift;
     my $neko = $self->router->routematch( $self->req->env );
 
