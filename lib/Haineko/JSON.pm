@@ -7,6 +7,9 @@ use IO::File;
 use JSON::Syck;
 
 sub loadfile {
+    # @Description  Load file as a JSON
+    # @Param <file> (String) Path to a JSON file
+    # @Return       (Var) Perl variable
     my $class = shift;
     my $argvs = shift // return undef;
 
@@ -24,6 +27,9 @@ sub dumpfile {
 }
 
 sub loadjson {
+    # @Description  Load text as a JSON
+    # @Param <file> (String) JSON string
+    # @Return       (Ref->(Hash|Array)) Perl variable
     my $class = shift;
     my $argvs = shift // return undef;;
 
@@ -31,6 +37,9 @@ sub loadjson {
 }
 
 sub dumpjson {
+    # @Description  Convert from perl variable to JSON
+    # @Param <file> (Var) Perl variable
+    # @Return       (String) JSON string
     my $class = shift;
     my $argvs = shift // return undef;
 
