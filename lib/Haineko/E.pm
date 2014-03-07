@@ -13,6 +13,9 @@ my $woaccessors = [];
 Class::Accessor::Lite->mk_accessors( @$rwaccessors );
 
 sub new {
+    # @Description  Constructor of Haineko::E
+    # @Param <arg>  (String) Error message of Perl
+    # @Return       (Haineko::E) Error object
     my $class = shift;
     my $argvs = shift || return undef;
     my $param = {
@@ -38,6 +41,9 @@ sub new {
 }
 
 sub p {
+    # @Description  Error message parser
+    # @Param <arg>  (String) Error message of Perl
+    # @Return       (Ref->Array) Error message list 
     my $class = shift;
     my $argvs = shift || return [];
     my $error = [];
@@ -60,6 +66,9 @@ sub p {
 }
 
 sub message {
+    # @Description  Convert error message in the object to a text
+    # @Param        <None>
+    # @Return       (String) Error message
     my $self = shift;
     my $mesg = q();
 
@@ -72,6 +81,9 @@ sub message {
 }
 
 sub text {
+    # @Description  Return error message part only(not include the path)
+    # @Param        <None>
+    # @Return       (String) Error message
     my $self = shift;
     return q() unless scalar @{ $self->{'mesg'} };
     return join( ' ', @{ $self->{'mesg'} } );
