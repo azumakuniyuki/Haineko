@@ -15,13 +15,13 @@ my $rwaccessors = [
 my $roaccessors = [
     'name',     # (String) domain name
 ];
-my $woaccessors = [];
 Class::Accessor::Lite->mk_accessors( @$rwaccessors );
 Class::Accessor::Lite->mk_ro_accessors( @$roaccessors );
 
-my $DNSRR = [ 'A', 'MX', 'NS', 'TXT' ];
-
 sub new {
+    # @Description  Constructor of Haineko::DNS
+    # @Param <name> (String) Domain name
+    # @Return       (Haineko::DNS) Resolver object
     my $class = shift;
     my $argvs = shift // return undef;
     my $param = { 'name' => lc $argvs };
@@ -30,15 +30,21 @@ sub new {
 }
 
 sub flush {
+    # @Description  Remove all resource records from the object
+    # @Param        <None>
+    # @Return       (Haineko::DNS) Resolver object
     my $self = shift;
 
-    for my $e ( @$DNSRR ) {
+    for my $e ( @$rwaccessors ) {
         delete $self->{ $e } if exists $self->{ $e };
     }
     return $self;
 }
 
 sub resolve {
+    # @Description  Set resolved RRs into the object
+    # @Param <rr>   (String) Resource record type: A, MX, TXT, or NS
+    # @Return       (Haineko::DNS) Resolver object
     my $self = shift;
     my $type = shift || 'A';
     my $name = $self->{'name'};
@@ -90,9 +96,14 @@ sub resolve {
 }
 
 sub rr {
+    # @Description  Resolve and return resolved RRs
+    # @Param <rr>   (String) Resource record type: A, MX, TXT, or NS
+    # @Return       (Ref->Array) Resource records
     my $self = shift;
-    my $type = shift || 'A'; $type = 'A' unless grep { $type eq $_ } @$DNSRR;
+    my $type = shift || 'A'; 
     my $dnsr = undef;
+
+    $type = 'A' unless grep { $type eq $_ } @$rwaccessors;
 
     my $pick = sub {
         my $list = [];
@@ -113,21 +124,33 @@ sub rr {
 }
 
 sub arr {
+    # @Description  alias for rr('a')
+    # @Param        <None>
+    # @Return       (Ref->Array) Resource records(A)
     my $self = shift;
     return $self->rr('A');
 }
 
 sub mxrr {
+    # @Description  alias for rr('mx')
+    # @Param        <None>
+    # @Return       (Ref->Array) Resource records(MX)
     my $self = shift;
     return $self->rr('MX');
 }
 
 sub nsrr {
+    # @Description  alias for rr('ns')
+    # @Param        <None>
+    # @Return       (Ref->Array) Resource records(NS)
     my $self = shift;
     return $self->rr('NS');
 }
 
 sub txtrr {
+    # @Description  alias for rr('txt')
+    # @Param        <None>
+    # @Return       (Ref->Array) Resource records(TXT)
     my $self = shift;
     return $self->rr('TXT');
 }
