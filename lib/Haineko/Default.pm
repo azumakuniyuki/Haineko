@@ -3,6 +3,9 @@ use strict;
 use warnings;
 
 sub conf {
+    # @Description  Provides default configuration
+    # @Param        <None>
+    # @Return       (Ref->Hash) Default configuration set
     return {
         'smtpd' => { 
             'hostname' => '',               # used at EHLO
@@ -21,6 +24,9 @@ sub conf {
 }
 
 sub table {
+    # @Description  Provide table file names
+    # @Param <name> (String) table group: mailer, access
+    # @Return       (Ref->Hash) Table file names
     my $class = shift;
     my $argvs = shift || return undef;
     my $table = {
