@@ -4,7 +4,9 @@ use strict;
 use warnings;
 
 sub index {
-    # GET /
+    # @Description  Action for GET /
+    # @Param <obj>  (Haineko::HTTPD) httpd object
+    # @Return       (Haineko::Response) Response object
     use Haineko;
     my $class = shift;
     my $httpd = shift;
@@ -14,7 +16,9 @@ sub index {
 }
 
 sub info {
-    # GET /dump, /conf
+    # @Description  Action for GET /dump, /conf
+    # @Param <obj>  (Haineko::HTTPD) httpd object
+    # @Return       (Haineko::Response) Response object
     my $class = shift;
     my $httpd = shift;
 
@@ -119,7 +123,9 @@ sub info {
 }
 
 sub neko {
-    # GET /neko
+    # @Description  Action for GET /neko
+    # @Param <obj>  (Haineko::HTTPD) httpd object
+    # @Return       (Haineko::Response) Response object
     my $class = shift;
     my $httpd = shift;
 
