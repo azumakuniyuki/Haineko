@@ -37,6 +37,11 @@ my $LogLevels = [
 ];
 
 sub new {
+    # @Description  Constructor of syslog wrapper
+    # @Param <args> (Hash)
+    #     
+    #
+    # @Return       (Haineko::Response) Response object
     my $class = shift;
     my $argvs = { @_ };
 
