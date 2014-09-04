@@ -122,8 +122,8 @@ A. Build and install from CPAN using cpanm | CPANからインストール(cpanm�
     $ cd $HAINEKO_ROOT
     $ vi ./etc/haineko.cf
 
-    And edit other files in etc/ directory if you needed.
-    必要ならetc/ディレクトリ以下のファイルも編集して下さい。
+And edit other files in etc/ directory if you needed.
+必要ならetc/ディレクトリ以下のファイルも編集して下さい。
 
 Run by the one of the followings:
 
@@ -140,8 +140,8 @@ B. Run at the source directory | ソースコードのディレクトリで直�
     $ ./bin/hainekoctl setup --dest .
     $ vi ./etc/haineko.cf
 
-    And edit other files in etc/ directory if you needed.
-    必要ならetc/ディレクトリ以下のファイルも編集して下さい。
+And edit other files in etc/ directory if you needed.
+必要ならetc/ディレクトリ以下のファイルも編集して下さい。
 
 Run by the one of the followings:
 
@@ -176,8 +176,8 @@ OR
     $ cd /usr/local/haineko
     $ vi ./etc/haineko.cf
 
-    And edit other files in etc/ directory if you needed.
-    必要ならetc/ディレクトリ以下のファイルも編集して下さい。
+And edit other files in etc/ directory if you needed.
+必要ならetc/ディレクトリ以下のファイルも編集して下さい。
 
     $ export PERL5LIB=/usr/local/haineko/lib/perl5
 
@@ -199,8 +199,8 @@ D. Build and install into /usr/local | /usr/localにインストールする
     $ cd /usr/local
     $ vi ./etc/haineko.cf
 
-    And edit other files in etc/ directory if you needed.
-    必要ならetc/ディレクトリ以下のファイルも編集して下さい。
+And edit other files in etc/ directory if you needed.
+必要ならetc/ディレクトリ以下のファイルも編集して下さい。
 
 Run by the one of the followings:
 
