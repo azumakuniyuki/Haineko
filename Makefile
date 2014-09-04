@@ -6,23 +6,23 @@
 # | |  | | (_| |   <  __/  _| | |  __/
 # |_|  |_|\__,_|_|\_\___|_| |_|_|\___|
 # ---------------------------------------------------------------------------
-HERE = $(shell `pwd`)
-TIME = $(shell date '+%s')
-NAME = Haineko
-NEKO = 'http://127.0.0.1:2794/submit'
-MAKE = /usr/bin/make
-PERL = /usr/local/bin/perl
-CURL = /usr/bin/curl -X POST
-PROVE= /usr/local/bin/prove -Ilib --timer
-MINIL= /usr/local/bin/minil
-CF = ./etc/haineko.cf-debug
-JQ = /usr/local/bin/jq -M .
-CP = /bin/cp
-RM = /bin/rm -f
-MV = /bin/mv
-GIT = /usr/bin/git
-CTL = ./bin/hainekoctl
-PID = ./run/haineko.pid
+HERE  = $(shell `pwd`)
+TIME  = $(shell date '+%s')
+NAME  = Haineko
+NEKO  = 'http://127.0.0.1:2794/submit'
+MAKE  = /usr/bin/make
+PERL  = /usr/local/bin/perl
+CURL  = /usr/bin/curl -X POST
+PROVE = /usr/local/bin/prove -Ilib --timer
+MINIL = /usr/local/bin/minil
+CF    = ./etc/haineko.cf-debug
+JQ    = /usr/local/bin/jq -M .
+CP    = /bin/cp
+RM    = /bin/rm -f
+MV    = /bin/mv
+GIT   = /usr/bin/git
+CTL   = ./bin/hainekoctl
+PID   = ./run/haineko.pid
 
 .PHONY: clean
 
@@ -63,15 +63,12 @@ author-test: start
 	test -n $$HAINEKO_PROC && $(CTL) stop
 
 cover-test:
-	$(MAKE) -f $(NAME).mk start-with-cover
-	cp $(NAME).mk ./makefile
+	$(MAKE) start-with-cover
 	cover -test
-	$(MAKE) -f $(NAME).mk stop
-	$(RM) ./makefile
 
 release-test: start
 	$(CP) ./README.md /tmp/$(NAME)-README.$(TIME).md
-	$(MAKE) -f $(NAME).mk clean
+	$(MAKE) clean
 	$(MINIL) test
 	$(CP) /tmp/$(NAME)-README.$(TIME).md ./README.md
 	$(PERL) -i -ple 's|<.+[@]gmail.com>|<perl.org\@azumakuniyuki.org>|' META.json
@@ -79,7 +76,7 @@ release-test: start
 
 dist: start
 	$(CP) ./README.md /tmp/$(NAME)-README.$(TIME).md
-	$(MAKE) -f $(NAME).mk clean
+	$(MAKE) clean
 	$(MINIL) dist
 	$(CP) /tmp/$(NAME)-README.$(TIME).md ./README.md
 	$(PERL) -i -ple 's|<.+[@]gmail.com>|<perl.org\@azumakuniyuki.org>|' META.json
