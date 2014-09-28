@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/azumakuniyuki/Haineko.svg?branch=master)](https://travis-ci.org/azumakuniyuki/Haineko) 
+[![Coverage Status](https://img.shields.io/coveralls/azumakuniyuki/Haineko.svg)](https://coveralls.io/r/azumakuniyuki/Haineko)
      _   _       _            _         
     | | | | __ _(_)_ __   ___| | _____  
     | |_| |/ _` | | '_ \ / _ \ |/ / _ \ 
