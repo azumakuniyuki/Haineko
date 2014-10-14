@@ -24,7 +24,7 @@ or later and Plack.
 * Mac OS X
 * Linux
 
-jaineko(はいねこ)はブラウザやcurl等HTTPクライアントからJSONでメールを送信する為
+Haineko(はいねこ)はブラウザやcurl等HTTPクライアントからJSONでメールを送信する為
 のリレーサーバとして、Perl+Plack/PSGIアプリケーションとして実装されています。
 
 Hainekoに対してJSONで記述されたメールのデータをHTTP POSTで送信すれば、外部のSMTP
