@@ -15,7 +15,7 @@ my $commandset = undef;
 my $daemonargs = [ 'start', 'stop', 'reload', 'restart', 'status' ];
 
 if( $subcommand ) {
-
+    # Check the first argument
     $commandset = join( ' ', $scriptname, @ARGV );
     if( grep { $subcommand eq $_ } @$daemonargs ) {
         #      _                                  
