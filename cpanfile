@@ -15,7 +15,7 @@ requires 'Path::Class', '0.24';
 requires 'Plack', '1.0027';
 requires 'Plack::Middleware::Auth::Basic', '';
 requires 'Router::Simple', '0.14';
-requires 'Server::Starter', '0.15';
+requires 'Server::Starter', '0.17';
 requires 'Try::Tiny', '0.16';
 
 on test => sub {
