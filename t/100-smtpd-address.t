@@ -5,7 +5,7 @@ use Haineko::SMTPD::Address;
 use Test::More;
 
 my $modulename = 'Haineko::SMTPD::Address';
-my $pkgmethods = [ 'new', 'canonify' ];
+my $pkgmethods = [ 'new', 's3s4' ];
 my $objmethods = [ 'damn' ];
 my $testobject = new $modulename( 'address' => 'kijitora@example.jp' );
 
@@ -45,12 +45,12 @@ CLASS_METHODS: {
     $v = $modulename->new( 'address' => undef ); is $v, undef;
     $v = $modulename->new( 'address' => 'cat' ); is $v, undef;
 
-    $v = $modulename->canonify(undef); is $v, q();
-    $v = $modulename->canonify(['1']); is $v, q();
+    $v = $modulename->s3s4(undef); is $v, q();
+    $v = $modulename->s3s4(['1']); is $v, q();
 
     for my $e ( @$emailaddrs ) {
 
-        my $c = $modulename->canonify( $e );
+        my $c = $modulename->s3s4( $e );
         my $o = $modulename->new( 'address' => $c );
         my $d = $o->damn;
 
