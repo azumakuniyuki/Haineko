@@ -3,7 +3,7 @@ use feature ':5.10';
 use strict;
 use warnings;
 use IO::File;
-use Fcntl qw(:flock);
+use Fcntl ':flock';
 use Sys::Syslog;
 use Time::Piece;
 use Class::Accessor::Lite;
@@ -27,7 +27,7 @@ Class::Accessor::Lite->mk_ro_accessors( @$roaccessors );
 
 sub new {
     # @Description  Constructor of Haineko::HTTPD
-    # @Param <hash> Arguments
+    # @Param <hash> Following arguments
     #   runfile       (String) status file of the script
     #   pidfile       (String) path to pid file
     #   verbose       (Boolean) Verbose or not
@@ -44,10 +44,10 @@ sub new {
 
     $param = {
         'started' => Time::Piece->new,
-        'runfile' => $argvs->{'runfile'} || q(),
-        'pidfile' => $argvs->{'pidfile'} || q(),
+        'runfile' => $argvs->{'runfile'} || '',
+        'pidfile' => $argvs->{'pidfile'} || '',
         'verbose' => $argvs->{'verbose'} || 0,
-        'command' => $argvs->{'command'} || [ caller ]->[1],
+        'command' => $argvs->{'command'} || (caller)[1],
         'runmode' => $argvs->{'runmode'} || 1,
         'logging' => $argvs->{'logging'} || { 'disabled' => 1, 'facility' => 'local2', 'file' => '' },
         'stream'  => {
@@ -73,12 +73,14 @@ sub which {
     # @Param <name> (String) Command name
     # @Return       (String) Command path
     my $class = shift;
-    my $cname = shift || return q();
-    my $paths = [ split( ':', $ENV{'PATH'} ) ];
-    my $cpath = q();
+    my $cname = shift || return '';
+    my @paths = split( ':', $ENV{'PATH'} );
+    my $cpath = '';
 
-    return q() unless scalar @$paths;
-    for my $e ( @$paths ) {
+    return '' unless scalar @paths;
+
+    for my $e ( @paths ) {
+        # Find the command
         next unless -d $e;
 
         my $f = $e.'/'.$cname;
@@ -147,6 +149,7 @@ sub e {
 
     $self->l( $mesg, 'e' ) unless $self->{'logging'}->{'disabled'};
     if( $self->stderr ) {
+        # print message when /dev/stderr is available
         printf( STDERR " * error0: %s\n", $mesg );
         printf( STDERR " * error0: ******** ABORT ********\n" ) unless $cont;
     }
@@ -165,6 +168,7 @@ sub p {
     return 0 unless $self->stderr;
 
     if( $rung > -1 ) {
+        # The value of run mode is greater than -1
         return 0 unless $self->v;
         return 0 unless $self->v >= $rung;
 
@@ -172,11 +176,11 @@ sub p {
         printf( STDERR " * debug%d: %s\n", $rung, $mesg );
 
     } else {
+
         printf( STDERR "%s\n", $mesg );
     }
 
     return 1;
-
 }
 
 sub makerf {
@@ -205,13 +209,18 @@ sub makerf {
 
     flock( $file, LOCK_EX ) ? $file->print( $text ) : return 0;
     flock( $file, LOCK_UN ) ? $file->close : return 0;
+
     chmod( 0755, $self->{'runfile'} );
     return 1;
 }
 
 sub removerf { 
+    # @Description  Remove "runfile"
+    # @Param        <None>
+    # @Return       (Integer) 1 or 0
     my $self = shift; 
     return 0 unless -f $self->{'runfile'};
+
     unlink $self->{'runfile'};
     return 1;
 }
@@ -232,6 +241,7 @@ sub makepf {
 
     flock( $file, LOCK_EX ) ? $file->print( $text ) : return 0;
     flock( $file, LOCK_UN ) ? $file->close : return 0;
+
     return 1;
 }
 
@@ -269,7 +279,7 @@ sub help {
     # @Param <char> (Character) Message category
     # @Return       (Ref->Array) Help messages
     my $class = shift;
-    my $argvs = shift || q();
+    my $argvs = shift || '';
 
     my $commoption = [ '-v, --verbose' => 'Verbose mode.' ];
     my $subcommand = [ 'help' => 'This screen.' ];

@@ -7,10 +7,10 @@ use Try::Tiny;
 use Class::Accessor::Lite;
 
 my $rwaccessors = [
-    'A',        # (ArrayRef) A
-    'MX',       # (ArrayRef) MX
-    'NS',       # (ArrayRef) NS
-    'TXT',      # (ArrayRef) TXT
+    'A',    # (ArrayRef) A
+    'MX',   # (ArrayRef) MX
+    'NS',   # (ArrayRef) NS
+    'TXT',  # (ArrayRef) TXT
 ];
 my $roaccessors = [
     'name',     # (String) domain name
@@ -36,6 +36,7 @@ sub flush {
     my $self = shift;
 
     for my $e ( @$rwaccessors ) {
+        # Flush resolved cache
         delete $self->{ $e } if exists $self->{ $e };
     }
     return $self;
@@ -60,6 +61,7 @@ sub resolve {
     };
 
     try {
+        # Name resolver
         $rrresolver = Net::DNS::Resolver->new;
         $rrqueryset = $rrresolver->query( $self->{'name'}, $type );
         $resolvedrr = [];
@@ -89,6 +91,7 @@ sub resolve {
         $self->{'MX'} = [ sort { $a->{'p'} <=> $b->{'p'} } @$resolvedrr ];
 
     } else {
+        # RR except MX
         $self->{ $type } = $resolvedrr;
     }
 
@@ -106,10 +109,12 @@ sub rr {
     $type = 'A' unless grep { $type eq $_ } @$rwaccessors;
 
     my $pick = sub {
+        # Resolver sub routine
         my $list = [];
         return [] unless ref $self->$type eq 'ARRAY';
 
         for my $r ( @{ $self->$type } ) {
+            # Check expiration date
             next if $r->{'exp'} < time;
             push @$list, $r->{'rr'};
         }

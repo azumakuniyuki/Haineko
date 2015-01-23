@@ -13,15 +13,17 @@ my $roaccessors = [
 my $woaccessors = [];
 Class::Accessor::Lite->mk_accessors( @$roaccessors );
 
-
 sub new {
+    # @Description  Constructor of Haineko::SMTPD::Address
+    # @Param <arg>  (Hash) address
+    # @Return       (Haineko::SMTPD::Address) Object
     my $class = shift;
     my $argvs = { @_ }; 
 
     return undef unless defined $argvs->{'address'};
 
     if( $argvs->{'address'} =~ m{\A(?<localpart>[^@]+)[@](?<domainpart>[^@]+)\z} ) {
-
+        # Capture an email address
         $argvs->{'user'} = lc $+{'localpart'};
         $argvs->{'host'} = lc $+{'domainpart'};
 
@@ -31,64 +33,71 @@ sub new {
         return bless $argvs, __PACKAGE__
 
     } else {
+        # The valud of "address" does not seem to an email address
         return undef;
     }
 }
 
-sub canonify {
+sub s3s4 {
+    # @Description  Ruleset 3, and 4 of sendmail.cf
+    # @Param <str>  (String) Text including an email address
+    # @Return       (String) Email address without comment, brackets
     my $class = shift;
     my $email = shift;
 
-    return q() unless defined $email;
-    return q() if ref $email;
+    return '' unless defined $email;
+    return '' if ref $email;
 
     # "=?ISO-2022-JP?B?....?="<user@example.jp>
     # no space character between " and < .
     $email =~ s/(?<C>.)"</$+{'C'}" </;
 
-    my $canonified = q();
-    my $addressset = [];
-    my $emailtoken = [ split ' ', $email ];
+    my $s3s4parsed = '';
+    my @addressset = ();
+    my @emailtoken = split( ' ', $email );
 
-    for my $e ( @$emailtoken ) {
+    for my $e ( @emailtoken ) {
         # Convert character entity; "&lt;" -> ">", "&gt;" -> "<".
         $e =~ s/&lt;/</g;
         $e =~ s/&gt;/>/g;
         $e =~ s/,\z//g;
     }
 
-    if( scalar( @$emailtoken ) == 1 ) {
+    if( scalar( @emailtoken ) == 1 ) {
         # kijitora@example.jp
-        push @$addressset, $emailtoken->[0];
+        push @addressset, $emailtoken[0];
 
     } else {
-        foreach my $e ( @$emailtoken ) {
+        foreach my $e ( @emailtoken ) {
             # Kijitora cat <kijitora@example.jp>
             chomp $e;
             next unless $e =~ m{\A[<]?.+[@][-.0-9A-Za-z]+[.][A-Za-z]{2,}[>]?\z};
-            push @$addressset, $e;
+            push @addressset, $e;
         }
     }
 
-    if( scalar( @$addressset ) > 1 ) {
+    if( scalar( @addressset ) > 1 ) {
         # Get an <email address> from string
-        $canonified = [ grep { $_ =~ m{\A[<].+[>]\z} } @$addressset ]->[0];
-        $canonified = $addressset->[0] unless $canonified;
+        $s3s4parsed = [ grep { $_ =~ m{\A[<].+[>]\z} } @addressset ]->[0];
+        $s3s4parsed = $addressset[0] unless $s3s4parsed;
 
     } else {
         # kijitora@example.jp
-        $canonified = shift @$addressset;
+        $s3s4parsed = shift @addressset;
     }
 
-    return q() unless defined $canonified;
-    return q() unless $canonified;
+    return '' unless defined $s3s4parsed;
+    return '' unless $s3s4parsed;
 
-    $canonified =~ y{<>[]():;}{}d;  # Remove brackets, colons
-    $canonified =~ y/{}'"`//d;      # Remove brackets, quotations
-    return $canonified;
+    $s3s4parsed =~ y{<>[]():;}{}d;  # Remove brackets, colons
+    $s3s4parsed =~ y/{}'"`//d;      # Remove brackets, quotations
+    return $s3s4parsed;
 }
 
 sub damn {
+    # @Description  Umbless
+    # @Param        <None>
+    # @Return       (Ref->Hash) Umblessed data
     my $self = shift;
     my $addr = { 
         'user' => $self->user,
@@ -136,12 +145,12 @@ C<new()> is a constructor of Haineko::SMTPD::Address
 
     my $e = Haineko::SMTPD::Address->new( 'address' => 'kijitora@example.jp' );
 
-=head2 C<B<canonify>( I<email-address> )>
+=head2 C<B<s3s4>( I<email-address> )>
 
-C<canonify()> picks an email address only (remove a name and comments)
+C<s3s4()> picks an email address only (remove a name and comments)
 
-    my $e = HainekoSMTPD::::Address->canonify( 'Kijitora <kijitora@example.jp>' );
-    my $f = HainekoSMTPD::::Address->canonify( '<kijitora@example.jp>' );
+    my $e = HainekoSMTPD::::Address->s3s4( 'Kijitora <kijitora@example.jp>' );
+    my $f = HainekoSMTPD::::Address->s3s4( '<kijitora@example.jp>' );
     print $e;   # kijitora@example.jp
     print $f;   # kijitora@example.jp
 

@@ -37,7 +37,7 @@ sub new {
     my $argvs = { @_ };
 
     my $hainekodir = $argvs->{'root'} || $ENV{'HAINEKO_ROOT'} || '.';
-    my $hainekocfg = $argvs->{'conf'} || $ENV{'HAINEKO_CONF'} || q();
+    my $hainekocfg = $argvs->{'conf'} || $ENV{'HAINEKO_CONF'} || '';
     my $milterlibs = [];
 
     $argvs->{'name'} = 'Haineko';
@@ -147,7 +147,7 @@ sub err {
     my $code = shift || 404;
     my $mesg = shift;
 
-    unless( $mesg ) {
+    unless( length $mesg ) {
         # If the second argument is omitted, use "404 Not found" as a JSON.
         require Haineko::SMTPD::Response;
         $mesg = Haineko::SMTPD::Response->r( 'http', 'not-found' )->damn;
@@ -193,10 +193,12 @@ sub r {
     my $nekosyslog = undef;
 
     try {
+        # Load module for dealing matched action
         require Module::Load;
         Module::Load::load( $controller );
 
     } catch {
+        # Failed to load the module
         require Haineko::Log;
         require Haineko::SMTPD::Response;
 

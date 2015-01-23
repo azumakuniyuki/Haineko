@@ -7,6 +7,9 @@ use Try::Tiny;
 our $PasswordDB = undef;
 
 sub basic {
+    # @Description  Basic Authentication when connecting Haineko server
+    # @Param <arg>  Arguments: username, password
+    # @Return       (Integer) 0 = Failed, 1 = Authenticated
     my $class = shift;
     my $argvs = { @_ };
 
@@ -26,8 +29,11 @@ sub basic {
 
         require Haineko::JSON;
         try {
+            # Load password database file
             $credential = Haineko::JSON->loadfile( $passworddb );
+
         } catch {
+            # Failed to load password database file
             $exceptions = 1;
         };
     }

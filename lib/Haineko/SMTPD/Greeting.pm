@@ -18,6 +18,9 @@ my $woaccessors = [];
 Class::Accessor::Lite->mk_accessors( @$rwaccessors );
 
 sub new {
+    # @Description  Constructor of Haineko::SMTPD::Greeting object
+    # @Param <str>  (Array) Greeting string
+    # @Return       (Haineko::SMTPD::Greeting) Object
     my $class = shift;
     my $greet = [ @_ ];
     my $feats = {
@@ -35,26 +38,27 @@ sub new {
     chomp $feats->{'greeting'};
 
     for my $e ( @$greet ) {
+        # Parse the string given as a greeting
         chomp $e;
 
-        if( $e =~ /SIZE (?<SIZE>\d+)/ ) {
+        if( $e =~ m/SIZE (?<SIZE>\d+)/ ) {
             # 250-SIZE 26214400
             $feats->{'size'} = int $+{'SIZE'};
 
-        } elsif( $e =~ /AUTH (?<MECHS>.+)\z/ ) {
+        } elsif( $e =~ m/AUTH (?<MECHS>.+)\z/ ) {
             # 250-AUTH LOGIN PLAIN CRAM-MD5
             $feats->{'auth'} = 1;
             $feats->{'mechanism'} = [ split( ' ', $+{'MECHS'} ) ];
 
-        } elsif( $e =~ /PIPELINING/ ) {
+        } elsif( $e =~ m/PIPELINING/ ) {
             # 250-PIPELINING
             $feats->{'pipelining'} = 1;
 
-        } elsif( $e =~ /STARTTLS/ ) {
+        } elsif( $e =~ m/STARTTLS/ ) {
             # 250-STARTTLS
             $feats->{'starttls'} = 1;
 
-        } elsif( $e =~ /DSN/ ) {
+        } elsif( $e =~ m/DSN/ ) {
             # 250-DSN
             $feats->{'dsn'} = 1;
         }
@@ -66,6 +70,9 @@ sub new {
 }
 
 sub mechs {
+    # @Description  Check that the mechanism is supported or not
+    # @Param <str>  (String) Mechanism
+    # @Return       (Integer) 1 = Supported mechanism, 0 = not supported
     my $self = shift;
     my $mech = shift || return 0;
 

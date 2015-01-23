@@ -39,8 +39,6 @@ my $LogLevels = [
 sub new {
     # @Description  Constructor of syslog wrapper
     # @Param <args> (Hash)
-    #     
-    #
     # @Return       (Haineko::Response) Response object
     my $class = shift;
     my $argvs = { @_ };
@@ -69,10 +67,12 @@ sub new {
     if( defined $argvs->{'option'} && ref $argvs->{'option'} eq 'HASH' ) {
         # Set logging options
         for my $e ( keys %$logoptions ) {
+            # Set each logging option 
             $argvs->{'option'}->{ $e } //= $logoptions->{ $e };
         }
 
     } else {
+        # Use default value
         $argvs->{'option'} = $logoptions;
     }
 
@@ -80,64 +80,73 @@ sub new {
 }
 
 sub o {
-    # Return syslog option as a string
+    # @Description  Return syslog option as a string
+    # @Param        <None>
+    # @Return       (String) Logging option
     my $self = shift;
-    my $opts = [ grep { $_ if $self->{'options'}->{ $_ } } keys %{ $self->{'options'} } ];
-    return join( ',', @$opts );
+    my @opts = grep { $_ if $self->{'options'}->{ $_ } } keys %{ $self->{'options'} };
+    return join( ',', @opts );
 }
 
 sub h {
-    # Return syslog header string
+    # @Description  Return syslog header string
+    # @Param        <None>
+    # @Return       (String) Syslog header string
     my $self = shift;
-    my $head = [];
-    my $host = q();
+    my @head = ();
+    my $host = '';
 
-    push @$head, sprintf( "queueid=%s", $self->{'queueid'} ) if $self->{'queueid'};
+    push @head, sprintf( "queueid=%s", $self->{'queueid'} ) if $self->{'queueid'};
     $host  = sprintf( "client=%s", $self->{'remoteaddr'} ) if $self->{'remoteaddr'};
     $host .= sprintf( ":%d", $self->{'remoteport'} ) if $host && $self->{'remoteport'};
-    push @$head, $host if length $host;
-    push @$head, sprintf( "ua='%s'", $self->{'useragent'} ) if $self->{'useragent'};
+    push @head, $host if length $host;
+    push @head, sprintf( "ua='%s'", $self->{'useragent'} ) if $self->{'useragent'};
 
-    return q() unless scalar @$head;
-    return join( ', ', @$head );
+    return '' unless scalar @head;
+    return join( ', ', @head );
 }
 
 sub w {
-    # write messages
+    # @Description  Write messages to syslog
+    # @Param <lv>   (String) syslog level
+    # @Param <msg>  (Ref->Hash) log message data
+    # @Return       (Integer) 1 = logged, 0 = failed to log
     my $self = shift;
     my $sllv = shift || $self->{'loglevel'};
     my $mesg = shift;
-    my $text = q();
-    my $logs = [];
+    my $text = '';
+    my @logs = ();
 
     return 0 if $self->{'disabled'};
     return 0 unless ref $mesg eq 'HASH';
 
     $sllv = 'info' unless grep { $sllv eq $_ } @$LogLevels;
-    push @$logs, $self->h;
+    push @logs, $self->h;
 
     for my $e ( keys %$mesg ) {
-
+        # Convert message data to string
         next if ref $mesg->{ $e };
         next unless $mesg->{ $e };
         $text = $mesg->{ $e };
         $text = sprintf( "'%s'", $text ) if $text =~ m/\s/;
-        push @$logs, sprintf( "%s=%s", $e, $text );
+        push @logs, sprintf( "%s=%s", $e, $text );
     }
 
     if( defined $mesg->{'message'} ) {
-
+        # Convert message data to string
         if( ref $mesg->{'message'} eq 'ARRAY' ) {
+            # Join the value of list
             $text = sprintf( "message='%s'", join( ' | ', @{ $mesg->{'message'} } ) );
-            push @$logs, $text;
+            push @logs, $text;
 
         } else {
-            push @$logs, sprintf( "message=%s", $mesg->{'message'} );
+
+            push @logs, sprintf( "message=%s", $mesg->{'message'} );
         }
     }
 
     openlog( $self->{'identify'}, $self->o, $self->{'facility'} ) || return 0;
-    syslog( $sllv, join( ', ', @$logs ) ) || return 0;
+    syslog( $sllv, join( ', ', @logs ) ) || return 0;
     closelog || return 0;
     return 1;
 }

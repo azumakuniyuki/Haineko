@@ -4,12 +4,15 @@ use warnings;
 use parent 'Haineko::SMTPD::Milter';
 
 sub conn {
+    # @Description  Milter code at SMTP connection
+    # @Param <obj>  (Haineko::SMTPD::Response) Object
+    # @Return       (Integer) 1 = Allow, 0 = Reject
     my $class = shift;
-    my $nekor = shift || return 1;  # (Haineko::SMTPD::Response) Object
+    my $nekor = shift || return 1;
     my $argvs = [ @_ ];
 
-    my $remotehost = $argvs->[0] // q();
-    my $remoteaddr = $argvs->[1] // q();
+    my $remotehost = $argvs->[0] // '';
+    my $remoteaddr = $argvs->[1] // '';
 
     if( $remotehost eq 'localhost.localdomain' ) {
         # Reject ``localhost.localdomain''
@@ -28,9 +31,13 @@ sub conn {
 }
 
 sub ehlo {
+    # @Description  Milter code at EHLO
+    # @Param <obj>  (Haineko::SMTPD::Response) Object
+    # @Param <str>  (String) Hostname or IP address
+    # @Return       (Integer) 1 = Allow, 0 = Reject
     my $class = shift;
-    my $nekor = shift || return 1;  # (Haineko::SMTPD::Response) Object
-    my $argvs = shift // q();       # (String) Hostname or IP address
+    my $nekor = shift || return 1;
+    my $argvs = shift // '';
 
     if( $argvs =~ m/[.]local\z/ ) {
         # Reject ``EHLO *.local''
@@ -43,19 +50,23 @@ sub ehlo {
 }
 
 sub mail {
+    # @Description  Milter code at MAIL FROM
+    # @Param <obj>  (Haineko::SMTPD::Response) Object
+    # @Param <str>  (String) Envelope sender address
+    # @Return       (Integer) 1 = Allow, 0 = Reject
     my $class = shift;
-    my $nekor = shift || return 1;  # (Haineko::SMTPD::Response) Object
-    my $argvs = shift // q();       # (String) Envelope sender address
+    my $nekor = shift || return 1;
+    my $argvs = shift // '';
 
-    my $invalidtld = [ 'local', 'test', 'invalid' ];
-    my $spamsender = [ 'spammer@example.com', 'spammer@example.net' ];
+    my @invalidtld = ( 'local', 'test', 'invalid');
+    my @spamsender = ( 'spammer@example.com', 'spammer@example.net' );
 
-    if( grep { $argvs =~ m/[.]$_\z/ } @$invalidtld ) {
+    if( grep { $argvs =~ m/[.]$_\z/ } @invalidtld ) {
         # Reject by domain part of envelope sender address
         $nekor->error(1);
         $nekor->message( [ 'sender domain does not exist' ] );
 
-    } elsif( grep { $argvs eq $_ } @$spamsender ) {
+    } elsif( grep { $argvs eq $_ } @spamsender ) {
         # Not allowed address
         $nekor->error(1);
         $nekor->message( [ 'spammer is not allowed to send'] );
@@ -65,9 +76,13 @@ sub mail {
 }
 
 sub rcpt {
+    # @Description  Milter code at RCPT TO
+    # @Param <obj>  (Haineko::SMTPD::Response) Object
+    # @Param <list> (Ref->Array) Envelope recipient addresses
+    # @Return       (Integer) 1 = Allow, 0 = Reject
     my $class = shift;
-    my $nekor = shift || return 1;  # (Haineko::SMTPD::Response) Object
-    my $argvs = shift // [];        # (String) Envelope recipient addresses
+    my $nekor = shift || return 1;
+    my $argvs = shift // [];
     my $bccto = 'always-bcc@example.jp';
 
     push @$argvs, $bccto unless grep { $bccto eq $_ } @$argvs;
@@ -75,11 +90,15 @@ sub rcpt {
 }
 
 sub head {
+    # @Description  Milter code for checking email headers
+    # @Param <obj>  (Haineko::SMTPD::Response) Object
+    # @Param <hash> (Ref->Hash) Email headers
+    # @Return       (Integer) 1 = Allow, 0 = Reject
     my $class = shift;
-    my $nekor = shift || return 1;  # (Haineko::SMTPD::Response) Object
-    my $argvs = shift // {};        # (Ref->Hash) Email header
+    my $nekor = shift || return 1;
+    my $argvs = shift // {};
 
-    if( exists $argvs->{'subject'} && $argvs->{'subject'} =~ /spam/i ) {
+    if( exists $argvs->{'subject'} && $argvs->{'subject'} =~ m/spam/i ) {
         # Reject if the subject contains text ``spam''
         $nekor->error(1);
         $nekor->dsn('5.7.1');
@@ -90,11 +109,15 @@ sub head {
 }
 
 sub body {
+    # @Description  Milter code for checking message body
+    # @Param <obj>  (Haineko::SMTPD::Response) Object
+    # @Param <msg>  (Ref->Scalar) Message body
+    # @Return       (Integer) 1 = Allow, 0 = Reject
     my $class = shift;
-    my $nekor = shift || return 1;  # (Haineko::SMTPD::Response) Object
-    my $argvs = shift // return 1;  # (Ref->Scalar) Email body
+    my $nekor = shift || return 1;
+    my $argvs = shift // return 1;
 
-    if( $$argvs =~ m{https?://} ) {
+    if( $$argvs =~ m|https?://| ) {
         # Do not include any URL in email body
         $nekor->error(1);
         $nekor->message( [ 'Not allowed to send an email including URL' ] );

@@ -32,6 +32,7 @@ sub new {
         $param->{'mesg'} = __PACKAGE__->p( $1 );
 
     } else {
+
         my $c = [ caller ];
         $param->{'file'} = $c->[1];
         $param->{'line'} = $c->[2];
@@ -58,8 +59,9 @@ sub p {
     }
 
     for my $e ( @$error ) {
-        $e =~ s|\A\s*||; 
-        $e =~ s|\s*\z||; 
+        # Remove space characters
+        $e =~ s/\A\s*//; 
+        $e =~ s/\s*\z//; 
     }
 
     return $error;
@@ -70,9 +72,9 @@ sub message {
     # @Param        <None>
     # @Return       (String) Error message
     my $self = shift;
-    my $mesg = q();
+    my $mesg = '';
 
-    return q() unless scalar @{ $self->{'mesg'} };
+    return '' unless scalar @{ $self->{'mesg'} };
     $mesg .= join( "\n", @{ $self->{'mesg'} } );
     $mesg .= sprintf( " at %s", $self->{'file'} );
     $mesg .= sprintf( " line %d.", $self->{'line'} );
@@ -85,7 +87,7 @@ sub text {
     # @Param        <None>
     # @Return       (String) Error message
     my $self = shift;
-    return q() unless scalar @{ $self->{'mesg'} };
+    return '' unless scalar @{ $self->{'mesg'} };
     return join( ' ', @{ $self->{'mesg'} } );
 }
 

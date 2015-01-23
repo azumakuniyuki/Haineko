@@ -5,6 +5,8 @@ use warnings;
 use utf8;
 
 sub mail {
+    # @Description  Sample email controller
+    # @Param <str>  (Haineko::HTTPD) HTTPD object
     my $class = shift;
     my $httpd = shift;
 

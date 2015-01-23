@@ -1,10 +1,12 @@
 package Haineko::SMTPD::Milter;
 use strict;
 use warnings;
-use Try::Tiny;
 use Module::Load;
 
 sub import {
+    # @Description  Import Haineko::SMTPD::Milter::* module
+    # @Param <list> (Ref->Array) Module list
+    # @Return       (Ref->Array) Loaded module list
     my $class = shift;
     my $argvs = shift || return 0;  # (Ref->Array) Module names
     my $llist = [];
@@ -14,11 +16,11 @@ sub import {
         # Load each module
         $e =~ s/\A/Haineko::SMTPD::Milter::/ unless $e =~ /\A[+]/;
         $e =~ s/\A[+]//;
-        try { 
+
+        eval {
+            # Try to load Haineko::SMTPD::Milter::* module
             Module::Load::load( $e );
             push @$llist, $e;
-        } catch {
-            next;
         };
     }
 
@@ -26,12 +28,17 @@ sub import {
 }
 
 sub libs {
+    # @Description  Add the path to @INC
+    # @Param <list> (Ref->Array) Path list
+    # @Return       (Integer) The number of added paths
     my $class = shift;
     my $argvs = shift || return 0;  # (Ref->Array) Path names
     my $count = 0;
 
     return 0 unless ref $argvs eq 'ARRAY';
+
     for my $e ( @$argvs ){
+        # Add the path to @INC
         next if grep { $e eq $_ } @$INC;
         unshift @INC, $e;
         $count++;

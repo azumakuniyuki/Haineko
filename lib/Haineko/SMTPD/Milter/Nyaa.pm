@@ -2,25 +2,33 @@ package Haineko::SMTPD::Milter::Nyaa;
 use strict;
 use warnings;
 use parent 'Haineko::SMTPD::Milter';
+use Module::Load '';
 
 sub body {
+    # @Description  To be a cat
+    # @Param <obj>  (Haineko::SMTPD::Response) Object
+    # @Param <msg>  (Ref->Scalar) Message body
+    # @Return       (Integer) 1 = Cat, 0 = Failed to load the module
     my $class = shift;
     my $nekor = shift || return 1;  # (Haineko::SMTPD::Response) Object
     my $argvs = shift // return 1;  # (Ref->Scalar) Email body
     my $nyaaa = undef;
+    my $error = 0;
 
     return 1 unless ref $argvs;
     return 1 unless ref $argvs eq 'SCALAR';
 
-    try {
-        use Acme::Nyaa;
-        $nyaaa  = Acme::Nyaa->new;
-        $$argvs = $nyaaa->straycat( [ $$argvs ] );
-        utf8::decode $$argvs unless utf8::is_utf8 $$argvs;
-        return 1;
-    } catch {
-        return 0;
-    }
+    eval {
+        # Try to load Acme::Nyaa module
+        Module::Load::load('Acme::Nyaa');
+    };
+    return 0 if $@;
+
+    # Convert message body, to be a cat.
+    $nyaaa  = Acme::Nyaa->new;
+    $$argvs = $nyaaa->straycat( [ $$argvs ] );
+    utf8::decode $$argvs unless utf8::is_utf8 $$argvs;
+    return 1;
 }
 
 1;

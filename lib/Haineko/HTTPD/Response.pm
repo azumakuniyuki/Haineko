@@ -4,6 +4,9 @@ use strict;
 use warnings;
 
 sub mime {
+    # @Description  Return content-type string
+    # @Param <type> (String) Format string: json, html, plain
+    # @Return       (String) Content-Type string
     my $class = shift;
     my $ctype = shift || 'plain';
     my $types = {
@@ -18,6 +21,10 @@ sub mime {
 }
 
 sub text {
+    # @Description  Respond as a text
+    # @Param <code> (Integer) HTTP status code: default is 200
+    # @Param <text> (String) Message body
+    # @Return       (Haineko::HTTPD::Response) Response object
     my $self = shift;
     my $code = shift || 200;
     my $text = shift;
@@ -27,10 +34,14 @@ sub text {
 }
 
 sub json {
+    # @Description  Respond as a JSON
+    # @Param <code> (Integer) HTTP status code: default is 200
+    # @Param <text> (String) Message body
+    # @Return       (Haineko::HTTPD::Response) Response object
     my $self = shift;
     my $code = shift || 200;
     my $data = shift;   # (Ref->[HASH|ARRAY]) or JSON as a string
-    my $json = q();
+    my $json = '';
 
     require Haineko::JSON;
     $json = ref $data ? Haineko::JSON->dumpjson( $data ) : $data;
@@ -39,8 +50,12 @@ sub json {
 }
 
 sub _res {
+    # @Description  Return HTTP response
+    # @Param <text> (String) Message body
+    # @Param <type> (String) Content type string: json, text, html
+    # @Return       (Haineko::HTTPD::Response) Response object
     my $self = shift;
-    my $text = shift || q();
+    my $text = shift || '';
     my $type = shift || 'json';
     my $head = [
         'Content-Type' => Haineko::HTTPD::Response->mime( $type ),

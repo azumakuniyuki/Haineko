@@ -31,9 +31,9 @@ sub info {
     $ip4network = Net::CIDR::Lite->new( '127.0.0.1/32' );
 
     if( $ip4network->find( $remoteaddr ) ) {
-
+        # Access permitted
         my $requesturl = $httpd->req->path_info;
-        my $configfile = q();
+        my $configfile = '';
         my $configdata = {};
         my $smtpconfig = undef;
 
