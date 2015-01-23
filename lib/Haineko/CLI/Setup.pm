@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use IO::File;
 use Try::Tiny;
-use Fcntl qw(:flock);
+use Fcntl ':flock';
 use File::Copy;
 use File::Temp;
 use File::Basename qw/basename dirname/;
@@ -35,8 +35,11 @@ sub list {
 }
 
 sub make {
+    # @Description  Generate module for default file distribution
+    # @Param        <None>
+    # @Return       <None>
     my $self = shift;
-    my $o = __PACKAGE__->options;
+    my $o    = __PACKAGE__->options;
 
     return undef unless( $self->r & $o->{'exec'} );
 
@@ -49,13 +52,17 @@ sub make {
     my $archiveobj = undef;
 
     try {
+        # Create directory for setting up
         mkdir( $subdirname );
         $self->p( 'Setup directory = '.$subdirname, 1 );
+
     } catch {
+        # Could not create the directory
         $self->e( 'Failed to create setup directory: '.$subdirname );
     };
 
     for my $e ( @{ __PACKAGE__->list } ) {
+        # Copy distribution files
         my $f = File::Basename::dirname $e;
         my $g = Path::Class::File->new( $subdirname.'/'.$e );
 
@@ -69,6 +76,7 @@ sub make {
             if( $e =~ m|etc/| ) {
                 # cp etc/haineko.cf-example /path/to/dir/etc/haineko.cf
                 File::Copy::copy( $e.'-example', $g );
+
             } else {
                 # cp libexec/haineko.psgi /path/to/dir/libexec
                 File::Copy::copy( $e, $g );
@@ -78,7 +86,7 @@ sub make {
             $self->p( '[COPY] '.$g );
 
         } catch {
-            # Failed to copy
+            # Failed to copy the file
             $self->e( 'Failed to copy file: '.$e );
         }
     }
@@ -93,19 +101,23 @@ sub make {
     # tar archive to BASE64 encoded string
     my $filehandle = IO::File->new( $tararchive, 'r' );
     my $readbuffer = undef;
-    my $base64data = q();
+    my $base64data = '';
 
     while( read $filehandle, $readbuffer, 57 * 60 ) {
+        # MIME Encoding
         $base64data .= MIME::Base64::encode_base64( $readbuffer );
         $base64data .= "\n";
     }
     $filehandle->close;
+
     chomp $base64data;
     $self->p( 'Base64 encoded data = '.length( $base64data ).' bytes', 1 );
 
     # Write BASE64 encoded string to the module
     chdir( $currentdir ) || $self->e( 'Cannot change directory: '.$currentdir );
+
     try {
+        # Update Haineko::CLI::Setup::Data module
         $filehandle = IO::File->new( $modulename, 'w' );
         $filehandle->print( 'package Haineko::CLI::Setup::Data;'."\n" );
         $filehandle->print( '1;'."\n" );
@@ -123,18 +135,22 @@ sub make {
 }
 
 sub init {
+    # @Description  Method for copying distribution files to current directory
+    # @Param        <None>
+    # @Return       <None>
     my $self = shift;
-    my $o = __PACKAGE__->options;
+    my $o    = __PACKAGE__->options;
 
     return undef unless( $self->r & $o->{'exec'} );
 
     my $tempfolder = File::Temp->newdir;
     my $tararchive = $tempfolder.'/haineko-setup-files.tar.gz';
     my $base64data = [ <Haineko::CLI::Setup::Data::DATA> ];
-    my $base64text = q();
+    my $base64text = '';
     my $filehandle = undef;
 
     while( my $r = shift @$base64data ) {
+        # Read __DATA__ block from Haineko::CLI::Setup::Data module
         chomp $r;
         $base64text .= $r;
     }
@@ -168,20 +184,24 @@ sub init {
 
         $setupfiles = __PACKAGE__->list;
         for my $e ( @$setupfiles ) {
+            # Copy each distribution file
             my $d = $self->{'params'}->{'dest'};
             my $f = sprintf( "%s/%s", $extracted1, $e );
             my $g = sprintf( "%s/%s", $d, $e );
             my $s = Path::Class::Dir->new( File::Basename::dirname $g );
 
             if( -e $g && ! ( $self->r & $o->{'force'} ) ) {
+                # Skip when --force option is not specified
                 $self->p( '[SKIP] '.$g, 1 );
                 next;
             }
 
             if( not -d $s->stringify ) {
+                # Make directory if the directory does not exist yet
                 try {
                     # mkdir -p
                     $s->mkpath;
+
                 } catch {
                     # Permission denied
                     $self->e( 'Permission denied: '.$s );
@@ -194,6 +214,7 @@ sub init {
             $self->p( '[COPY] '.( $self->r & $o->{'force'} ? 'Overwrite: ' : '' ).$g, 1 ) if -e $g;
 
             if( $g =~ m|/authinfo| ) {
+                # Authentication related files are set permission as 0600 (-rw-------)
                 chmod( 0600, $g );
                 $self->p( '[PERM] 0600 '.$g, 1 );
             }
@@ -205,21 +226,27 @@ sub init {
         $self->p( '[DONE] '.$self->command, 1 );
 
     } else {
+        # Failed to flock( $v, LOCK_EX )
         $self->e( 'Failed to write data to '.$tararchive );
     }
 }
 
 sub parseoptions {
+    # @Description  Command line option parser
+    # @Param        <None>
+    # @Return       (Integer) n = the value of "runmode"
     my $self = shift;
     my $opts = __PACKAGE__->options;
 
     my $r = 0;      # Run mode value
     my $p = {};     # Parsed options
-
-    use Getopt::Long qw/:config posix_default no_ignore_case bundling auto_help/;
-    Getopt::Long::GetOptions( $p,
+    my @o = (       # Available options
         'dest=s',       # Destination directory
         'force',        # Force overwrite
+    );
+
+    use Getopt::Long qw/:config posix_default no_ignore_case bundling auto_help/;
+    Getopt::Long::GetOptions( $p, @o,
         'help',         # --help
         'verbose|v+',   # Verbose
     );
@@ -247,8 +274,11 @@ sub parseoptions {
 }
 
 sub help {
+    # @Description  Help message
+    # @Param <str>  (String) Name of message group: option, subcommand, or example
+    # @Return       undef
     my $class = shift;
-    my $argvs = shift || q();
+    my $argvs = shift || '';
 
     my $commoption = [ 
         '--dest <dir>'  => 'Destination directory for setup files.',
@@ -256,9 +286,9 @@ sub help {
         '-v, --verbose' => 'Verbose mode.',
         '--help'        => 'This screen',
     ];
-    my $subcommand = [ 
-        'setup'             => 'Setup files for Haineko.',
-        'make-setup-files'  => 'For author: Update lib/Haineko/CLI/Setup/Data.pm',
+    my $subcommand = [
+        'setup'            => 'Setup files for Haineko.',
+        'make-setup-files' => 'For author: Update lib/Haineko/CLI/Setup/Data.pm',
     ];
     my $forexample = [
         'hainekoctl setup # Copy files to current directory',

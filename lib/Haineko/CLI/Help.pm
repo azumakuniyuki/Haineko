@@ -4,6 +4,9 @@ use strict;
 use warnings;
 
 sub new {
+    # @Description  Constructor of help message object
+    # @Param <argv> 
+    # @Return       (Haineko::CLI::Help) object
     my $class = shift;
     my $argvs = { @_ };
     my $thing = __PACKAGE__->SUPER::new( %$argvs );
@@ -17,6 +20,10 @@ sub new {
 }
 
 sub add {
+    # @Description  Instance method for adding messages
+    # @Param <msg>  (Ref->Array) Help messages
+    # @Param <str>  (String) Message group: option, example, or subcommand.
+    # @Return       (Ref->Array) Message list
     my $self = shift;
     my $argv = shift;
     my $type = shift;
@@ -47,45 +54,53 @@ sub add {
 }
 
 sub mesg {
+    # @Description  Instance method for printing help message
+    # @Param        <None>
+    # @Return       <None>
     my $self = shift;
 
-    my $messageset = [];
-    my $offsetsize = [];
+    my @messageset = ();
+    my @offsetsize = ();
     my $indentsize = 2;
     my $maxlength1 = 0;
 
     for my $e ( 'subcommand', 'option' ) {
+        # Count message length
         my @f = @{ $self->{'params'}->{ $e } };
         my $l = 0;
 
         while( my $r = shift @f ) {
+            # Find max string length 
             next unless scalar @f % 2;
             $l = length $r;
             $maxlength1 = $l > $maxlength1 ? $l : $maxlength1;
-            push @$offsetsize, $l;
+            push @offsetsize, $l;
         }
     }
-
     printf( STDERR "%s SUBCOMMAND [OPTION]\n", $self->command );
 
     for my $e ( 'subcommand', 'option' ) {
+        # Print messages of subcommand and option
         my @f = @{ $self->{'params'}->{ $e } };
-        my $v = q();
+        my $v = '';
 
         while( my $r = shift @f ) {
-
+            # Print name part of subcommand and option
             if( scalar @f % 2 ) {
+                # Subcommand name or option name
                 $v = $r;
                 next;
             }
             $v .= '%s : '.$r;
-            push @$messageset, $v;
+            push @messageset, $v;
         }
+        next unless scalar @messageset;
 
-        next unless scalar @$messageset;
-        printf( STDERR "  %s:\n", uc $e ) if scalar @$messageset;
-        while( my $r = shift @$messageset ) {
-            my $o = shift @$offsetsize;
+        printf( STDERR "  %s:\n", uc $e ) if scalar @messageset;
+
+        while( my $r = shift @messageset ) {
+            # Print help message
+            my $o = shift @offsetsize;
             printf( STDERR "  %s", ' ' x $indentsize );
             printf( STDERR $r, ' ' x ( $maxlength1 - $o + 2 ) );
             printf( STDERR "\n" );
@@ -94,8 +109,11 @@ sub mesg {
     }
 
     if( scalar @{ $self->{'params'}->{'example'} } ) {
+        # Sample command string
         printf( STDERR "  FOR EXAMPLE:\n" );
+
         for my $e ( @{ $self->{'params'}->{'example'} } ) {
+            # Print sample command 
             printf( STDERR "    %s\n", $e );
         }
     }

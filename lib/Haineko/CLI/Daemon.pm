@@ -28,6 +28,9 @@ sub default {
 }
 
 sub run {
+    # @Description  Start Haineko daemon
+    # @Param        <None>
+    # @Return       (Integer) 0 = did not started
     my $self = shift;
 
     my $o = __PACKAGE__->options;
@@ -37,52 +40,52 @@ sub run {
     return 0 unless $r & $o->{'exec'};
 
     my $runnerprog = undef;
-    my $watchingon = [];
-    my $plackuparg = [];
-    my $commandarg = q();
+    my @watchingon = ();
+    my @plackuparg = ();
+    my $commandarg = '';
 
     $ENV{'PLACKENV'}     = $p->{'env'};
     $ENV{'HAINEKO_ROOT'} = $p->{'root'};
     $ENV{'HAINEKO_CONF'} = $p->{'config'};
     $ENV{'HAINEKO_AUTH'} = $p->{'root'}.'/etc/password';
 
-    push @$watchingon, './lib' if -d './lib';
-    push @$watchingon, './etc' if -d './etc';
-    push @$watchingon, $p->{'root'}.'/etc';
-    push @$watchingon, $p->{'root'}.'/lib';
-    push @$plackuparg, '-R', join( ',', @$watchingon );
+    push @watchingon, './lib' if -d './lib';
+    push @watchingon, './etc' if -d './etc';
+    push @watchingon, $p->{'root'}.'/etc';
+    push @watchingon, $p->{'root'}.'/lib';
+    push @plackuparg, '-R', join( ',', @watchingon );
 
-    push @$plackuparg, '-a', $p->{'app'};
-    push @$plackuparg, '-o', $p->{'host'};
-    push @$plackuparg, '-p', $p->{'port'};
-    push @$plackuparg, '-L', 'Restarter';
-    push @$plackuparg, '-s', $p->{'server'};
+    push @plackuparg, '-a', $p->{'app'};
+    push @plackuparg, '-o', $p->{'host'};
+    push @plackuparg, '-p', $p->{'port'};
+    push @plackuparg, '-L', 'Restarter';
+    push @plackuparg, '-s', $p->{'server'};
 
 
     if( $p->{'server'} eq 'Starlet' ) {
         # −−max−workers=#
         #   number of worker processes (default: 10)
-        push @$plackuparg, '--max-workers', $p->{'workers'};
+        push @plackuparg, '--max-workers', $p->{'workers'};
 
         # −−max−reqs−per−child=#
         #   max. number of requests to be handled before a worker process exits
         #   (default: 100)
-        push @$plackuparg, '--max-reqs-per-child', $p->{'maxreqs'};
+        push @plackuparg, '--max-reqs-per-child', $p->{'maxreqs'};
 
     } elsif( $p->{'server'} eq 'Starman' ) {
         # −−workers
         #   Specifies the number of worker pool. Defaults to 5.
-        push @$plackuparg, '--workers', $p->{'workers'};
+        push @plackuparg, '--workers', $p->{'workers'};
 
         # −−max−requests
         #   Number of the requests to process per one worker process. Defaults
         #   to 1000.
-        push @$plackuparg, '--max-requests', $p->{'maxreqs'};
+        push @plackuparg, '--max-requests', $p->{'maxreqs'};
     }
 
     if( length $self->{'logging'}->{'file'} ) {
         # --access-log /path/to/logfile
-        push @$plackuparg, '--access-log', $self->{'logging'}->{'file'};
+        push @plackuparg, '--access-log', $self->{'logging'}->{'file'};
     }
 
 
@@ -102,7 +105,7 @@ sub run {
         }
 
         $self->makepf;
-        $runnerprog->parse_options( @$plackuparg );
+        $runnerprog->parse_options( @plackuparg );
         $runnerprog->run;
         $self->p( 'Start Haineko server', 0 );
 
@@ -120,10 +123,11 @@ sub run {
         }
 
         # Status file is saved in the same directory of pid file.
-        my $s = $self->{'pidfile'}; $s =~ s|[.]pid|.status|;
+        my $s =  $self->{'pidfile'}; 
+           $s =~ s|[.]pid|.status|;
 
-        unshift @$plackuparg, __PACKAGE__->which('plackup');
-        push @$plackuparg, '--daemonize';
+        unshift @plackuparg, __PACKAGE__->which('plackup');
+        push @plackuparg, '--daemonize';
 
         $commandarg .= 'nohup ';
         $commandarg .= __PACKAGE__->which('start_server');
@@ -133,14 +137,14 @@ sub run {
         $commandarg .= ' --status-file='.$s;
         $commandarg .= ' -- ';
 
-        if( $self->makerf( $plackuparg ) ) {
+        if( $self->makerf( \@plackuparg ) ) {
             # command line for starting plackup is saved in run/haineko.sh, and
             # the file is the argument of start_server.
             $commandarg .= $self->{'runfile'};
 
         } else {
             # command line for starting plackup is the argument of start_server.
-            $commandarg .= join( ' ', @$plackuparg );
+            $commandarg .= join( ' ', @plackuparg );
         }
         $commandarg .= ' > /dev/null &';
 
@@ -150,6 +154,9 @@ sub run {
 }
 
 sub ctrl {
+    # @Description  Control Haineko daemon
+    # @Param <str>  (String) Action: start, stop, reload, or restart
+    # @Return       (Integer) n = the number of processes
     my $self = shift;
     my $argv = shift || return undef;
     my $sigs = {
@@ -193,41 +200,46 @@ sub ctrl {
 }
 
 sub parseoptions {
+    # @Description  Command line option parser
+    # @Param        <None>
+    # @Return       (Integer) n = the value of "runmode"
     my $self = shift;
-    my $dirs = [ '.', '/usr/local/haineko', '/usr/local' ];
+    my @dirs = ( '.', '/usr/local/haineko', '/usr/local' );
     my $opts = __PACKAGE__->options;
     my $defs = __PACKAGE__->default;
     my $conf = {}; %$conf = %$defs;
 
     my $r = 0;      # Run mode value
-    my $p = {};     # Parsed options
-    my $q = undef;  # Path::Class::File
-
-    use Getopt::Long qw/:config posix_default no_ignore_case bundling auto_help/;
-    Getopt::Long::GetOptions( $p,
+    my @o = (       # Available options
         'app|a=s',      # Path to psgi file
         'auth|A',       # Require basic-authenticaion
         'conf|C=s',     # Configuration file
         'devel|d',      # Developement mode
-        'debug',        # same as --devel
-        'help',         # --help
         'host|h=s',     # Hostname
         'log|l=s',      # Access log
         'port|p=i',     # Port
         'server|s=s',   # Server, -s option of plackup
         'workers|w=i',  # --max-workers of plackup
         'maxreqs|x=i',  # --max-requests
+    );
+    my $p = {};     # Parsed options
+    my $q = undef;  # Path::Class::File
+
+    use Getopt::Long qw/:config posix_default no_ignore_case bundling auto_help/;
+    Getopt::Long::GetOptions( $p, @o,
+        'debug',        # same as --devel
+        'help',         # --help
         'verbose|v+',   # Verbose
     );
 
     if( $p->{'help'} ) {
         # --help
         require Haineko::CLI::Help;
-        my $o = Haineko::CLI::Help->new( 'command' => [ caller ]->[1] );
-        $o->add( __PACKAGE__->help('s'), 'subcommand' );
-        $o->add( __PACKAGE__->help('o'), 'option' );
-        $o->add( __PACKAGE__->help('e'), 'example' );
-        $o->mesg;
+        my $v = Haineko::CLI::Help->new( 'command' => (caller)[1] );
+        $v->add( __PACKAGE__->help('s'), 'subcommand' );
+        $v->add( __PACKAGE__->help('o'), 'option' );
+        $v->add( __PACKAGE__->help('e'), 'example' );
+        $v->mesg;
         exit(0);
     }
 
@@ -243,9 +255,11 @@ sub parseoptions {
     if( $p->{'conf'} ) {
         # Load configuration file specified with -C or --conf option
         if( -f $p->{'conf'} && -r _ && -s _ ) {
+            # The configuration file exists
             $conf->{'config'} = $p->{'conf'};
 
         } else {
+            # Cannot load the configuration file
             $self->e( sprintf( "Config file: %s not found", $p->{'conf'} ) ) unless -f $p->{'conf'};
             $self->e( sprintf( "Config file: %s is empty", $p->{'conf'} ) ) unless -s $p->{'conf'};
             $self->e( sprintf( "Config file: cannot read %s", $p->{'conf'} ) ) unless -r $p->{'conf'};
@@ -253,7 +267,7 @@ sub parseoptions {
 
     } else {
         # No configuration file specified at -C option
-        for my $g ( @$dirs ) {
+        for my $g ( @dirs ) {
             # Find haineko.cf
             my $f = sprintf( "%s/etc/haineko.cf", $g );
             my $v = $r & $opts->{'test'} ? $f.'-debug' : q();
@@ -273,16 +287,19 @@ sub parseoptions {
     }
 
     if( $conf->{'config'} ) {
+        # Build path to the configuration file
         $q = Path::Class::File->new( $conf->{'config'} )->dir;
         $conf->{'root'} = $q->resolve->absolute->parent;
 
     } else {
+        # Configuration file did not specified
         $conf->{'config'} = '/dev/null';
         $q = Path::Class::Dir->new( './' );
         $conf->{'root'} = $q->resolve->absolute;
     }
 
     if( $p->{'app'} ) {
+        # Check the path to PSGI file
         if( -f $p->{'app'} && -s _ && -r _ ) {
             # Set the path to haineko.psgi
             $conf->{'app'} = $p->{'app'};
@@ -295,7 +312,8 @@ sub parseoptions {
         }
 
     } else {
-        for my $g ( @$dirs ) {
+        # Find haineko.psgi from some directories
+        for my $g ( @dirs ) {
             # Find haineko.psgi
             my $f = sprintf( "%s/libexec/haineko.psgi", $g );
             next unless -f $f;
@@ -312,6 +330,7 @@ sub parseoptions {
         next unless defined $p->{ $e };
         $conf->{ $e } = $p->{ $e };
     }
+
     for my $e ( 'server', 'workers' ) {
         # Override the value with the value in argument
         next unless $p->{ $e };
@@ -329,13 +348,13 @@ sub parseoptions {
     $self->p( sprintf( "Configuration file = %s", $conf->{'config'} ), 1 );
 
     if( $p->{'log'} ) {
-
+        # Enable logging option
         $self->{'logging'}->{'disabled'} = 0;
         $self->{'logging'}->{'file'} = $p->{'log'};
         $self->p( sprintf( "Access log file = %s", $p->{'log'} ) );
 
     } else {
-
+        # Load logging option from the configuration file or default settings
         $self->{'logging'} = $conf->{'logging'} // $defs->{'logging'};
         if( not $self->{'logging'}->{'disabled'} ) {
             # syslog
@@ -351,8 +370,11 @@ sub parseoptions {
 }
 
 sub help {
+    # @Description  Help message
+    # @Param <str>  (String) Name of message group: option, subcommand, or example
+    # @Return       undef
     my $class = shift;
-    my $argvs = shift || q();
+    my $argvs = shift || '';
 
     my $d = __PACKAGE__->default;
     my $commoption = [
@@ -370,11 +392,11 @@ sub help {
         '--help'                => 'This screen',
     ];
     my $subcommand = [
-        'start'     => 'Start haineko server',
-        'reload'    => 'Send "USR1" signal to the server',
-        'restart'   => 'Restart the server, send "HUP" signal',
-        'stop'      => 'Stop the server, send "TERM" signal',
-        'status'    => 'Show the process id of running haineko server',
+        'start'   => 'Start haineko server',
+        'reload'  => 'Send "USR1" signal to the server',
+        'restart' => 'Restart the server, send "HUP" signal',
+        'stop'    => 'Stop the server, send "TERM" signal',
+        'status'  => 'Show the process id of running haineko server',
     ];
     my $forexample = [
         'hainekoctl start -s Starlet -w 4 -x 1000',

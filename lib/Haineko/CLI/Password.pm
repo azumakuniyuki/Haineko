@@ -12,17 +12,23 @@ sub options {
 }
 
 sub make {
+    # @Description  Password generator method, called from hainekoctl pw
+    # @Param        <None>
+    # @Return       (String) Hashed password or credential
     my $self = shift;
-    my $o = __PACKAGE__->options;
+    my $o    = __PACKAGE__->options;
 
     return undef unless( $self->r & $o->{'exec'} );
+
     my $password01 = undef;
     my $password02 = undef;
     my $filehandle = undef;
 
     try {
+        # use Crypt::SaltedHash;
         require Crypt::SaltedHash;
     } catch {
+        # The module is not installed
         $self->e( 'Cannot load "Crypt::SaltedHash"' );
     };
 
@@ -37,6 +43,7 @@ sub make {
             # Password(1)
             printf( STDERR 'New password: ' );
             while( my $p = $filehandle->gets ) {
+                # Read the first password
                 $password01 = $p;
                 last if length $password01;
             }
@@ -49,11 +56,13 @@ sub make {
             # Password(2)
             printf( STDERR 'Re-type new password: ' );
             while( my $p = $filehandle->gets ) {
+                # Read the second password for confirmation
                 $password02 = $p;
                 last if length $password02;
             }
             printf( STDERR "\n" );
             chomp $password02;
+
             last if $password01 eq $password02;
             $self->e( 'Passwords dit not match', 1 );
         }
@@ -76,22 +85,33 @@ sub make {
     $passwdhash = $saltedhash->generate;
 
     if( length $self->{'params'}->{'username'} ) {
+        # username: 'Hashed password'
         $credential = sprintf( "%s: '%s'", $self->{'params'}->{'username'}, $passwdhash );
+
     } else {
+        # Password string only
         $credential = $passwdhash;
     }
     return $credential;
 }
 
 sub validate {
+    # @Description  Password validator
+    # @Param <pw>   (String) Password string
+    # @Return       (Integer) 0 = invalid(weak), 1 = valid password
     my $self = shift;
     my $argv = shift;
 
     if( not length $argv ) {
+        # Empty password
         $self->e( 'Empty password is not permitted', 1 );
+
     } elsif( length $argv < 8 ) {
+        # Length is less equals 8
         $self->e( 'Password is too short < 8', 1 );
+
     } else {
+        # Valid password
         return 1;
     }
 
@@ -99,25 +119,30 @@ sub validate {
 }
 
 sub parseoptions {
+    # @Description  Command line option parser
+    # @Param        <None>
+    # @Return       (Integer) n = the value of "runmode"
     my $self = shift;
     my $opts = __PACKAGE__->options;
 
     my $r = 0;      # Run mode value
     my $p = {};     # Parsed options
+    my @o = (       # Available options
+        'algorithm|a=s',    # Algorithm
+        'password|p=s',     # Password string
+        'user|u=s',         # Username
+    );
 
     use Getopt::Long qw/:config posix_default no_ignore_case bundling auto_help/;
-    Getopt::Long::GetOptions( $p,
-        'algorithm|a=s',# Algorithm
+    Getopt::Long::GetOptions( $p, @o,
         'help',         # --help
-        'password|p=s', # Password string
-        'user|u=s',     # Username
         'verbose|v+',   # Verbose
     );
 
     if( $p->{'help'} ) {
         # --help
         require Haineko::CLI::Help;
-        my $o = Haineko::CLI::Help->new( 'command' => [ caller ]->[1] );
+        my $o = Haineko::CLI::Help->new( 'command' => (caller)[1] );
         $o->add( __PACKAGE__->help('s'), 'subcommand' );
         $o->add( __PACKAGE__->help('o'), 'option' );
         $o->add( __PACKAGE__->help('e'), 'example' );
@@ -133,7 +158,7 @@ sub parseoptions {
         # Read a password from STDIN
         $r |= $opts->{'stdin'};
     }
-    $self->{'params'}->{'username'} = $p->{'user'} // q();
+    $self->{'params'}->{'username'}  = $p->{'user'} // '';
     $self->{'params'}->{'algorithm'} = $p->{'algorithm'} // 'SHA-1';
 
     $self->v( $p->{'verbose'} );
@@ -143,15 +168,18 @@ sub parseoptions {
 }
 
 sub help {
+    # @Description  Help message
+    # @Param <str>  (String) Name of message group: option, subcommand, or example
+    # @Return       undef
     my $class = shift;
-    my $argvs = shift || q();
+    my $argvs = shift || '';
 
     my $commoption = [ 
-        '-a, --algorithm <name>'    => 'Algorithm, if it omitted "SHA-1" will be used.',
-        '-p, --password <str>'      => 'Password string',
-        '-u, --user <name>'         => 'Username for Basic-Authentication',
-        '-v, --verbose'             => 'Verbose mode.',
-        '--help'                    => 'This screen',
+        '-a, --algorithm <name>' => 'Algorithm, if it omitted "SHA-1" will be used.',
+        '-p, --password <str>'   => 'Password string',
+        '-u, --user <name>'      => 'Username for Basic-Authentication',
+        '-v, --verbose'          => 'Verbose mode.',
+        '--help'                 => 'This screen',
     ];
     my $subcommand = [ 'pw' => 'Generate a new password for Basic-Authentication' ];
     my $forexample = [
