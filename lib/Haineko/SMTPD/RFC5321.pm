@@ -4,6 +4,9 @@ use warnings;
 use Haineko::SMTPD::RFC5322;
 
 sub is8bit {
+    # @Description  Check the argument includes any 8 bit character or not
+    # @Param <str>  (String) String for check
+    # @Return       (Integer) 1 = Include any 8 bit character, 0 = not include
     my $class = shift;
     my $argvs = shift || return 0;  # (String) Any text
 
@@ -12,16 +15,19 @@ sub is8bit {
 }
 
 sub check_ehlo {
+    # @Description  Check the value of EHLO/HELO command
+    # @Param <str>  (String) The value of EHLO/EHLO
+    # @Return       (Integer) 1 = Valid, 0 = invalid
     my $class = shift;
-    my $argvs = shift || return 0;  # (String) The value of EHLO/HELO
+    my $argvs = shift || return 0;
     my $valid = Haineko::SMTPD::RFC5322->is_domainpart( $argvs );
-    my $octet = [];
+    my @octet = ();
 
     return 1 if $valid;
     $argvs =~ y/[] //d;
-    $octet = [ split( /[.]/, $argvs ) ];
+    @octet = split( /[.]/, $argvs );
 
-    for my $e ( @$octet ) {
+    for my $e ( @octet ) {
         # Check each octet
         last unless $e =~ m/\A\d+\z/;
         last if $e < 0;

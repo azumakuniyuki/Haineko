@@ -27,16 +27,20 @@ Class::Accessor::Lite->mk_ro_accessors( @$roaccessors );
 
 
 sub new {
+    # @Description  Constructor of Haineko::SMTPD::Session
+    # @Param <arg>  (Hash) Each key in $rwaccessors, $roaccessors
+    # @Return       (Haineko::SMTPD::Session) Object
     my $class = shift;
     my $argvs = { @_ };
     my $nekor = $argvs->{'response'} || undef;
     my $nekos = {
         'stage'    => $argvs->{'stage'} // 0,
         'started'  => Time::Piece->new,
-        'queueid'  => $argvs->{'queueid'}  || __PACKAGE__->make_queueid,
+        'queueid'  => $argvs->{'queueid'} || __PACKAGE__->make_queueid,
     };
 
     if( $nekor ) {
+        # Check the value of "response" in given argument
         if( ref $nekor eq 'Haineko::SMTPD::Response' ) {
             # Response in the argument is an object
             $nekos->{'response'} = [ $nekor ];
@@ -77,26 +81,30 @@ sub new {
 }
 
 sub make_queueid {
+    # @Description  Queue ID generator
+    # @Param        <None>
+    # @Return       (String) Queue ID
     my $class = shift;
     my $size1 = 16;
     my $time1 = new Time::Piece;
-    my $chars = [ '0'..'9', 'A'..'Z', 'a'..'x' ];
-    my $idstr = q();
+    my @chars = ( '0'..'9', 'A'..'Z', 'a'..'x' );
+    my $idstr = '';
     my $queue = {
-        'Y' => $chars->[ $time1->_year % 60 ],
-        'M' => $chars->[ $time1->_mon ],
-        'D' => $chars->[ $time1->mday ],
-        'h' => $chars->[ $time1->hour ],
-        'm' => $chars->[ $time1->min ],
-        's' => $chars->[ $time1->sec ],
-        'q' => $chars->[ int rand(60) ],
+        'Y' => $chars[ $time1->_year % 60 ],
+        'M' => $chars[ $time1->_mon ],
+        'D' => $chars[ $time1->mday ],
+        'h' => $chars[ $time1->hour ],
+        'm' => $chars[ $time1->min ],
+        's' => $chars[ $time1->sec ],
+        'q' => $chars[ int rand(60) ],
         'p' => sprintf( "%05d", $$ ),
     };
 
     $idstr .= $queue->{ $_ } for ( qw/Y M D h m s q p/ );
 
     while(1) {
-        $idstr .= $chars->[ int rand( scalar( @$chars ) ) ];
+        # Generate queue id
+        $idstr .= $chars->[ int rand( scalar( @chars ) ) ];
         last if length $idstr == $size1;
     }
     return $idstr; 

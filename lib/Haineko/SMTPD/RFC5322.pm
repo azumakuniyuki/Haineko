@@ -14,8 +14,8 @@ my $Rx = { 'rfc5322' => undef, 'ignored' => undef, 'domain' => undef, };
 #   dtext           = %d33-90 /          ; Printable US-ASCII
 #                     %d94-126 /         ;  characters not including
 #                     obs-dtext          ;  "[", "]", or "\"
-#                     
-#                    
+#
+#
 BUILD_REGULAR_EXPRESSIONS: {
     my $atom = qr([a-zA-Z0-9_!#\$\%&'*+/=?\^`{}~|\-]+)o;
     my $quoted_string = qr/"(?:\\[^\r\n]|[^\\"])*"/o;
@@ -30,8 +30,11 @@ BUILD_REGULAR_EXPRESSIONS: {
 }
 
 sub is_emailaddress {
+    # @Description  Check that the argument is an email address or not
+    # @Param        (String) Email address
+    # @Return       (Integer) 0 = not email address, 1 = email address
     my $class = shift;
-    my $email = shift || return 0;  # (String) Email address
+    my $email = shift || return 0;
 
     return 0 if $email =~ m{([\x00-\x1f]|\x1f)};
     return 1 if $email =~ $Rx->{'ignored'};
@@ -39,8 +42,11 @@ sub is_emailaddress {
 }
 
 sub is_domainpart {
+    # @Description  Check that the argument is an domain part of email address or not
+    # @Param        (String) Domain part of the email address
+    # @Return       (Integer) 0 = not domain part, 1 = Valid domain part
     my $class = shift;
-    my $dpart = shift || return 0;  # (String) Domain part of an email address
+    my $dpart = shift || return 0;
 
     return 1 if $dpart =~ m{\A[-0-9A-Za-z.]+[.][A-Za-z]+\z};
     return 0;

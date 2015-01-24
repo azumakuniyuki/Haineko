@@ -26,14 +26,19 @@ my $roaccessors = [];
 my $woaccessors = [];
 Class::Accessor::Lite->mk_accessors( @$rwaccessors );
 
-
 sub new {
+    # @Description  Constructor of Haineko::SMTPD::Relay
+    # @Param <arg>  (Hash) Each key in $rwaccessors
+    # @Return       (Haineko::SMTPD::Relay) Object
     my $class = shift;
     my $argvs = { @_ };
     return bless $argvs, __PACKAGE__;
 }
 
 sub defaulthub {
+    # @Description  Default mail hub settings
+    # @Param        <None>
+    # @Return       (Ref->Hash) Mail hub configuration
     my $class = shift;
     return {
         'host' => '127.0.0.1',
@@ -44,14 +49,18 @@ sub defaulthub {
 }
 
 sub sendmail {
+    # @Description  Code for sending email at each class in Relay/*.pm
+    # @Param        <None>
+    # @Return       (Integer)
     my $self = shift;
-    # Code for sending email at each class in Relay/*.pm
     return 0;
 }
 
 sub getbounce {
+    # @Description  Code for getting email bounce at each class in Relay/*.pm
+    # @Param        <None>
+    # @Return       (Integer)
     my $self = shift;
-    # Code for getting email bounce at each class in Relay/*.pm
     return 0;
 }
 

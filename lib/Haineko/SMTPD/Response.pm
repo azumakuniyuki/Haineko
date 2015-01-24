@@ -271,20 +271,25 @@ my $Replies = {
 };
 
 sub new {
+    # @Description  Constructor of Haineko::SMTPD::Response
+    # @Param <arg>  (Hash) Each key in $rwaccessors
+    # @Return       (Haineko::SMTPD::Response) Object
     my $class = shift;
     my $argvs = { @_ };
 
     while(1) {
+        # Check argument: message
         last unless exists $argvs->{'message'};
         last unless ref $argvs->{'message'} eq 'ARRAY';
         last unless scalar @{ $argvs->{'message'} };
 
         for my $r ( @{ $argvs->{'message'} } ) {
+            # The value of "message"
             next unless defined $r;
             chomp $r;
-            $r =~ s|\r\n||g;
-            $r =~ s|\A *||;
-            $r =~ s| *\z||;
+            $r =~ s/\r\n//g;
+            $r =~ s/\A *//;
+            $r =~ s/ *\z//;
         }
         last;
     }
@@ -292,10 +297,15 @@ sub new {
 }
 
 sub r {
+    # @Description  Another constructor of Haineko::SMTPD::Response
+    # @Param <str>  (String) SMTP Command
+    # @Param <str>  (String) Response name
+    # @Param <str>  (String) Additional messages
+    # @Return       (Haineko::SMTPD::Response) Object
     my $class = shift;
-    my $esmtp = shift || return undef;  # (String) SMTP Command
-    my $rname = shift || return undef;  # (String) Response name
-    my $mesgs = shift || [];            # (String) Additional messages
+    my $esmtp = shift || return undef;
+    my $rname = shift || return undef;
+    my $mesgs = shift || [];
     my $argvs = {};
 
     return undef unless grep { $esmtp eq $_ } keys %$Replies;
@@ -313,6 +323,9 @@ sub r {
 }
 
 sub p {
+    # @Description  Another constructor of Haineko::SMTPD::Response
+    # @Param <arg>  (Hash) Each key in %$nekor
+    # @Return       (Haineko::SMTPD::Response) Object
     my $class = shift;
     my $argvs = { @_ };
     my $lines = [];
@@ -328,12 +341,15 @@ sub p {
         'command' => uc( $argvs->{'command'} // q() ),
     };
 
-    $lines = ref $argvs->{'message'} eq 'ARRAY' ? $argvs->{'message'} : [ $argvs->{'message'} ];
+    $lines = ref $argvs->{'message'} eq 'ARRAY' 
+               ? $argvs->{'message'}
+               : [ $argvs->{'message'} ];
+
     while( my $r = shift @$lines ) {
         # Parse the response from external SMTP server
-        $r =~ s|\r\n||g;
-        $r =~ s|\A *||;
-        $r =~ s| *\z||;
+        $r =~ s/\r\n//g;
+        $r =~ s/\A *//;
+        $r =~ s/ *\z//;
         $nekor->{'dsn'} = $1 if $r =~ /\b([2345][.]\d[.]\d+)\b/;
         $nekor->{'code'} = $1 if $r =~ /\b([2345]\d\d)\b/;
         push @{ $nekor->{'message'} }, $r;
@@ -345,8 +361,11 @@ sub p {
 }
 
 sub mesg {
+    # @Description  Add response message
+    # @Param <arg>  (Ref->Array) New messages
+    # @Return       (Haineko::SMTPD::Response) Object
     my $self = shift;
-    my $argv = shift;   # (Ref->Array) New messages
+    my $argv = shift;
     my $mesg = undef;
 
     return $self unless $argv;
@@ -359,10 +378,14 @@ sub mesg {
 }
 
 sub damn {
+    # @Description  Umbless
+    # @Param        <None>
+    # @Return       (Ref->Hash) Umblessed data
     my $self = shift;
     my $smtp = {};
 
     for my $e ( @$rwaccessors, @$roaccessors ) {
+        # Umbless each accessors
         next if $e eq 'greeting';
         $smtp->{ $e } = $self->{ $e };
     }
