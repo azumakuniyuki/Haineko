@@ -59,10 +59,10 @@ sub new {
     $argvs->{'loglevel'}     = 'info' unless grep { $argvs->{'loglevel'} eq $_ } @$LogLevels;
     $argvs->{'disabled'}   //= 0;
     $argvs->{'identity'}     = 'haineko';
-    $argvs->{'queueid'}    //= q();
-    $argvs->{'useragent'}  ||= q();
-    $argvs->{'remoteaddr'} ||= q();
-    $argvs->{'remoteport'} //= q();
+    $argvs->{'queueid'}    //= '';
+    $argvs->{'useragent'}  ||= '';
+    $argvs->{'remoteaddr'} ||= '';
+    $argvs->{'remoteport'} //= '';
 
     if( defined $argvs->{'option'} && ref $argvs->{'option'} eq 'HASH' ) {
         # Set logging options

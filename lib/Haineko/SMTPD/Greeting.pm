@@ -29,7 +29,7 @@ sub new {
         'auth'       => undef,
         'feature'    => [],
         'starttls'   => undef,
-        'greeting'   => q(),
+        'greeting'   => '',
         'mechanism'  => [],
         'pipelining' => undef,
     };

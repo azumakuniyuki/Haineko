@@ -156,7 +156,7 @@ sub err {
     if( ref $mesg eq 'HASH' ) {
         # Respond as a JSON
         require Haineko::SMTPD::Session;
-        my $addr = [ split( ',', $self->req->header('X-Forwarded-For') || q() ) ];
+        my $addr = [ split( ',', $self->req->header('X-Forwarded-For') || '' ) ];
         my $sess = Haineko::SMTPD::Session->new( 
                         'referer'    => $self->req->referer // undef,
                         'response'   => [ $mesg ],

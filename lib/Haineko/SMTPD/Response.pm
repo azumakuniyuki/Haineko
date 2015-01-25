@@ -338,7 +338,7 @@ sub p {
         'error'   => 0,
         'mailer'  => $argvs->{'mailer'} // undef,
         'message' => [],
-        'command' => uc( $argvs->{'command'} // q() ),
+        'command' => uc( $argvs->{'command'} // '' ),
     };
 
     $lines = ref $argvs->{'message'} eq 'ARRAY' 

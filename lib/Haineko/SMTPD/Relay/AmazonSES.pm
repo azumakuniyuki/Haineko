@@ -163,7 +163,7 @@ sub sendmail {
     if( defined $htresponse ) {
         # Check response from API
         my $htcontents = undef;
-        my $htmimetype = $htresponse->content_type || q();
+        my $htmimetype = $htresponse->content_type || '';
         my $nekoparams = { 
             'code'    => $htresponse->code,
             'host'    => SES_ENDPOINT,
@@ -203,7 +203,7 @@ sub sendmail {
                 } catch {
                     # It was not JSON
                     require Haineko::E;
-                    my $v = $htresponse->body || q();
+                    my $v = $htresponse->body || '';
 
                     $nekoparams->{'error'} = 1;
                     $nekoparams->{'message'} = [ Haineko::E->new( $v )->text ] if $v;

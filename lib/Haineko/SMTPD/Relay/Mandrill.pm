@@ -164,7 +164,7 @@ sub sendmail {
                     next unless defined $htcontents->{ $e };
                     push @$v, sprintf( "%s: s", $e, $htcontents->{ $e } );
                 }
-                $self->{'queueid'} = q();
+                $self->{'queueid'} = '';
 
             } elsif( ref $htcontents eq 'ARRAY' ){
                 # Example Response JSON

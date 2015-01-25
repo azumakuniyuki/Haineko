@@ -22,7 +22,7 @@ sub info {
     my $class = shift;
     my $httpd = shift;
 
-    my $xforwarded = [ split( ',', $httpd->req->header('X-Forwarded-For') || q() ) ];
+    my $xforwarded = [ split( ',', $httpd->req->header('X-Forwarded-For') || '' ) ];
     my $remoteaddr = pop @$xforwarded || $httpd->req->address // undef;
     my $ip4network = undef;
 

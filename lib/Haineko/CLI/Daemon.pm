@@ -270,7 +270,7 @@ sub parseoptions {
         for my $g ( @dirs ) {
             # Find haineko.cf
             my $f = sprintf( "%s/etc/haineko.cf", $g );
-            my $v = $r & $opts->{'test'} ? $f.'-debug' : q();
+            my $v = $r & $opts->{'test'} ? $f.'-debug' : '';
 
             if( $v && -f $v && -s _ && -r _ ) {
                 # etc/haineko.cf-debug exists;

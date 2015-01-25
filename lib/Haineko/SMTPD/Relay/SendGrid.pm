@@ -158,8 +158,8 @@ sub getbounce {
         'days'       => 1,
         'email'      => $self->{'rcpt'},
         'limit'      => 1,
-        'api_key'    => $self->{'password'} // q(),
-        'api_user'   => $self->{'username'} // q(),
+        'api_key'    => $self->{'password'} // '',
+        'api_user'   => $self->{'username'} // '',
         'start_date' => $yesterday1->ymd('-'),
     };
 
