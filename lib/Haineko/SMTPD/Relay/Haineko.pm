@@ -9,6 +9,9 @@ use Haineko::JSON;
 use Haineko::SMTPD::Response;
 
 sub new {
+    # @Description  Constructor of Haineko::SMTPD::Relay::Haineko
+    # @Param <arg>  (Hash) Each key in $Haineko::SMTPD::Relay::rwaccessors
+    # @Return       (Haineko::SMTPD::Relay::Haineko) Object
     my $class = shift;
     my $argvs = { @_ };
 
@@ -19,6 +22,9 @@ sub new {
 }
 
 sub sendmail {
+    # @Description  Code for sending email
+    # @Param        <None>
+    # @Return       (Integer) 1 = Sent, 0 = Failed to send
     my $self = shift;
 
     my $hainekourl = sprintf( "http://%s:%d/submit", $self->{'host'}, $self->{'port'} );
@@ -35,6 +41,7 @@ sub sendmail {
     };
 
     if( $self->{'head'}->{'Reply-To'} ) {
+        # Set the value of "Reply-To" header into parameters
         $parameters->{'header'}->{'replyto'} = $self->{'head'}->{'Reply-To'};
     }
 
@@ -62,6 +69,7 @@ sub sendmail {
     my $retryuntil = $self->{'retry'} || 0;
 
     my $sendmailto = sub {
+        # Connect to other Haineko server and post message as a JSON
         $htresponse = $httpclient->post( $hainekourl, $httpheader, $jsonstring );
 
         return 0 unless defined $htresponse;
@@ -72,6 +80,7 @@ sub sendmail {
     };
 
     while(1) {
+        # Send message until the number of "retry".
         last if $sendmailto->();
         last if $retryuntil == 0;
 
@@ -101,28 +110,32 @@ sub sendmail {
         } else {
             # Received as a JSON ?
             try {
-                my $c = $htresponse->body || q();
+                # Try to parse HTTP response
+                my $c = $htresponse->body || '';
                 my $v = {};
 
                 if( $c =~ m/(Failed to send HTTP request)/ ) {
                     # Failed to send HTTP request
                     # $htcontents = { 'response' => $1 };
                     $nekoparams->{'message'} = [ $1 ];
+
                 } else {
                     # Response maybe JSON
                     $htcontents = Haineko::JSON->loadjson( $c ) || {};
                     $v = $htcontents->{'response'} || {};
                     $nekoparams->{'dsn'} ||= $v->{'dsn'};
-                    push @{ $nekoparams->{'message'} }, ( $v->{'message'}->[-1] || q() );
+                    push @{ $nekoparams->{'message'} }, ( $v->{'message'}->[-1] || '' );
                 }
 
             } catch {
-
+                # Failed to parse HTTP response
                 $nekoparams->{'message'}->[0] = $_;
             };
             $self->response( Haineko::SMTPD::Response->new( %$nekoparams ) );
         }
+
     } else {
+        # No HTTP response
         $self->response( Haineko::SMTPD::Response->r( 'conn', 'cannot-connect' ) );
         map { $self->response->{ $_ } = $self->{ $_ } } ( qw|host port rcpt| );
     }

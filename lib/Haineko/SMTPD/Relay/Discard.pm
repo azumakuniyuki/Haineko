@@ -6,6 +6,9 @@ use Time::Piece;
 use Haineko::SMTPD::Response;
 
 sub new {
+    # @Description  Constructor of Haineko::SMTPD::Relay::Discard
+    # @Param <arg>  (Hash) Each key in $Haineko::SMTPD::Relay::rwaccessors
+    # @Return       (Haineko::SMTPD::Relay::Discard) Object
     my $class = shift;
     my $argvs = { @_ };
 
@@ -18,6 +21,9 @@ sub new {
 }
 
 sub sendmail {
+    # @Description  Code for discarding email
+    # @Param        <None>
+    # @Return       (Integer) 1 = Always return 1
     my $self = shift;
 
     $self->response( Haineko::SMTPD::Response->r( 'data', 'discard' ) );

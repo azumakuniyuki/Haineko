@@ -11,6 +11,9 @@ use Time::Piece;
 use Encode;
 
 sub new {
+    # @Description  Constructor of Haineko::SMTPD::Relay::ESMTP
+    # @Param <arg>  (Hash) Each key in $Haineko::SMTPD::Relay::rwaccessors
+    # @Return       (Haineko::SMTPD::Relay::ESMTP) Object
     my $class = shift;
     my $argvs = { @_ };
 
@@ -21,6 +24,9 @@ sub new {
 }
 
 sub sendmail {
+    # @Description  Code for sending email
+    # @Param        <None>
+    # @Return       (Integer) 1 = Sent, 0 = Failed to send
     my $self = shift;
 
     my $esmtpclass = $self->{'starttls'} ? 'Net::SMTPS' : 'Net::SMTP';
@@ -44,12 +50,12 @@ sub sendmail {
         next if $e eq 'MIME-Version';
 
         if( ref $self->{'head'}->{ $e } eq 'ARRAY' ) {
-
+            # Such as Received: header
             for my $f ( @{ $self->{'head'}->{ $e } } ) {
                 push @$headerlist, $e => $f;
             }
-        }
-        else { 
+
+        } else { 
             push @$headerlist, $e => $self->{'head'}->{ $e };
         }
     }
@@ -77,12 +83,12 @@ sub sendmail {
     my $authensasl = undef;
     my $nekogreets = undef;
     my $smtpstatus = 0;
-    my $thecommand = q();
-    my $pipelining = q();
+    my $thecommand = '';
+    my $pipelining = '';
     my $retryuntil = $self->{'retry'} || 0;
 
     my $sendmailto = sub {
-
+        # Connect to other SMTP server via ESMTP
         $thecommand = 'ehlo';
         return 0 unless $netsmtpobj = $esmtpclass->new( $self->{'host'}, %$smtpparams );
         $nekogreets = Haineko::SMTPD::Greeting->new( $netsmtpobj->message );
@@ -149,6 +155,7 @@ sub sendmail {
     };
 
     while(1) {
+        # Send message until the number of "retry".
         last if $sendmailto->();
         last if $retryuntil == 0;
 

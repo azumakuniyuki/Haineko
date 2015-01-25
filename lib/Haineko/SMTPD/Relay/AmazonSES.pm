@@ -15,6 +15,9 @@ use constant 'SES_ENDPOINT' => 'email.us-east-1.amazonaws.com';
 use constant 'SES_APIVERSION' => '2010-12-01';
 
 sub new {
+    # @Description  Constructor of Haineko::SMTPD::Relay::AmazonSES
+    # @Param <arg>  (Hash) Each key in $Haineko::SMTPD::Relay::rwaccessors
+    # @Return       (Haineko::SMTPD::Relay::AmazonSES) Object
     my $class = shift;
     my $argvs = { @_ };
 
@@ -25,6 +28,10 @@ sub new {
 }
 
 sub sign {
+    # @Description  Generate signature for relaying via AmazonSES
+    # @Param <text> (String) Text
+    # @Param <key>  (String) Key
+    # @Return       (String) Signature string
     my $class = shift;
     my $value = shift;  # (String) Text
     my $skeyv = shift;  # (String) Key
@@ -37,6 +44,9 @@ sub sign {
 }
 
 sub sendmail {
+    # @Description  Code for sending email
+    # @Param        <None>
+    # @Return       (Integer) 1 = Sent, 0 = Failed to send
     my $self = shift;
 
     if( ! $self->{'username'} || ! $self->{'password'} ) {
@@ -102,7 +112,7 @@ sub sendmail {
     };
 
     # AWS3 AWSAccessKeyId=AKIAIOSFODNN7EXAMPLE,Signature=lBP67vCvGlDMBQ=dofZxg8E8SUEXAMPLE,Algorithm=HmacSHA256,SignedHeaders=Date;Host
-    my $headerkeys = [ 'AWSAccessKeyId', 'Signature', 'Algorithm' ];
+    my @headerkeys = ( 'AWSAccessKeyId', 'Signature', 'Algorithm' );
     my $reqheaders = {
         'Date' => $datestring,
         'Host' => SES_ENDPOINT,
@@ -113,8 +123,7 @@ sub sendmail {
         'Algorithm' => 'HmacSHA256',
         'SignedHeaders' => 'Date',
     };
-    my $authheader = join( ', ', map { sprintf( "%s=%s", $_, $identifier->{ $_ } ) } @$headerkeys );
-
+    my $authheader = join( ', ', map { sprintf( "%s=%s", $_, $identifier->{ $_ } ) } @headerkeys );
 
     $methodargv = { 
         'agent' => $self->{'ehlo'},
@@ -143,6 +152,7 @@ sub sendmail {
     };
 
     while(1) {
+        # Send message until the number of "retry".
         last if $sendmailto->();
         last if $retryuntil == 0;
 
@@ -168,6 +178,7 @@ sub sendmail {
         if( $htmimetype eq 'text/xml' ) {
             # text/xml
             try { 
+                # Try to load the module
                 require XML::Simple;
 
             } catch {

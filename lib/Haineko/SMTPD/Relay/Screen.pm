@@ -8,20 +8,26 @@ use Time::Piece;
 use Encode;
 
 sub new {
+    # @Description  Constructor of Haineko::SMTPD::Relay::Screen
+    # @Param <arg>  (Hash) Each key in $Haineko::SMTPD::Relay::rwaccessors
+    # @Return       (Haineko::SMTPD::Relay::Screen) Object
     my $class = shift;
     my $argvs = { @_ };
 
-    $argvs->{'host'}      = undef,
-    $argvs->{'port'}      = undef,
-    $argvs->{'time'}    ||= Time::Piece->new;
-    $argvs->{'sleep'}     = 0;
-    $argvs->{'retry'}     = 0;
-    $argvs->{'timeout'}   = 0;
-    $argvs->{'startls'}   = 0;
+    $argvs->{'host'}    = undef,
+    $argvs->{'port'}    = undef,
+    $argvs->{'time'}  ||= Time::Piece->new;
+    $argvs->{'sleep'}   = 0;
+    $argvs->{'retry'}   = 0;
+    $argvs->{'timeout'} = 0;
+    $argvs->{'startls'} = 0;
     return bless $argvs, __PACKAGE__;
 }
 
 sub sendmail {
+    # @Description  Code for printing email
+    # @Param        <None>
+    # @Return       (Integer) 1 = Printed, 0 = Failed to print
     my $self = shift;
 
     my $headerlist = [];
@@ -44,12 +50,12 @@ sub sendmail {
         next if $e eq 'MIME-Version';
 
         if( ref $self->{'head'}->{ $e } eq 'ARRAY' ) {
-
+            # Such as Received: header
             for my $f ( @{ $self->{'head'}->{ $e } } ) {
                 push @$headerlist, $e => $f;
             }
-        }
-        else { 
+
+        } else { 
             push @$headerlist, $e => $self->{'head'}->{ $e };
         }
     }

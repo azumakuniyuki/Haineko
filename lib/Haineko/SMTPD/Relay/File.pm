@@ -10,20 +10,26 @@ use IO::File;
 use Encode;
 
 sub new {
+    # @Description  Constructor of Haineko::SMTPD::Relay::File
+    # @Param <arg>  (Hash) Each key in $Haineko::SMTPD::Relay::rwaccessors
+    # @Return       (Haineko::SMTPD::Relay::File) Object
     my $class = shift;
     my $argvs = { @_ };
 
-    $argvs->{'host'}    ||= '/tmp';
-    $argvs->{'port'}      = undef,
-    $argvs->{'time'}    ||= Time::Piece->new;
-    $argvs->{'sleep'}     = 0;
-    $argvs->{'retry'}     = 0;
-    $argvs->{'timeout'}   = 0;
-    $argvs->{'startls'}   = 0;
+    $argvs->{'host'}  ||= '/tmp';
+    $argvs->{'port'}    = undef,
+    $argvs->{'time'}  ||= Time::Piece->new;
+    $argvs->{'sleep'}   = 0;
+    $argvs->{'retry'}   = 0;
+    $argvs->{'timeout'} = 0;
+    $argvs->{'startls'} = 0;
     return bless $argvs, __PACKAGE__;
 }
 
 sub sendmail {
+    # @Description  Code for saving email to a file
+    # @Param        <None>
+    # @Return       (Integer) 1 = Sent, 0 = Failed to send
     my $self = shift;
 
     my $headerlist = [];
@@ -46,12 +52,12 @@ sub sendmail {
         next if $e eq 'MIME-Version';
 
         if( ref $self->{'head'}->{ $e } eq 'ARRAY' ) {
-
+            # Such as Received: header
             for my $f ( @{ $self->{'head'}->{ $e } } ) {
                 push @$headerlist, $e => $f;
             }
-        }
-        else { 
+
+        } else { 
             push @$headerlist, $e => $self->{'head'}->{ $e };
         }
     }
@@ -64,7 +70,7 @@ sub sendmail {
 
     if( exists $self->{'head'}->{'Message-Id'} ) {
         # Use the local part of the Message-Id header as a file name.
-        $messageid0 = [ split( '@', $self->{'head'}->{'Message-Id'} ) ]->[0];
+        $messageid0 = (split( '@', $self->{'head'}->{'Message-Id'} ))[0];
 
     } else {
         # Message-Id header is not defined or does not exist
@@ -81,6 +87,7 @@ sub sendmail {
     my $smtpstatus = 0;
 
     try {
+        # Try to save the email message to the file
         $outputfile =~ y{/}{}s;
         $smtpparams = {
             'dsn'     => undef,
@@ -102,6 +109,7 @@ sub sendmail {
         $smtpstatus = 1;
 
     } catch {
+        # Failed to save
         require Haineko::E;
         my $E = Haineko::E->new( $_ );
         $smtpparams->{'code'} = 400;

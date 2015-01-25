@@ -20,6 +20,9 @@ my $rwaccessors = [
 Class::Accessor::Lite->mk_accessors( @$rwaccessors );
 
 sub new {
+    # @Description  Constructor of Haineko::SMTPD::Relay::Mandrill
+    # @Param <arg>  (Hash) Each key in $Haineko::SMTPD::Relay::rwaccessors
+    # @Return       (Haineko::SMTPD::Relay::Mandrill) Object
     my $class = shift;
     my $argvs = { @_ };
 
@@ -31,6 +34,9 @@ sub new {
 }
 
 sub sendmail {
+    # @Description  Code for sending email
+    # @Param        <None>
+    # @Return       (Integer) 1 = Sent, 0 = Failed to send
     my $self = shift;
 
     if( not $self->{'password'} ) {
@@ -75,12 +81,12 @@ sub sendmail {
         next if $e eq 'MIME-Version';
 
         if( ref $self->{'head'}->{ $e } eq 'ARRAY' ) {
-
+            # Such as Received: header
             for my $f ( @{ $self->{'head'}->{ $e } } ) {
                 push @$headerlist, $e => $f;
             }
-        }
-        else { 
+
+        } else { 
             push @$headerlist, $e => $self->{'head'}->{ $e };
         }
     }
@@ -106,6 +112,7 @@ sub sendmail {
     my $smtpstatus = 0;
 
     my $sendmailto = sub {
+        # Connect to Mandrill via HTTPS
         $htresponse = $httpclient->post( $mandrillep, undef, $htrequest1 );
 
         return 0 unless defined $htresponse;
@@ -116,6 +123,7 @@ sub sendmail {
     };
 
     while(1) {
+        # Send message until the number of "retry".
         last if $sendmailto->();
         last if $retryuntil == 0;
 
@@ -177,9 +185,9 @@ sub sendmail {
                         $self->{'queueid'} ||= $r->{ $e } if $e eq '_id';
                     }
                 }
-            } 
+            }
             push @{ $nekoparams->{'message'} }, @$v;
-        
+
         } catch {
             # It was not JSON
             require Haineko::E;
@@ -194,6 +202,9 @@ sub sendmail {
 }
 
 sub getbounce {
+    # @Description  Get the bounce data from Mandiril via HTTP-API
+    # @Param        <None>
+    # @Return       (Integer) 1 = Got, 0 = Failed to get
     my $self = shift;
 
     return 0 unless $self->{'password'};

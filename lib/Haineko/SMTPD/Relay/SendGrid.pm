@@ -13,6 +13,9 @@ use constant 'SENDGRID_ENDPOINT' => 'sendgrid.com';
 use constant 'SENDGRID_APIVERSION' => '';
 
 sub new {
+    # @Description  Constructor of Haineko::SMTPD::Relay::SendGrid
+    # @Param <arg>  (Hash) Each key in $Haineko::SMTPD::Relay::rwaccessors
+    # @Return       (Haineko::SMTPD::Relay::SendGrid) Object
     my $class = shift;
     my $argvs = { @_ };
 
@@ -23,6 +26,9 @@ sub new {
 }
 
 sub sendmail {
+    # @Description  Code for sending email
+    # @Param        <None>
+    # @Return       (Integer) 1 = Sent, 0 = Failed to send
     my $self = shift;
 
     if( ! $self->{'username'} || ! $self->{'password'} ) {
@@ -47,16 +53,15 @@ sub sendmail {
         'from'      => $self->{'mail'},
         'date'      => $self->{'head'}->{'Date'},
         'subject'   => $self->{'head'}->{'Subject'},
-        'headers'   => q(),
-        'api_key'   => $self->{'password'} // q(),
-        'api_user'  => $self->{'username'} // q(),
+        'headers'   => '',
+        'api_key'   => $self->{'password'} // '',
+        'api_user'  => $self->{'username'} // '',
         'fromname'  => $self->{'head'}->{'From'},
-        'x-smtpapi' => q(),
+        'x-smtpapi' => '',
     };
 
-    my $usedheader = [ 'Date', 'Subject', 'From' ];
     my $jsonheader = {};
-    my $identifier = [ split( '@', $self->{'head'}->{'Message-Id'} ) ]->[0];
+    my $identifier = (split( '@', $self->{'head'}->{'Message-Id'} ))[0];
 
     for my $e ( keys %{ $self->{'head'} } ) {
         # Prepare email headers except headers which begin with ``X-''
@@ -84,6 +89,7 @@ sub sendmail {
     my $smtpstatus = 0;
 
     my $sendmailto = sub {
+        # Connect to SendGrid via HTTPS
         $htresponse = $httpclient->post( $sendgridep, undef, $parameters );
 
         return 0 unless defined $htresponse;
@@ -94,6 +100,7 @@ sub sendmail {
     };
 
     while(1) {
+        # Send message until the number of "retry".
         last if $sendmailto->();
         last if $retryuntil == 0;
 

@@ -104,7 +104,7 @@ sub make_queueid {
 
     while(1) {
         # Generate queue id
-        $idstr .= $chars->[ int rand( scalar( @chars ) ) ];
+        $idstr .= $chars[ int rand( scalar( @chars ) ) ];
         last if length $idstr == $size1;
     }
     return $idstr; 
