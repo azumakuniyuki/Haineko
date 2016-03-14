@@ -4,16 +4,19 @@ use strict;
 use warnings;
 use parent 'Haineko::HTTPD';
 
-our $VERSION = '0.2.16';
+our $VERSION = '0.2.17';
 our $SYSNAME = 'Haineko';
 
 sub startup {
+    # @Description  Start Haineko server
+    # @Param <obj>  (Haineko::HTTPD) httpd object
+    # @Return       (Haineko::Response) Response object
     my $class = shift;
     my $httpd = shift;  # (Haineko::HTTPD);
 
     my $nekorouter = $httpd->router;
     my $serverconf = $httpd->conf;
-    my $servername = $ENV{'HOSTNAME'} || $ENV{'SERVER_NAME'} || qx(hostname) || q();
+    my $servername = $ENV{'HOSTNAME'} || $ENV{'SERVER_NAME'} || qx(hostname) || '';
     chomp $servername;
 
     $serverconf->{'smtpd'}->{'system'} = $SYSNAME;
@@ -41,8 +44,8 @@ Haineko - HTTP API into ESMTP
 
 =head1 DESCRIPTION
 
-Haineko is a HTTP-API server for sending email. It runs as a web server on 
-port 2794 using Plack. 
+Haineko is a HTTP-API server for sending email. It runs as a web server on port
+2794 using Plack.
 
 Haineko stands for B<H>TTP B<A>PI B<IN>TO B<E>SMTP B<K>=undef B<O>=undef, means
 a gray cat.
