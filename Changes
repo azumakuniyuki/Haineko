@@ -1,5 +1,9 @@
 Revision history for Haineko
 
+0.2.17
+    - Update cpanfile, require Server::Starter 0.19 or later. 
+      See http://astj.hatenablog.com/entry/2015/01/15/231225
+
 0.2.16  Sat, 25 Jan 2014 21:00:22 +0900 (JST)
     - Fixed code at lib/Haineko/SMTPD/Relay/Haineko.pm reported at CPAN Testers
       Report 54826936-84d9-11e3-bb3c-11f7f1eb6092, Thanks to Victor Efimov.
