@@ -24,6 +24,8 @@ GIT   = /usr/bin/git
 CTL   = ./bin/hainekoctl
 PID   = ./run/haineko.pid
 
+.DEFAULT_GOAL = git-status
+# -----------------------------------------------------------------------------
 .PHONY: clean
 
 start:
@@ -81,6 +83,9 @@ dist: start
 	$(CP) /tmp/$(NAME)-README.$(TIME).md ./README.md
 	$(PERL) -i -ple 's|<.+[@]gmail.com>|<perl.org\@azumakuniyuki.org>|' META.json
 	test -n $$HAINEKO_PROC && $(CTL) stop
+
+git-status:
+	git status
 
 push:
 	for G in pchan github; do \
